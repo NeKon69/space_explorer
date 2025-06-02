@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(hash_map VERSION 1.0 LANGUAGES C CXX)
+project(space_explorer VERSION 1.0 LANGUAGES C CXX)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 23)
@@ -8,6 +8,10 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(SDL3 REQUIRED CONFIG)
+find_package(glad REQUIRED CONFIG)
+
 
 file(GLOB_RECURSE SOURCES src/*.c src/*.cpp tests/src/*.c tests/src/*.cpp)
 
@@ -35,3 +39,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:Clang>>:-Os>
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:MSVC>>:/Os>
 )
+
+
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad)
