@@ -25,8 +25,8 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 
         $<$<CONFIG:Debug>:-g>
         $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/Zi>
-        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU>>:-Og>
-        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-Og>
+        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU>>:-O0>
+        $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-O0>
 
         $<$<CONFIG:Release>:-O3>
         $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>>:/Ox>
@@ -39,6 +39,15 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:Clang>>:-Os>
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:MSVC>>:/Os>
 )
+
+set(RUNTIME_OUTPUT_DIR $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+set(SOURCE_SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders)
+if(EXISTS "${SOURCE_SHADER_DIR}")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            "${SOURCE_SHADER_DIR}" "${RUNTIME_OUTPUT_DIR}/shaders" VERBATIM)
+else()
+    message(WARNING "shaders directory not found: ${SOURCE_SHADER_DIR}")
+endif()
 
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad)
