@@ -9,12 +9,17 @@
 
 int main(int argc, char* argv[]) {
 	// Define vertices position on the screen (openGL uses normalized values for some reason)
-	float sq_pos[] = {
+	float triangle_pos_1[] = {
 		-0.5f, -0.5f, 0.0f,
 		 0.5f, -0.5f, 0.0f,
-		 0.5f,  0.5f, 0.0f,
-		-0.5f,  0.5f, 0.0f
+		 0.5f,  0.5f, 0.0f
 	};
+	float triangle_pos_2[] = {
+		0.5f,  0.5f, 0.0f,
+		-0.5f,  0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f
+	};
+	
 	// What openGL should draw for me, in this example if library follows the given array drawing steps, we will get a square made out of 2 triangles
 	unsigned int indices[] = {
 		0, 1, 2,
@@ -93,32 +98,43 @@ int main(int argc, char* argv[]) {
 
 	std::cout << "GLAD initialized successfully!" << std::endl;
 
-	// Create vertex array object and bind it
-	unsigned int VAO = 0;
-	glGenVertexArrays(1, &VAO);
-	glBindVertexArray(VAO);
+	// Create vertex array object and bind it for the first triangle
+	unsigned int vao_1 = 0;
+	glGenVertexArrays(1, &vao_1);
+	glBindVertexArray(vao_1);
 
 	// Create vertex buffer object and bind it
-	unsigned int VBO = 0;
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	unsigned int vbo_1 = 0;
+	glGenBuffers(1, &vbo_1);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_1);
 
 	// Bind the vertex data to the buffer
-	glBufferData(GL_ARRAY_BUFFER, sizeof(sq_pos), sq_pos, GL_STATIC_DRAW); // Here we are passing the vertex data to the GPU
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_pos_1), triangle_pos_1, GL_STATIC_DRAW); // Here we are passing the vertex data to the GPU
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr); // 0 is the index of the vertex attribute, 3 is the number of components per vertex (x, y, z), GL_FLOAT is the type of each component, GL_FALSE means we don't normalize the data, and the last parameter is the offset in bytes (nullptr means start at the beginning)
 	glEnableVertexAttribArray(0); // Enable the vertex attribute at index 0
-
-
-	// Create element buffer object and bind it (it's used for indexed drawing)
-	unsigned int EBO = 0;
-	glGenBuffers(1, &EBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); // here we are passing what indices to use for drawing the vertices
 
 	// Unbind all the buffers and vertex array
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// Initialize the second vertex array object and bind it for the second triangle
+	unsigned int vao_2 = 0;
+	glGenVertexArrays(1, &vao_2);
+	glBindVertexArray(vao_2);
+
+	// Create vertex buffer object and bind it
+	unsigned int vbo_2 = 0;
+	glGenBuffers(1, &vbo_2);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_2);
+
+	// Bind the vertex data to the buffer for the second triangle
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_pos_2), triangle_pos_2, GL_STATIC_DRAW); // Here we are passing the vertex data to the GPU
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr); // 0 is the index of the vertex attribute, 3 is the number of components per vertex (x, y, z), GL_FLOAT is the type of each component, GL_FALSE means we don't normalize the data, and the last parameter is the offset in bytes (nullptr means start at the beginning)
+	glEnableVertexAttribArray(0); // Enable the vertex attribute at index 0
+
+	// Unbind all the buffers and vertex array
+	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
 	// Members to check for shader compilation errors
@@ -183,9 +199,10 @@ int main(int argc, char* argv[]) {
 			}
 		}
 		glClear(GL_COLOR_BUFFER_BIT);
-		glBindVertexArray(VAO); // Bind the vertex array object
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr); // Draw the square using the indices
-		glBindVertexArray(0); // Unbind the vertex array object after drawing
+		glBindVertexArray(vao_1); // Bind the vertex array object
+		glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the vertices using the vertex array object, GL_TRIANGLES means we will draw triangles, 0 is the starting index, and 6 is the number of vertices to draw
+		glBindVertexArray(vao_2); // Unbind the vertex array object after drawing
+		glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the second triangle
 		SDL_GL_SwapWindow(window);
 	}
 
