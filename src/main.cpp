@@ -1,26 +1,23 @@
 //
 // Created by progamers on 6/2/25.
 //
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include <SDL3/SDL.h>
-#include <glm/vec4.hpp>
-#include <glm/vec3.hpp>
 #include <glad/glad.h>
+#include "shader.h"
 #include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cmath>
+#include <memory>
 
 int main(int argc, char* argv[]) {
-	// Define vertices position on the screen (openGL uses normalized values for some reason)
+	stbi_set_flip_vertically_on_load(true);
+
 	float triangle_pos_1[] = {
-		-0.5f, -0.5f, 0.0f,
-		 0.5f, -0.5f, 0.0f,
-		 0.5f,  0.5f, 0.0f
-	};
-	float triangle_pos_2[] = {
-		0.5f,  0.5f, 0.0f,
-		-0.5f,  0.5f, 0.0f,
-		-0.5f, -0.5f, 0.0f
+		// positions         // colors         // texture coords
+		0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+		0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left
 	};
 	
 	// What openGL should draw for me, in this example if library follows the given array drawing steps, we will get a square made out of 2 triangles
@@ -28,31 +25,6 @@ int main(int argc, char* argv[]) {
 		0, 1, 2,
 		2, 3, 0
 	};
-	// Try open the header file
-	std::ifstream header_file("shaders/vertex_shader.glsl");
-	if (!header_file.is_open()) {
-		std::cerr << "Failed to open shader file." << std::endl;
-		return 1;
-	}
-	// Add it's content to the string stream
-	std::stringstream buffer;
-	buffer << header_file.rdbuf();
-	// Then pass it into const char* via some machinations
-	const char* glsl_content;
-	std::string glsl_content_str = buffer.str();
-	glsl_content = glsl_content_str.c_str();
-
-	std::ifstream header_file_2("shaders/color_shader.frag");
-	if (!header_file_2.is_open()) {
-		std::cerr << "Failed to open fragment shader file." << std::endl;
-		return 1;
-	}
-	std::stringstream buffer_2;
-	buffer_2 << header_file_2.rdbuf();
-	const char* frag_content;
-	std::string frag_content_str = buffer_2.str();
-	frag_content = frag_content_str.c_str();
-
 
 	// Initialize SDL
 	if(!SDL_Init(SDL_INIT_VIDEO)) {
@@ -99,7 +71,33 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 	std::cout << "GLAD initialized successfully!" << std::endl;
+
+	int width_image = 0, height_image = 0, nrChannels = 0;
+	unsigned char *data = stbi_load("images/neofetch5.png", &width_image, &height_image, &nrChannels, 0);
+
+	std::unique_ptr<unsigned char, void (*)(void*)> textureData(data, stbi_image_free);
+
+	if (textureData) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_image, height_image, 0, GL_RGB,
+					 GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		std::cerr << "Failed to load texture " << stbi_failure_reason() << std::endl;
+		SDL_GL_DestroyContext(gl_context);
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+		return 1;
+	}
 
 	// Create vertex array object and bind it for the first triangle
 	unsigned int vao_1 = 0;
@@ -113,81 +111,28 @@ int main(int argc, char* argv[]) {
 
 	// Bind the vertex data to the buffer
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_pos_1), triangle_pos_1, GL_STATIC_DRAW); // Here we are passing the vertex data to the GPU
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr); // 0 is the index of the vertex attribute, 3 is the number of components per vertex (x, y, z), GL_FLOAT is the type of each component, GL_FALSE means we don't normalize the data, and the last parameter is the offset in bytes (nullptr means start at the beginning)
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr); // 0 is the index of the vertex attribute, 3 is the number of components per vertex (x, y, z), GL_FLOAT is the type of each component, GL_FALSE means we don't normalize the data, and the last parameter is the offset in bytes (nullptr means start at the beginning)
 	glEnableVertexAttribArray(0); // Enable the vertex attribute at index 0
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float))); // 1 is the index of the color attribute, 3 is the number of components per color (r, g, b), GL_FLOAT is the type of each component, GL_FALSE means we don't normalize the data, and the last parameter is the offset in bytes (3 * sizeof(float) means start after the position data)
+	glEnableVertexAttribArray(1); // Enable the vertex attribute at index 1
+
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float))); // 2 is the index of the texture coordinate attribute, 2 is the number of components per texture coordinate (u, v), GL_FLOAT is the type of each component, GL_FALSE means we don't normalize the data, and the last parameter is the offset in bytes (6 * sizeof(float) means start after the color data)
+	glEnableVertexAttribArray(2); // Enable the vertex attribute at index 2
+
+	unsigned int ebo_1 = 0;
+
+	// Create element buffer object and bind it
+	glGenBuffers(1, &ebo_1);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_1);
+	// Bind the index data to the buffer
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); // Here we are passing the index data to the GPU
+	// Unbind the vertex array object and the buffer
 
 	// Unbind all the buffers and vertex array
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Initialize the second vertex array object and bind it for the second triangle
-	unsigned int vao_2 = 0;
-	glGenVertexArrays(1, &vao_2);
-	glBindVertexArray(vao_2);
-
-	// Create vertex buffer object and bind it
-	unsigned int vbo_2 = 0;
-	glGenBuffers(1, &vbo_2);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_2);
-
-	// Bind the vertex data to the buffer for the second triangle
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_pos_2), triangle_pos_2, GL_STATIC_DRAW); // Here we are passing the vertex data to the GPU
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr); // 0 is the index of the vertex attribute, 3 is the number of components per vertex (x, y, z), GL_FLOAT is the type of each component, GL_FALSE means we don't normalize the data, and the last parameter is the offset in bytes (nullptr means start at the beginning)
-	glEnableVertexAttribArray(0); // Enable the vertex attribute at index 0
-
-	// Unbind all the buffers and vertex array
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-	// Members to check for shader compilation errors
-	int  success;
-	char infoLog[512];
-
-	// Shaders and the program
-	unsigned int shader_program = glCreateProgram(); // Create a shader program
-	unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &glsl_content, nullptr); // Load the fragment shader source code vertex_shader is the shader ID, 1
-	glCompileShader(vertex_shader); // Compile the vertex shader
-	// Then check for the compilation errors
-	glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
-	if(!success) {
-		glGetShaderInfoLog(vertex_shader, 512, nullptr, infoLog);
-		std::cerr << "Vertex shader compilation failed: " << infoLog << std::endl;
-		exit(1);
-	}
-
-	glShaderSource(fragment_shader, 1, &frag_content, nullptr); // Load the fragment shader source code
-	glCompileShader(fragment_shader); // Compile the fragment shader
-	// Then check for the compilation errors
-	// It's good to mention that we pretend to go to next functions only if previous steps were successful, that means infoLog will be empty
-	glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
-	if(!success) {
-		glGetShaderInfoLog(fragment_shader, 512, nullptr, infoLog);
-		std::cerr << "Fragment shader compilation failed: " << infoLog << std::endl;
-		exit(1);
-	}
-
-	glAttachShader(shader_program, vertex_shader); // Attach the vertex shader to the program
-	glAttachShader(shader_program, fragment_shader); // Attach the fragment shader to the program
-
-	glLinkProgram(shader_program); // Link the program
-	glGetProgramiv(shader_program, GL_LINK_STATUS, &success); // Check for linking errors
-	if(!success) {
-		glGetProgramInfoLog(shader_program, 512, nullptr, infoLog);
-		std::cerr << "Shader program linking failed: " << infoLog << std::endl;
-		exit(1);
-	}
-
-	glDeleteShader(vertex_shader);
-	glDeleteShader(fragment_shader);
-
-	unsigned int shader_mode_location = glGetUniformLocation(shader_program, "smth");
-	if(shader_mode_location == (unsigned int)-1) {
-		std::cerr << "Failed to get uniform location for smth." << std::endl;
-		exit(1);
-	}
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // Unbind the vertex buffer object
 
 	// Set the viewport to the window size
 	int width, height;
@@ -198,8 +143,12 @@ int main(int argc, char* argv[]) {
 	bool running = true;
 	SDL_Event event;
 
-	glUseProgram(shader_program); // Use the shader program we created
 	glClearColor(0.5f, 0.0f, 0.0f, 1.0f); // Set the clear color to a dark blue
+
+	raw::shader shader_program("shaders/vertex_shader.glsl", "shaders/color_shader.frag");
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	while(running) {
 		while(SDL_PollEvent(&event)) {
@@ -208,21 +157,16 @@ int main(int argc, char* argv[]) {
 				running = false;
 			}
 		}
-		unsigned int timeValue = SDL_GetTicks();
-		unsigned int timeInCycle = timeValue % 2000;
-		float normalizedValue = (float)timeInCycle / 2000;
 
-		float greenValue = cos(normalizedValue);
-		glm::vec4 color = glm::vec4(sin(normalizedValue), greenValue, tan(normalizedValue), 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT); // Clear the screen and depth buffer
-		glUseProgram(shader_program);
+		shader_program.use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		shader_program.set_int("our_texture", 0);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glBindVertexArray(vao_1); // Bind the vertex array object
-		glUniform4f(shader_mode_location, color.x, color.y, color.z, color.w);
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the vertices using the vertex array object, GL_TRIANGLES means we will draw triangles, 0 is the starting index, and 6 is the number of vertices to draw
-		glBindVertexArray(vao_2); // Unbind the vertex array object after drawing
-		glUniform4f(shader_mode_location, color.y, color.z, color.x, color.w);
-		glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the second triangle
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_1);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 		SDL_GL_SwapWindow(window);
 	}
 

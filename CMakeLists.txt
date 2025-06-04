@@ -49,5 +49,12 @@ else()
     message(WARNING "shaders directory not found: ${SOURCE_SHADER_DIR}")
 endif()
 
+set(IMAGES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/images)
+if(EXISTS "${IMAGES_DIR}")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
+            "${IMAGES_DIR}" "${RUNTIME_OUTPUT_DIR}/images" VERBATIM)
+else()
+    message(WARNING "images directory not found: ${IMAGES_DIR}")
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad)
