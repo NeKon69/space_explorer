@@ -2,10 +2,13 @@
 // Created by progamers on 6/2/25.
 //
 #include <SDL3/SDL.h>
+#include <glm/vec4.hpp>
+#include <glm/vec3.hpp>
 #include <glad/glad.h>
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 int main(int argc, char* argv[]) {
 	// Define vertices position on the screen (openGL uses normalized values for some reason)
@@ -180,6 +183,12 @@ int main(int argc, char* argv[]) {
 	glDeleteShader(vertex_shader);
 	glDeleteShader(fragment_shader);
 
+	unsigned int shader_mode_location = glGetUniformLocation(shader_program, "smth");
+	if(shader_mode_location == (unsigned int)-1) {
+		std::cerr << "Failed to get uniform location for smth." << std::endl;
+		exit(1);
+	}
+
 	// Set the viewport to the window size
 	int width, height;
 	SDL_GetWindowSize(window, &width, &height);
@@ -190,6 +199,7 @@ int main(int argc, char* argv[]) {
 	SDL_Event event;
 
 	glUseProgram(shader_program); // Use the shader program we created
+	glClearColor(0.5f, 0.0f, 0.0f, 1.0f); // Set the clear color to a dark blue
 
 	while(running) {
 		while(SDL_PollEvent(&event)) {
@@ -198,13 +208,27 @@ int main(int argc, char* argv[]) {
 				running = false;
 			}
 		}
+		unsigned int timeValue = SDL_GetTicks();
+		unsigned int timeInCycle = timeValue % 2000;
+		float normalizedValue = (float)timeInCycle / 2000;
+
+		float greenValue = cos(normalizedValue);
+		glm::vec4 color = glm::vec4(sin(normalizedValue), greenValue, tan(normalizedValue), 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT); // Clear the screen and depth buffer
+		glUseProgram(shader_program);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glBindVertexArray(vao_1); // Bind the vertex array object
+		glUniform4f(shader_mode_location, color.x, color.y, color.z, color.w);
 		glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the vertices using the vertex array object, GL_TRIANGLES means we will draw triangles, 0 is the starting index, and 6 is the number of vertices to draw
 		glBindVertexArray(vao_2); // Unbind the vertex array object after drawing
+		glUniform4f(shader_mode_location, color.y, color.z, color.x, color.w);
 		glDrawArrays(GL_TRIANGLES, 0, 3); // Draw the second triangle
 		SDL_GL_SwapWindow(window);
 	}
+
+	int nrAttributes;
+	glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &nrAttributes);
+	std::cout << "Maximum nr of vertex attributes supported: " << nrAttributes << std::endl;
 
 	SDL_GL_DestroyContext(gl_context);
 	SDL_DestroyWindow(window);
