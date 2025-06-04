@@ -14,9 +14,8 @@
 namespace raw {
 
 class shader {
-private:
-	unsigned int id;
 public:
+	unsigned int id;
 	shader() = delete;
 	shader(const char* vertex_path, const char* fragment_path);
 	~shader();
