@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 
 							  0, 1, 5, 5, 4, 0,
 
-							  1, 5, 6, 6, 2, 1,
+                              1, 2, 6, 6, 5, 1,
 
 							  0, 4, 7, 7, 3, 0};
 
@@ -156,15 +156,19 @@ int main(int argc, char* argv[]) {
 	shader_program.set_int("our_texture", 0);
 	shader_program.set_int("our_texture_2", 1);
 
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 	glm::mat4 model		 = glm::mat4(1.0f);
-	glm::mat4 view		 = glm::mat4(1.0f);
+    glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
 	glm::mat4 projection = glm::mat4(1.0f);
-	model				 = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	view				 = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 	projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	shader_program.set_mat4("model", glm::value_ptr(model));
 	shader_program.set_mat4("view", glm::value_ptr(view));
 	shader_program.set_mat4("projection", glm::value_ptr(projection));
+
+
 
 	while (running) {
 		while (SDL_PollEvent(&event)) {
@@ -174,32 +178,34 @@ int main(int argc, char* argv[]) {
 			}
 			if (event.type == SDL_EVENT_KEY_DOWN) {
 				if (event.key.scancode == SDL_SCANCODE_SPACE) {
-					model = glm::rotate(model, glm::radians(1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+					cameraPos.y += 0.1f;
 				} else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
 					std::cout << "Exiting..." << std::endl;
 					running = false;
 				} else if (event.key.scancode == SDL_SCANCODE_LEFT) {
-					model = glm::translate(model, glm::vec3(-0.1f, 0.0f, 0.0f));
+					cameraPos.x -= 0.1f;
 				} else if (event.key.scancode == SDL_SCANCODE_RIGHT) {
-					model = glm::translate(model, glm::vec3(0.1f, 0.0f, 0.0f));
+					cameraPos.x += 0.1f;
 				} else if (event.key.scancode == SDL_SCANCODE_UP) {
-					model = glm::translate(model, glm::vec3(0.0f, 0.1f, 0.0f));
+					cameraPos.z -= 0.1f;
 				} else if (event.key.scancode == SDL_SCANCODE_DOWN) {
-					model = glm::translate(model, glm::vec3(0.0f, -0.1f, 0.0f));
-				}
-				shader_program.set_mat4("model", glm::value_ptr(model));
+                    cameraPos.z += 0.1f;
+				} else if (event.key.scancode == SDL_SCANCODE_TAB) {
+                    cameraPos.y -= 0.1f;
+                }
+                view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+				shader_program.set_mat4("view", glm::value_ptr(view));
 			}
 		}
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen and depth buffer
 
 		glBindVertexArray(vao_1); // Bind the vertex array object
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_1);
 		float rotation_angle = (float)SDL_GetTicks() / 1000.0f * glm::radians(50.0f);
 		for (unsigned int i = 0; i < 10; i++) {
 			glm::mat4 model = glm::mat4(1.0f);
 			model			= glm::translate(model, cubes[i]);
-			float angle		= 20.0f * i + rotation_angle;
+            float angle = glm::radians(20.0f * i) + rotation_angle;
 			model			= glm::rotate(model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
 			shader_program.set_mat4("model", glm::value_ptr(model));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
