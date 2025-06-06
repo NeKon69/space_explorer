@@ -5,6 +5,7 @@
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
 
+#include <chrono>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/vec3.hpp>
@@ -13,6 +14,10 @@
 
 #include "shader.h"
 #include "stb_image.h"
+
+namespace raw {
+enum class button { TAB, SPACE, LEFT, RIGHT, UP, DOWN, NONE };
+}
 
 int main(int argc, char* argv[]) {
 	stbi_set_flip_vertically_on_load(true);
@@ -32,7 +37,7 @@ int main(int argc, char* argv[]) {
 
 							  0, 1, 5, 5, 4, 0,
 
-                              1, 2, 6, 6, 5, 1,
+							  1, 2, 6, 6, 5, 1,
 
 							  0, 4, 7, 7, 3, 0};
 
@@ -62,7 +67,8 @@ int main(int argc, char* argv[]) {
 
 	// Create the window
 	SDL_Window* window =
-		SDL_CreateWindow("SDL OpenGL Window", 800, 600, (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE));
+		SDL_CreateWindow("SDL OpenGL Window", 2560, 1440,
+						 (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN));
 
 	if (!window) {
 		std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
@@ -156,48 +162,107 @@ int main(int argc, char* argv[]) {
 	shader_program.set_int("our_texture", 0);
 	shader_program.set_int("our_texture_2", 1);
 
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraPos	  = glm::vec3(0.0f, 0.0f, 3.0f);
+	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+	glm::vec3 cameraUp	  = glm::vec3(0.0f, 1.0f, 0.0f);
 
 	glm::mat4 model		 = glm::mat4(1.0f);
-    glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+	glm::mat4 view		 = glm::lookAt(cameraPos, cameraFront + cameraPos, cameraUp);
 	glm::mat4 projection = glm::mat4(1.0f);
 	projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	shader_program.set_mat4("model", glm::value_ptr(model));
 	shader_program.set_mat4("view", glm::value_ptr(view));
 	shader_program.set_mat4("projection", glm::value_ptr(projection));
 
+	SDL_SetWindowMouseGrab(window, true);
+	SDL_SetWindowRelativeMouseMode(window, true);
 
+	float yaw = -90.0f, pitch = 0.0f;
+	float oldx = 0.0f, oldy = 0.0f;
+
+	float			cameraSpeed	   = 0.05f;
+	constexpr long updateMoveTime = 360;
+	auto			start		   = std::chrono::high_resolution_clock::now();
+	auto			end			   = std::chrono::high_resolution_clock::now();
+
+	raw::button pressedButton = raw::button::NONE;
 
 	while (running) {
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {
 				std::cout << "Don't close me mf!" << std::endl;
 				running = false;
-			}
-			if (event.type == SDL_EVENT_KEY_DOWN) {
+			} else if (event.type == SDL_EVENT_KEY_DOWN) {
 				if (event.key.scancode == SDL_SCANCODE_SPACE) {
-					cameraPos.y += 0.1f;
+					pressedButton = raw::button::SPACE;
 				} else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
-					std::cout << "Exiting..." << std::endl;
+					std::cout << "Don't close me mf!" << std::endl;
 					running = false;
 				} else if (event.key.scancode == SDL_SCANCODE_LEFT) {
-					cameraPos.x -= 0.1f;
+					pressedButton = raw::button::LEFT;
 				} else if (event.key.scancode == SDL_SCANCODE_RIGHT) {
-					cameraPos.x += 0.1f;
+					pressedButton = raw::button::RIGHT;
 				} else if (event.key.scancode == SDL_SCANCODE_UP) {
-					cameraPos.z -= 0.1f;
+					pressedButton = raw::button::UP;
 				} else if (event.key.scancode == SDL_SCANCODE_DOWN) {
-                    cameraPos.z += 0.1f;
+					pressedButton = raw::button::DOWN;
 				} else if (event.key.scancode == SDL_SCANCODE_TAB) {
-                    cameraPos.y -= 0.1f;
-                }
-                view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-				shader_program.set_mat4("view", glm::value_ptr(view));
+					pressedButton = raw::button::TAB;
+				}
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+				float xoffset = event.motion.xrel;
+				float yoffset = event.motion.yrel;
+
+				float sensitivity = 0.1f;
+				xoffset *= sensitivity;
+				yoffset *= sensitivity;
+
+				yaw += xoffset;
+				pitch -= yoffset;
+
+				if (pitch > 89.0f) {
+					pitch = 89.0f;
+				}
+				if (pitch < -89.0f) {
+					pitch = -89.0f;
+				}
+
+				glm::vec3 front;
+				front.x		= cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+				front.y		= sin(glm::radians(pitch));
+				front.z		= sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+				cameraFront = glm::normalize(front);
+			} else if (event.type == SDL_EVENT_KEY_UP) {
+				pressedButton = raw::button::NONE;
 			}
 		}
+		if ((end - start > std::chrono::milliseconds(1000 / updateMoveTime)) && pressedButton != raw::button::NONE) {
+            switch (pressedButton) {
+                case raw::button::TAB:
+                    cameraPos.y -= cameraSpeed;
+                    break;
+                case raw::button::SPACE:
+                    cameraPos.y += cameraSpeed;
+                    break;
+                case raw::button::LEFT:
+                    cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+                    break;
+                case raw::button::RIGHT:
+                    cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+                    break;
+                case raw::button::UP:
+                    cameraPos += cameraFront * cameraSpeed;
+                    break;
+                case raw::button::DOWN:
+                    cameraPos -= cameraFront * cameraSpeed;
+                    break;
+            }
+            start = std::chrono::high_resolution_clock::now();
+		}
+        end = std::chrono::high_resolution_clock::now();
 
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		shader_program.set_mat4("view", glm::value_ptr(view));
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen and depth buffer
 
 		glBindVertexArray(vao_1); // Bind the vertex array object
@@ -205,7 +270,7 @@ int main(int argc, char* argv[]) {
 		for (unsigned int i = 0; i < 10; i++) {
 			glm::mat4 model = glm::mat4(1.0f);
 			model			= glm::translate(model, cubes[i]);
-            float angle = glm::radians(20.0f * i) + rotation_angle;
+			float angle		= glm::radians(20.0f * i) + rotation_angle;
 			model			= glm::rotate(model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
 			shader_program.set_mat4("model", glm::value_ptr(model));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
