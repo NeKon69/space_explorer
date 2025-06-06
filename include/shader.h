@@ -28,6 +28,7 @@ public:
 	bool set_vec2(const std::string& name, float x, float y) const;
 	bool set_vec3(const std::string& name, float x, float y, float z) const;
 	bool set_vec4(const std::string& name, float x, float y, float z, float w) const;
+	bool set_mat4(const std::string& name, const float* value) const;
 };
 
 } // namespace raw
