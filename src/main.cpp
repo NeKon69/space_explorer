@@ -23,23 +23,42 @@ int main(int argc, char* argv[]) {
 	stbi_set_flip_vertically_on_load(true);
 
 	float cube_pos[] = {
-		-0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		0.5f,  0.5f,  -0.5f, 0.0f, 0.0f, 1.0f, -0.5f, 0.5f,	 -0.5f, 1.0f, 1.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f,	0.0f,  -1.0f, 1.0f,	 0.0f,	0.0f,  0.5f,  -0.5f, -0.5f,
+		0.0f,  0.0f,  -1.0f, 0.0f,	1.0f,  0.0f,  0.5f,	 0.5f,	-0.5f, 0.0f,  0.0f,	 -1.0f,
+		0.0f,  0.0f,  1.0f,	 -0.5f, 0.5f,  -0.5f, 0.0f,	 0.0f,	-1.0f, 1.0f,  1.0f,	 0.0f,
 
-		-0.5f, -0.5f, 0.5f,	 1.0f, 0.0f, 1.0f, 0.5f,  -0.5f, 0.5f,	0.0f, 1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,	 1.0f, 1.0f, 1.0f, -0.5f, 0.5f,	 0.5f,	0.0f, 0.0f, 0.0f};
+		-0.5f, -0.5f, 0.5f,	 0.0f,	0.0f,  1.0f,  1.0f,	 0.0f,	1.0f,  0.5f,  -0.5f, 0.5f,
+		0.0f,  0.0f,  1.0f,	 0.0f,	1.0f,  1.0f,  0.5f,	 0.5f,	0.5f,  0.0f,  0.0f,	 1.0f,
+		1.0f,  1.0f,  1.0f,	 -0.5f, 0.5f,  0.5f,  0.0f,	 0.0f,	1.0f,  0.0f,  0.0f,	 0.0f,
 
-	unsigned int indices[] = {0, 1, 2, 2, 3, 0,
+		-0.5f, 0.5f,  0.5f,	 -1.0f, 0.0f,  0.0f,  0.0f,	 0.0f,	0.0f,  -0.5f, 0.5f,	 -0.5f,
+		-1.0f, 0.0f,  0.0f,	 1.0f,	1.0f,  0.0f,  -0.5f, -0.5f, -0.5f, -1.0f, 0.0f,	 0.0f,
+		1.0f,  0.0f,  0.0f,	 -0.5f, -0.5f, 0.5f,  -1.0f, 0.0f,	0.0f,  1.0f,  0.0f,	 1.0f,
 
-							  4, 5, 6, 6, 7, 4,
+		0.5f,  0.5f,  0.5f,	 1.0f,	0.0f,  0.0f,  1.0f,	 1.0f,	1.0f,  0.5f,  0.5f,	 -0.5f,
+		1.0f,  0.0f,  0.0f,	 0.0f,	0.0f,  1.0f,  0.5f,	 -0.5f, -0.5f, 1.0f,  0.0f,	 0.0f,
+		0.0f,  1.0f,  0.0f,	 0.5f,	-0.5f, 0.5f,  1.0f,	 0.0f,	0.0f,  0.0f,  1.0f,	 1.0f,
 
-							  7, 6, 2, 2, 3, 7,
+		-0.5f, -0.5f, -0.5f, 0.0f,	-1.0f, 0.0f,  1.0f,	 0.0f,	0.0f,  0.5f,  -0.5f, -0.5f,
+		0.0f,  -1.0f, 0.0f,	 0.0f,	1.0f,  0.0f,  0.5f,	 -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,
+		0.0f,  1.0f,  1.0f,	 -0.5f, -0.5f, 0.5f,  0.0f,	 -1.0f, 0.0f,  1.0f,  0.0f,	 1.0f,
 
-							  0, 1, 5, 5, 4, 0,
+		-0.5f, 0.5f,  -0.5f, 0.0f,	1.0f,  0.0f,  1.0f,	 1.0f,	0.0f,  0.5f,  0.5f,	 -0.5f,
+		0.0f,  1.0f,  0.0f,	 0.0f,	0.0f,  1.0f,  0.5f,	 0.5f,	0.5f,  0.0f,  1.0f,	 0.0f,
+		1.0f,  1.0f,  1.0f,	 -0.5f, 0.5f,  0.5f,  0.0f,	 1.0f,	0.0f,  0.0f,  0.0f,	 0.0f,
+	};
 
-							  1, 2, 6, 6, 5, 1,
+	unsigned int indices[] = {0,  1,  2,  2,  3,  0,
 
-							  0, 4, 7, 7, 3, 0};
+							  4,  5,  6,  6,  7,  4,
+
+							  8,  9,  10, 10, 11, 8,
+
+							  12, 13, 14, 14, 15, 12,
+
+							  16, 17, 18, 18, 19, 16,
+
+							  20, 21, 22, 22, 23, 20};
 
 	glm::vec3 cubes[] {glm::vec3(0.0f, 0.0f, 0.0f),	   glm::vec3(2.0f, 5.0f, -15.0f),
 					   glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
@@ -112,22 +131,14 @@ int main(int argc, char* argv[]) {
 	// Bind the vertex data to the buffer
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_pos), cube_pos,
 				 GL_STATIC_DRAW); // Here we are passing the vertex data to the GPU
-	glVertexAttribPointer(
-		0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-		nullptr); // 0 is the index of the vertex attribute, 3 is the number of components per
-				  // vertex (x, y, z), GL_FLOAT is the type of each component, GL_FALSE means we
-				  // don't normalize the data, and the last parameter is the offset in bytes
-				  // (nullptr means start at the beginning)
-	glEnableVertexAttribArray(0); // Enable the vertex attribute at index 0
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), nullptr);
+	glEnableVertexAttribArray(0);
 
-	glVertexAttribPointer(
-		1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-		(void*)(3 * sizeof(float))); // 1 is the index of the color attribute, 3 is the number of
-									 // components per color (r, g, b), GL_FLOAT is the type of each
-									 // component, GL_FALSE means we don't normalize the data, and
-									 // the last parameter is the offset in bytes (3 * sizeof(float)
-									 // means start after the position data)
-	glEnableVertexAttribArray(1);	 // Enable the vertex attribute at index 1
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	unsigned int ebo_1 = 0;
 
@@ -144,6 +155,19 @@ int main(int argc, char* argv[]) {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); // Unbind the vertex buffer object
 
+	unsigned int light_vao = 0;
+	glGenVertexArrays(1, &light_vao);
+	glBindVertexArray(light_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_1);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_1);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), nullptr);
+	glEnableVertexAttribArray(0);
+
+	glBindVertexArray(0);
+
 	// Set the viewport to the window size
 	int width, height;
 	SDL_GetWindowSize(window, &width, &height);
@@ -155,12 +179,12 @@ int main(int argc, char* argv[]) {
 	glClearColor(0.5f, 0.0f, 0.0f, 1.0f); // Set the clear color to a dark blue
 	glEnable(GL_DEPTH_TEST);
 
-	raw::shader shader_program("shaders/vertex_shader.glsl", "shaders/color_shader.frag");
-
+	raw::shader shader_program("shaders/objects/vertex_shader.glsl",
+							   "shaders/objects/color_shader.frag");
+	raw::shader light_shader("shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag");
+	light_shader.use();
+	light_shader.set_vec3("lightColor", 1.0f, 1.0f, 1.0f);
 	shader_program.use();
-
-	shader_program.set_int("our_texture", 0);
-	shader_program.set_int("our_texture_2", 1);
 
 	glm::vec3 cameraPos	  = glm::vec3(0.0f, 0.0f, 3.0f);
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -169,23 +193,36 @@ int main(int argc, char* argv[]) {
 	glm::mat4 model		 = glm::mat4(1.0f);
 	glm::mat4 view		 = glm::lookAt(cameraPos, cameraFront + cameraPos, cameraUp);
 	glm::mat4 projection = glm::mat4(1.0f);
-	projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 	shader_program.set_mat4("model", glm::value_ptr(model));
 	shader_program.set_mat4("view", glm::value_ptr(view));
 	shader_program.set_mat4("projection", glm::value_ptr(projection));
 
+	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+	model = glm::translate(model, lightPos);
+	model = glm::scale(model, glm::vec3(0.2f));
+	light_shader.use();
+	light_shader.set_mat4("model", glm::value_ptr(model));
+	light_shader.set_mat4("view", glm::value_ptr(view));
+	light_shader.set_mat4("projection", glm::value_ptr(glm::mat4(1.0f)));
+
 	SDL_SetWindowMouseGrab(window, true);
 	SDL_SetWindowRelativeMouseMode(window, true);
+
+	glEnable(GL_POINT_SMOOTH);
+	glEnable(GL_LINE_SMOOTH);
+	glEnable(GL_POLYGON_SMOOTH);
 
 	float yaw = -90.0f, pitch = 0.0f;
 	float oldx = 0.0f, oldy = 0.0f;
 
-	float			cameraSpeed	   = 0.05f;
+	float		   cameraSpeed	  = 0.05f;
 	constexpr long updateMoveTime = 360;
-	auto			start		   = std::chrono::high_resolution_clock::now();
-	auto			end			   = std::chrono::high_resolution_clock::now();
+	auto		   start		  = std::chrono::high_resolution_clock::now();
+	auto		   end			  = std::chrono::high_resolution_clock::now();
 
 	raw::button pressedButton = raw::button::NONE;
+
+	float fov = 45.0f;
 
 	while (running) {
 		while (SDL_PollEvent(&event)) {
@@ -234,48 +271,87 @@ int main(int argc, char* argv[]) {
 				cameraFront = glm::normalize(front);
 			} else if (event.type == SDL_EVENT_KEY_UP) {
 				pressedButton = raw::button::NONE;
+			} else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
+				event.wheel.y < 0 ? fov += 1.0f : fov -= 1.0f;
+				if (fov < 0.0000001f)
+					fov = 1.0f;
+				if (fov > 180.0f)
+					fov = 180.0f;
+				projection =
+					glm::perspective(glm::radians(fov), width / float(height), 0.1f, 100.0f);
+				shader_program.use();
+				shader_program.set_mat4("projection", glm::value_ptr(projection));
+				light_shader.use();
+				light_shader.set_mat4("projection", glm::value_ptr(projection));
 			}
 		}
-		if ((end - start > std::chrono::milliseconds(1000 / updateMoveTime)) && pressedButton != raw::button::NONE) {
-            switch (pressedButton) {
-                case raw::button::TAB:
-                    cameraPos.y -= cameraSpeed;
-                    break;
-                case raw::button::SPACE:
-                    cameraPos.y += cameraSpeed;
-                    break;
-                case raw::button::LEFT:
-                    cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-                    break;
-                case raw::button::RIGHT:
-                    cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-                    break;
-                case raw::button::UP:
-                    cameraPos += cameraFront * cameraSpeed;
-                    break;
-                case raw::button::DOWN:
-                    cameraPos -= cameraFront * cameraSpeed;
-                    break;
-            }
-            start = std::chrono::high_resolution_clock::now();
+		if ((end - start > std::chrono::milliseconds(1000 / updateMoveTime)) &&
+			pressedButton != raw::button::NONE) {
+			switch (pressedButton) {
+			case raw::button::TAB:
+				cameraPos.y -= cameraSpeed;
+				break;
+			case raw::button::SPACE:
+				cameraPos.y += cameraSpeed;
+				break;
+			case raw::button::LEFT:
+				cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+				break;
+			case raw::button::RIGHT:
+				cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+				break;
+			case raw::button::UP:
+				cameraPos += cameraFront * cameraSpeed;
+				break;
+			case raw::button::DOWN:
+				cameraPos -= cameraFront * cameraSpeed;
+				break;
+			}
+			start = std::chrono::high_resolution_clock::now();
 		}
-        end = std::chrono::high_resolution_clock::now();
+		end = std::chrono::high_resolution_clock::now();
 
 		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+		shader_program.use();
+		shader_program.set_vec3("lightPos", lightPos.x, lightPos.y, lightPos.z);
+		shader_program.set_vec3("viewPos", cameraPos.x, cameraPos.y, cameraPos.z);
+		shader_program.set_vec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+		shader_program.set_float("ambientStrength", 0.1f);
+		shader_program.set_float("specularStrength", 0.5f);
+		shader_program.set_float("shininess", 32.0f);
 		shader_program.set_mat4("view", glm::value_ptr(view));
+		light_shader.use();
+		light_shader.set_mat4("view", glm::value_ptr(view));
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen and depth buffer
 
 		glBindVertexArray(vao_1); // Bind the vertex array object
 		float rotation_angle = (float)SDL_GetTicks() / 1000.0f * glm::radians(50.0f);
-		for (unsigned int i = 0; i < 10; i++) {
+		for (unsigned int i = 0; i <= 10; i++) {
 			glm::mat4 model = glm::mat4(1.0f);
-			model			= glm::translate(model, cubes[i]);
-			float angle		= glm::radians(20.0f * i) + rotation_angle;
-			model			= glm::rotate(model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
+			if (i == 10) {
+				model = glm::translate(glm::scale(model, glm::vec3(-0.5f, -0.5f, -0.5f)),
+									   glm::vec3(4.0f, -4.0f, 0.0f));
+			} else {
+				model		= glm::translate(model, cubes[i]);
+				float angle = glm::radians(20.0f * i) + rotation_angle;
+				model		= glm::rotate(model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
+			}
+			shader_program.use();
 			shader_program.set_mat4("model", glm::value_ptr(model));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 		}
-		SDL_GL_SwapWindow(window);
+
+		glBindVertexArray(light_vao);
+		light_shader.use();
+		glm::mat4 lightModel = glm::mat4(1.0f);
+		lightModel			 = glm::translate(lightModel, lightPos);
+		lightModel			 = glm::scale(lightModel, glm::vec3(0.2f));
+		light_shader.set_mat4("model", glm::value_ptr(lightModel));
+		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+        SDL_GL_SwapWindow(window);
 	}
 
 	int nrAttributes;
