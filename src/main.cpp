@@ -15,6 +15,7 @@
 #include "shader.h"
 #include "stb_image.h"
 
+namespace raw {
 float calculate_phong_diffuse(const glm::vec3& light_dir, const glm::vec3& normal) {
 	return fmax(0.0f, glm::dot(light_dir, glm::normalize(normal)));
 }
@@ -26,21 +27,44 @@ glm::vec3 calculate_normal(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) {
 	return normal;
 }
 
+glm::mat4 translate(const glm::vec3& offset) {
+	glm::mat4 base = glm::mat4(1.0f);
+	base[3][0]	   = offset.x;
+	base[3][1]	   = offset.y;
+	base[3][2]	   = offset.z;
+	return base;
+}
+glm::mat4 rotate_y(float angle) {
+	glm::mat4 base = glm::mat4(1.0f);
+	base[0][0]	   = cosf(angle);
+	base[2][0]	   = -sinf(angle);
+	base[0][2]	   = sinf(angle);
+	base[2][2]	   = cosf(angle);
+	return base;
+}
+glm::mat4 scale(const glm::vec3& factors) {
+	glm::mat4 base = glm::mat4(1.0f);
+	for (int i = 0; i < 3; ++i) {
+		base[i][i] = factors[i];
+	}
+	return base;
+}
+} // namespace raw
+
 namespace raw {
 enum class button { TAB, SPACE, LEFT, RIGHT, UP, DOWN, NONE };
 }
 
 int main(int argc, char* argv[]) {
-	calculate_normal(glm::vec3(10, 2, 5), glm::vec3(2, 5, 10), glm::vec3(5, 10, 2));
-    stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(true);
 
 	float cube_pos[] = {
-		-0.5f, -0.5f, -0.5f,    0.0f,	 0.0f,   -1.0f,  1.0f,	 0.0f,	0.0f,   0.5f,  -0.5f,  -0.5f,
-		0.0f,  0.0f,  -1.0f, 0.0f,	 1.0f,  0.0f,   0.5f,	 0.5f,	-0.5f, 0.0f,  0.0f,	 -1.0f,
-		0.0f,  0.0f,  1.0f, -0.5f, 0.5f,  -0.5f, 0.0f,	 0.0f,	-1.0f, 1.0f,  1.0f,  0.0f,
+		-0.5f, -0.5f, -0.5f, 0.0f,	0.0f,  -1.0f, 1.0f,	 0.0f,	0.0f,  0.5f,  -0.5f, -0.5f,
+		0.0f,  0.0f,  -1.0f, 0.0f,	1.0f,  0.0f,  0.5f,	 0.5f,	-0.5f, 0.0f,  0.0f,	 -1.0f,
+		0.0f,  0.0f,  1.0f,	 -0.5f, 0.5f,  -0.5f, 0.0f,	 0.0f,	-1.0f, 1.0f,  1.0f,	 0.0f,
 
 		-0.5f, -0.5f, 0.5f,	 0.0f,	0.0f,  1.0f,  1.0f,	 0.0f,	1.0f,  0.5f,  -0.5f, 0.5f,
-		0.0f,  0.0f,  1.0f,  0.0f,	1.0f,  1.0f,  0.5f,	 0.5f,	0.5f,  0.0f,  0.0f,	 1.0f,
+		0.0f,  0.0f,  1.0f,	 0.0f,	1.0f,  1.0f,  0.5f,	 0.5f,	0.5f,  0.0f,  0.0f,	 1.0f,
 		1.0f,  1.0f,  1.0f,	 -0.5f, 0.5f,  0.5f,  0.0f,	 0.0f,	1.0f,  0.0f,  0.0f,	 0.0f,
 
 		-0.5f, 0.5f,  0.5f,	 -1.0f, 0.0f,  0.0f,  0.0f,	 0.0f,	0.0f,  -0.5f, 0.5f,	 -0.5f,
@@ -77,7 +101,8 @@ int main(int argc, char* argv[]) {
 					   glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
 					   glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
 					   glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
-					   glm::vec3(0.0f, 0.0f, -1.5f)};
+					   glm::vec3(0.0f, 0.0f, -1.5f),   glm::vec3(5.0f, 0.f, 0.f),
+					   glm::vec3(10.0f, 0.f, 0.f)};
 
 	// Initialize SDL
 	if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -180,37 +205,36 @@ int main(int argc, char* argv[]) {
 
 	glBindVertexArray(0);
 
-    float normal_lines_data[24 * 2 * 3];
-    float normal_length = 0.2f;
+	float normal_lines_data[24 * 2 * 3];
+	float normal_length = 0.2f;
 
-    unsigned int j = 0;
-    for (size_t i = 0; i < sizeof(cube_pos) / sizeof(cube_pos[0]); i += 9) {
-        glm::vec3 position = glm::vec3(cube_pos[i], cube_pos[i+1], cube_pos[i+2]);
-        glm::vec3 normal_vec = glm::vec3(cube_pos[i+3], cube_pos[i+4], cube_pos[i+5]);
+	unsigned int j = 0;
+	for (size_t i = 0; i < sizeof(cube_pos) / sizeof(cube_pos[0]); i += 9) {
+		glm::vec3 position	 = glm::vec3(cube_pos[i], cube_pos[i + 1], cube_pos[i + 2]);
+		glm::vec3 normal_vec = glm::vec3(cube_pos[i + 3], cube_pos[i + 4], cube_pos[i + 5]);
 
-        normal_lines_data[j++] = position.x;
-        normal_lines_data[j++] = position.y;
-        normal_lines_data[j++] = position.z;
+		normal_lines_data[j++] = position.x;
+		normal_lines_data[j++] = position.y;
+		normal_lines_data[j++] = position.z;
 
-        glm::vec3 end_point = position + normal_vec * normal_length;
-        normal_lines_data[j++] = end_point.x;
-        normal_lines_data[j++] = end_point.y;
-        normal_lines_data[j++] = end_point.z;
-    }
+		glm::vec3 end_point	   = position + normal_vec * normal_length;
+		normal_lines_data[j++] = end_point.x;
+		normal_lines_data[j++] = end_point.y;
+		normal_lines_data[j++] = end_point.z;
+	}
 
-    unsigned int line_vao = 0;
-    glGenVertexArrays(1, &line_vao);
-    glBindVertexArray(line_vao);
+	unsigned int line_vao = 0;
+	glGenVertexArrays(1, &line_vao);
+	glBindVertexArray(line_vao);
 
+	unsigned int vbo_lines = 0;
+	glGenBuffers(1, &vbo_lines);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_lines);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(normal_lines_data), normal_lines_data, GL_STATIC_DRAW);
 
-    unsigned int vbo_lines = 0;
-    glGenBuffers(1, &vbo_lines);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo_lines);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(normal_lines_data), normal_lines_data, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
 
 	// Set the viewport to the window size
 	int width, height;
@@ -249,13 +273,12 @@ int main(int argc, char* argv[]) {
 	light_shader.set_mat4("view", glm::value_ptr(view));
 	light_shader.set_mat4("projection", glm::value_ptr(projection));
 
-    raw::shader lines_shader("shaders/lines/vertex_shader.glsl",
-                               "shaders/lines/color_shader.frag");
-    lines_shader.use();
-    model = glm::mat4(1.0f);
-    lines_shader.set_mat4("model", glm::value_ptr(model));
-    lines_shader.set_mat4("view", glm::value_ptr(view));
-    lines_shader.set_mat4("projection", glm::value_ptr(projection));
+	raw::shader lines_shader("shaders/lines/vertex_shader.glsl", "shaders/lines/color_shader.frag");
+	lines_shader.use();
+	model = glm::mat4(1.0f);
+	lines_shader.set_mat4("model", glm::value_ptr(model));
+	lines_shader.set_mat4("view", glm::value_ptr(view));
+	lines_shader.set_mat4("projection", glm::value_ptr(projection));
 
 	SDL_SetWindowMouseGrab(window, true);
 	SDL_SetWindowRelativeMouseMode(window, true);
@@ -378,34 +401,52 @@ int main(int argc, char* argv[]) {
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the screen and depth buffer
 
-
 		float rotation_angle = (float)SDL_GetTicks() / 1000.0f * glm::radians(50.0f);
-		for (unsigned int i = 0; i <= 10; i++) {
-            glm::mat4 current_cube_model = glm::mat4(1.0f); // Создаем модельную матрицу для ТЕКУЩЕГО куба
+		for (unsigned int i = 0; i <= 12; i++) {
+			glm::mat4 current_cube_model =
+				glm::mat4(1.0f);
 
-            // Вычисляем модельную матрицу для текущего куба (Ваш существующий код)
-            if (i == 10) {
-                current_cube_model = glm::translate(glm::scale(current_cube_model, glm::vec3(-0.5f, -0.5f, -0.5f)),
-                                                    glm::vec3(4.0f, -4.0f, 0.0f));
-            } else {
-                current_cube_model = glm::translate(current_cube_model, cubes[i]);
-                float angle = glm::radians(20.0f * i) + rotation_angle;
-                current_cube_model = glm::rotate(current_cube_model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
-            }
+			if (i == 10) {
+				current_cube_model =
+					glm::translate(glm::scale(current_cube_model, glm::vec3(-0.5f, -0.5f, -0.5f)),
+								   glm::vec3(4.0f, -4.0f, 0.0f));
+			} else if (i < 10) {
+				current_cube_model = glm::translate(current_cube_model, cubes[i]);
+				float angle		   = glm::radians(20.0f * i) + rotation_angle;
+				current_cube_model =
+					glm::rotate(current_cube_model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
+			} else if (i == 11) {
+				current_cube_model = glm::translate(current_cube_model, cubes[i]);
+			} else {
+				glm::vec3 rotationCenter   = cubes[11];
+				glm::vec3 relativePosition = cubes[i] - rotationCenter;
 
-            lines_shader.use();
-            lines_shader.set_mat4("model", glm::value_ptr(current_cube_model));
-            lines_shader.set_mat4("view", glm::value_ptr(view));
-            lines_shader.set_mat4("projection", glm::value_ptr(projection));
+				current_cube_model = glm::translate(current_cube_model, rotationCenter);
+				current_cube_model =
+					glm::rotate(current_cube_model, rotation_angle, glm::vec3(0.0f, 1.0f, 0.0f));
+				current_cube_model = glm::translate(current_cube_model, -rotationCenter);
 
-            glBindVertexArray(line_vao);
-            glDrawArrays(GL_LINES, 0, 48);
-            glBindVertexArray(vao_1); // Bind the vertex array object
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_1);
+				current_cube_model = glm::translate(current_cube_model, cubes[i]);
+                float angle		   = glm::radians(20.0f * i) + rotation_angle;
+                current_cube_model =
+                        glm::rotate(current_cube_model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
+                current_cube_model =
+					glm::scale(current_cube_model, glm::vec3(-0.5f, -0.5f, -0.5f));
+			}
+
+			lines_shader.use();
+			lines_shader.set_mat4("model", glm::value_ptr(current_cube_model));
+			lines_shader.set_mat4("view", glm::value_ptr(view));
+			lines_shader.set_mat4("projection", glm::value_ptr(projection));
+
+			glBindVertexArray(line_vao);
+			glDrawArrays(GL_LINES, 0, 48);
+			glBindVertexArray(vao_1); // Bind the vertex array object
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_1);
 			shader_program.use();
 			shader_program.set_mat4("model", glm::value_ptr(current_cube_model));
-            shader_program.set_mat4("view", glm::value_ptr(view));
-            shader_program.set_mat4("projection", glm::value_ptr(projection));
+			shader_program.set_mat4("view", glm::value_ptr(view));
+			shader_program.set_mat4("projection", glm::value_ptr(projection));
 			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 		}
 
@@ -416,8 +457,8 @@ int main(int argc, char* argv[]) {
 		lightModel			 = glm::scale(lightModel, glm::vec3(0.2f));
 		light_shader.set_mat4("model", glm::value_ptr(lightModel));
 		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(0);
-        SDL_GL_SwapWindow(window);
+		glBindVertexArray(0);
+		SDL_GL_SwapWindow(window);
 	}
 
 	SDL_GL_DestroyContext(gl_context);
