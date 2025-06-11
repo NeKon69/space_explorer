@@ -490,7 +490,7 @@ int main(int argc, char* argv[]) {
 		shader_program.set_vec3("viewPos", cameraPos.x, cameraPos.y, cameraPos.z);
 		shader_program.set_vec3("lightColor", 1.0f, 1.0f, 1.0f);
 
-		shader_program.set_float("ambientStrength", 0.1f);
+		shader_program.set_float("ambientStrength", 0.2f);
 		shader_program.set_float("specularStrength", 0.5f);
 		shader_program.set_float("shininess", 32.0f);
 		shader_program.set_mat4("view", glm::value_ptr(view));
@@ -564,7 +564,13 @@ int main(int argc, char* argv[]) {
 		SDL_GL_SwapWindow(window);
 	}
 
-	SDL_GL_DestroyContext(gl_context);
+    glDeleteVertexArrays(1, &vao_1);
+    glDeleteVertexArrays(1, &light_vao);
+    glDeleteVertexArrays(1, &line_vao);
+    glDeleteBuffers(1, &vbo_1);
+    glDeleteBuffers(1, &vbo_lines);
+    glDeleteBuffers(1, &ebo_1);
+    SDL_GL_DestroyContext(gl_context);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 
