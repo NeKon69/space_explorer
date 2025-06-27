@@ -29,9 +29,12 @@ public:
 	bool set_int(const std::string& name, int value) const;
 	bool set_float(const std::string& name, float value) const;
 	bool set_vec2(const std::string& name, float x, float y) const;
+    bool set_vec2(const std::string& name, glm::vec2 vec) const;
 	bool set_vec3(const std::string& name, float x, float y, float z) const;
+    bool set_vec3(const std::string& name, glm::vec3 vec) const;
 	bool set_vec3s(std::vector<std::string> names, std::vector<glm::vec3> values) const;
     bool set_vec4(const std::string& name, float x, float y, float z, float w) const;
+    bool set_vec4(const std::string& name, glm::vec4 vec) const;
 	bool set_mat4(const std::string& name, const float* value) const;
 };
 

@@ -19,6 +19,7 @@
 #include <string>
 #include FT_FREETYPE_H
 
+#include "camera.h"
 #include "clock.h"
 #include "shader.h"
 #include "stb_image.h"
@@ -245,15 +246,15 @@ int main(int argc, char* argv[]) {
 	glBindVertexArray(0);
 
 	auto resolution = window_mgr.get_window_size();
-	window_mgr.set_state(VIEW, 0, 0, resolution.x, resolution.y);
+	window_mgr.set_state(raw::gl::VIEW, 0, 0, resolution.x, resolution.y);
 
 	bool	  running = true;
 	SDL_Event event;
 
-	window_mgr.set_state(GL_CLEAR_COLOR, 0.0f, 0.0f, 0.0f, 0.0f);
+	window_mgr.set_state(raw::gl::CLEAR_COLOR, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	raw::shader shader_program("shaders/objects/vertex_shader.glsl",
-								   "shaders/objects/color_shader.frag");
+							   "shaders/objects/color_shader.frag");
 	raw::shader light_shader("shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag");
 	light_shader.use();
 	shader_program.use();
@@ -271,20 +272,18 @@ int main(int argc, char* argv[]) {
 		shader_program.set_vec3("point_lights[" + std::to_string(i) + "].specular", 0.0, 0.0, 0.0);
 	}
 
-	glm::vec3 cameraPos	  = glm::vec3(0.0f, 0.0f, 5.0f);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp	  = glm::vec3(0.0f, 1.0f, 0.0f);
+	raw::camera camera;
 
 	shader_program.set_vec3("sp_light.ambient", 0.01, 0.01, 0.01);
 	shader_program.set_vec3("sp_light.diffuse", 1.0, 1.0, 1.0);
 	shader_program.set_vec3("sp_light.specular", 0.5, 0.5, 0.5);
-	shader_program.set_vec3("sp_light.position", cameraPos.x, cameraPos.y, cameraPos.z);
-	shader_program.set_vec3("sp_light.direction", cameraFront.x, cameraFront.y, cameraFront.z);
+	shader_program.set_vec3("sp_light.position", camera.pos());
+	shader_program.set_vec3("sp_light.direction", camera.front());
 	shader_program.set_float("sp_light.cut_off", glm::cos(glm::radians(10.5f)));
 	shader_program.set_float("sp_light.outer_cut_off", glm::cos(glm::radians(19.5f)));
 
 	glm::mat4 model		 = glm::mat4(1.0f);
-	glm::mat4 view		 = glm::lookAt(cameraPos, cameraFront + cameraPos, cameraUp);
+	glm::mat4 view		 = camera.value();
 	glm::mat4 projection = glm::mat4(1.0f);
 	shader_program.set_mat4("model", glm::value_ptr(model));
 	shader_program.set_mat4("view", glm::value_ptr(view));
@@ -306,17 +305,16 @@ int main(int argc, char* argv[]) {
 	lines_shader.set_mat4("view", glm::value_ptr(view));
 	lines_shader.set_mat4("projection", glm::value_ptr(projection));
 
-	window_mgr.set_state(MOUSE_GRAB, window_mgr.get(), true);
-	window_mgr.set_state(RELATIVE_MOUSE_MODE, window_mgr.get(), true);
+	window_mgr.set_state(raw::gl::MOUSE_GRAB, window_mgr.get(), true);
+	window_mgr.set_state(raw::gl::RELATIVE_MOUSE_MODE, window_mgr.get(), true);
 
-	window_mgr.set_state(GL_RULE, GL_DEPTH_TEST);
-	window_mgr.set_state(GL_ATTR, SDL_GL_MULTISAMPLEBUFFERS, 1);
-	window_mgr.set_state(GL_ATTR, SDL_GL_MULTISAMPLESAMPLES, 4);
-	window_mgr.set_state(GL_RULE, GL_MULTISAMPLE);
+	window_mgr.set_state(raw::gl::RULE, GL_DEPTH_TEST);
+	window_mgr.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLEBUFFERS, 1);
+	window_mgr.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLESAMPLES, 4);
+	window_mgr.set_state(raw::gl::RULE, GL_MULTISAMPLE);
 
 	float yaw = -90.0f, pitch = 0.0f;
 
-	float		   cameraSpeed	  = 0.05f;
 	constexpr long updateMoveTime = 360;
 	auto		   start		  = std::chrono::high_resolution_clock::now();
 	auto		   end			  = std::chrono::high_resolution_clock::now();
@@ -334,7 +332,7 @@ int main(int argc, char* argv[]) {
 				std::cout << "Don't close me mf!" << std::endl;
 				running = false;
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
-                // that is so, SO trash, I need to make something better in the future
+				// that is so, SO trash, I need to make something better in the future
 				if (event.key.scancode == SDL_SCANCODE_SPACE) {
 					pressedButton = raw::button::SPACE;
 				} else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
@@ -377,25 +375,13 @@ int main(int argc, char* argv[]) {
 				float xoffset = event.motion.xrel;
 				float yoffset = event.motion.yrel;
 
-				float sensitivity = 0.1f;
-				xoffset *= sensitivity;
-				yoffset *= sensitivity;
+				xoffset *= raw::predef::SENSITIVITY;
+				yoffset *= raw::predef::SENSITIVITY;
 
 				yaw += xoffset;
 				pitch -= yoffset;
 
-				if (pitch > 89.0f) {
-					pitch = 89.0f;
-				}
-				if (pitch < -89.0f) {
-					pitch = -89.0f;
-				}
-
-				glm::vec3 front;
-				front.x		= cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-				front.y		= sin(glm::radians(pitch));
-				front.z		= sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-				cameraFront = glm::normalize(front);
+				camera.rotate(yaw, pitch);
 			} else if (event.type == SDL_EVENT_KEY_UP) {
 				pressedButton = raw::button::NONE;
 			} else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
@@ -404,8 +390,8 @@ int main(int argc, char* argv[]) {
 					fov = 1.0f;
 				if (fov > 180.0f)
 					fov = 180.0f;
-				projection =
-					glm::perspective(glm::radians(fov), resolution.x / float(resolution.y), 0.1f, 100.0f);
+				projection = glm::perspective(glm::radians(fov), resolution.x / float(resolution.y),
+											  0.1f, 100.0f);
 				shader_program.use();
 				shader_program.set_mat4("projection", glm::value_ptr(projection));
 				light_shader.use();
@@ -415,35 +401,28 @@ int main(int argc, char* argv[]) {
 		if ((end - start > std::chrono::milliseconds(1000 / updateMoveTime)) &&
 			pressedButton != raw::button::NONE) {
 			switch (pressedButton) {
-			case raw::button::TAB:
-				cameraPos.y -= cameraSpeed;
-				break;
-			case raw::button::SPACE:
-				cameraPos.y += cameraSpeed;
+
+            case raw::button::DOWN:
+            case raw::button::S:
+				camera.move(raw::camera_move::BACKWARD);
+                break;
+            case raw::button::UP:
+            case raw::button::W:
+                camera.move(raw::camera_move::FORWARD);
 				break;
 			case raw::button::LEFT:
-				cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            case raw::button::A:
+                camera.move(raw::camera_move::LEFT);
 				break;
 			case raw::button::RIGHT:
-				cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+            case raw::button::D:
+                camera.move(raw::camera_move::RIGHT);
 				break;
-			case raw::button::UP:
-				cameraPos += cameraFront * cameraSpeed;
-				break;
-			case raw::button::DOWN:
-				cameraPos -= cameraFront * cameraSpeed;
-				break;
-			case raw::button::A:
-				cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-				break;
-			case raw::button::D:
-				cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-				break;
-			case raw::button::W:
-				cameraPos += cameraFront * cameraSpeed;
-				break;
-			case raw::button::S:
-				cameraPos -= cameraFront * cameraSpeed;
+            case raw::button::SPACE:
+                camera.move(raw::camera_move::UP);
+                break;
+            case raw::button::TAB:
+                camera.move(raw::camera_move::DOWN);
 				break;
 			case raw::button::I: {
 				glm::quat delta =
@@ -492,12 +471,12 @@ int main(int argc, char* argv[]) {
 		}
 		end = std::chrono::high_resolution_clock::now();
 
-		view = raw::look_at(cameraPos, cameraPos + cameraFront, cameraUp);
+		view = camera.value();
 
 		shader_program.use();
-		shader_program.set_vec3("sp_light.position", cameraPos.x, cameraPos.y, cameraPos.z);
-		shader_program.set_vec3("sp_light.direction", cameraFront.x, cameraFront.y, cameraFront.z);
-		shader_program.set_vec3("viewPos", cameraPos.x, cameraPos.y, cameraPos.z);
+		shader_program.set_vec3("sp_light.position", camera.pos());
+		shader_program.set_vec3("sp_light.direction", camera.front());
+		shader_program.set_vec3("viewPos", camera.front());
 		shader_program.set_mat4("view", glm::value_ptr(view));
 		light_shader.use();
 		light_shader.set_mat4("view", glm::value_ptr(view));
@@ -576,7 +555,8 @@ int main(int argc, char* argv[]) {
 		SDL_GL_SwapWindow(window_mgr.get());
 	}
 
-    // if someone sees that code, don't be mad at me for not using classes to manage vao/vbo/ebo, I am working on mesh class already (for models)
+	// if someone sees that code, don't be mad at me for not using classes to manage vao/vbo/ebo, I
+	// am working on mesh class already (for models)
 	glDeleteVertexArrays(1, &vao_1);
 	glDeleteVertexArrays(1, &light_vao);
 	glDeleteVertexArrays(1, &line_vao);

@@ -14,6 +14,13 @@
 
 namespace raw {
 
+ /** \brief
+ * it would be smarter and more readable to create base class and derive 2 classes from it, BUT we have some hierarchy in which functions of destroying windows/contexts are called, so we'll stick with that approach.
+ * doing that allows us to NEVER lose some not destroyed context, since the destructor calls will go like so -
+ * window -> opengl context -> sdl_context.
+ * it's not exactly fully correct order (which is EXACTLY why we need to have init/destroy functions), but it works, since we have in window destructor(the main class) correct calls - first opengl THEN window, and then SDL
+ */
+
 class ctx_sdl {
 private:
     bool inited_sdl = false;
@@ -24,7 +31,6 @@ public:
     virtual ~ctx_sdl() noexcept;
 };
 
-// it would be smarter and more readable to create base class and derive 2 classes from it, BUT we have some hierarchy in which functions of destroying windows are called, so we'll stick with that approach
 class ctx_gl : public ctx_sdl {
 private:
 	SDL_GLContextState* ctx	   = nullptr;

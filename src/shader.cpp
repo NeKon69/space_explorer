@@ -97,10 +97,10 @@ void shader::use() const {
 bool shader::set_bool(const std::string& name, bool value) const {
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
-        std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
-        return false;
-    }
-		
+		std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
+		return false;
+	}
+
 	glUniform1i(location, (int)value);
 	return true;
 }
@@ -108,9 +108,9 @@ bool shader::set_bool(const std::string& name, bool value) const {
 bool shader::set_int(const std::string& name, int value) const {
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
-        std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
-        return false;
-    }
+		std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
+		return false;
+	}
 	glUniform1i(location, value);
 	return true;
 }
@@ -118,9 +118,9 @@ bool shader::set_int(const std::string& name, int value) const {
 bool shader::set_float(const std::string& name, float value) const {
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
-        std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
-        return false;
-    }
+		std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
+		return false;
+	}
 	glUniform1f(location, value);
 	return true;
 }
@@ -128,48 +128,62 @@ bool shader::set_float(const std::string& name, float value) const {
 bool shader::set_vec2(const std::string& name, float x, float y) const {
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
-        std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << "\n";
-        return false;
-    }
+		std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << "\n";
+		return false;
+	}
 	glUniform2f(location, x, y);
 	return true;
+}
+
+bool shader::set_vec2(const std::string& name, glm::vec2 vec) const {
+	return set_vec2(name, vec.x, vec.y);
 }
 
 bool shader::set_vec3(const std::string& name, float x, float y, float z) const {
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
-        std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << " " << z << "\n";
-        return false;
-    }
+		std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << " " << z
+				  << "\n";
+		return false;
+	}
 	glUniform3f(location, x, y, z);
 	return true;
+}
+
+bool shader::set_vec3(const std::string& name, glm::vec3 vec) const {
+    return set_vec3(name, vec.x, vec.y, vec.z);
 }
 
 bool shader::set_vec4(const std::string& name, float x, float y, float z, float w) const {
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
-        std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << " " << z << " " << w << "\n";
-        return false;
-    }
+		std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << " " << z
+				  << " " << w << "\n";
+		return false;
+	}
 	glUniform4f(location, x, y, z, w);
 	return true;
+}
+
+bool shader::set_vec4(const std::string& name, glm::vec4 vec) const {
+    return set_vec4(name, vec.x, vec.y, vec.z, vec.w);
 }
 
 bool shader::set_mat4(const std::string& name, const float* value) const {
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
-        std::cerr << "Failed to initialize " << name << " with value(matrix): " << value << "\n";
-        return false;
-    }
+		std::cerr << "Failed to initialize " << name << " with value(matrix): " << value << "\n";
+		return false;
+	}
 	glUniformMatrix4fv(location, 1, GL_FALSE, value);
 	return true;
 }
 
 bool shader::set_vec3s(std::vector<std::string> names, std::vector<glm::vec3> values) const {
 	for (int i = 0; i < std::size(names); ++i) {
-		if(!set_vec3(names[i], values[i].x, values[i].y, values[i].z)) {
-            return false;
-        }
+		if (!set_vec3(names[i], values[i].x, values[i].y, values[i].z)) {
+			return false;
+		}
 	}
 	return true;
 }
