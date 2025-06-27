@@ -3,20 +3,28 @@
 //
 // Yes, I know, I am crazy, but I am still learning, so be less brutal at me pls.
 #define STB_IMAGE_IMPLEMENTATION
+#define AM_POINT_LIGHTS 4
 #include <SDL3/SDL.h>
+#include <ft2build.h>
 #include <glad/glad.h>
 
 #include <chrono>
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/vec3.hpp>
 #include <iostream>
 #include <memory>
+#include <random>
+#include <string>
+#include FT_FREETYPE_H
 
+#include "clock.h"
 #include "shader.h"
 #include "stb_image.h"
+#include "window_manager.h"
 
+#define base_types(type, amount) std::vector<type>(amount, type(0.05))
 namespace raw {
 float calculate_phong_diffuse(const glm::vec3& light_dir, const glm::vec3& normal) {
 	return fmax(0.0f, glm::dot(light_dir, glm::normalize(normal)));
@@ -91,12 +99,24 @@ glm::mat4 perspective(float fov_rad, float aspect, float near, float far) {
 }
 
 } // namespace raw
+template<typename mat>
+void print_matrix(mat matrix) {
+	auto size = matrix.length();
+	for (int i = 0; i < size; ++i) {
+		for (int j = 0; j < size; ++j) {
+			printf("%f\t", matrix[i][j]);
+		}
+		printf("\n");
+	}
+}
 
 namespace raw {
-enum class button { TAB, SPACE, LEFT, RIGHT, UP, DOWN, W, A, S, D, I, K, J, L, U, O, NONE };
+enum class button { TAB, SPACE, LEFT, RIGHT, UP, DOWN, W, A, S, D, I, K, J, L, U, O, T, NONE };
 }
 
 int main(int argc, char* argv[]) {
+	bool	   dir_light = true;
+	raw::clock clock;
 	stbi_set_flip_vertically_on_load(true);
 
 	float cube_pos[] = {
@@ -137,6 +157,10 @@ int main(int argc, char* argv[]) {
 
 							  20, 21, 22, 22, 23, 20};
 
+	float light_pos[] = {// positions in x y z coordinate system
+
+						 2.5, 2.5, 5, -5, -5, 10, 0, -5, -5, -5, 5, 5};
+
 	glm::vec3 cubes[] {glm::vec3(-2.0f, 0.0f, 0.0f),   glm::vec3(2.0f, 0.0f, 0.0f),
 					   glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
 					   glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
@@ -145,50 +169,8 @@ int main(int argc, char* argv[]) {
 					   glm::vec3(0.0f, 0.0f, -1.5f),   glm::vec3(5.0f, 0.f, 0.f),
 					   glm::vec3(10.0f, 0.f, 0.f)};
 
-	if (!SDL_Init(SDL_INIT_VIDEO)) {
-		std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
-		return 1;
-	}
-
-	std::cout << "SDL initialized successfully!" << std::endl;
-	std::cout << "First step is complete." << std::endl;
-
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-	SDL_Window* window =
-		SDL_CreateWindow("SDL OpenGL Window - QUATERNIONS (World Space)", 2560, 1440,
-						 (SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN));
-
-	if (!window) {
-		std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-		SDL_Quit();
-		return 1;
-	}
-	SDL_GLContext gl_context = SDL_GL_CreateContext(window);
-
-	if (!gl_context) {
-		std::cerr << "OpenGL context could not be created! SDL_Error: " << SDL_GetError()
-				  << std::endl;
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
-
-	std::cout << "OpenGL context created successfully!" << std::endl;
-
-	if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
-		std::cerr << "Failed to initialize GLAD" << std::endl;
-		SDL_GL_DestroyContext(gl_context);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 1;
-	}
-
-	std::cout << "GLAD initialized successfully!" << std::endl;
+	raw::window_manager window_mgr;
+	window_mgr.init("Mike Hawk");
 
 	unsigned int vao_1 = 0;
 	glGenVertexArrays(1, &vao_1);
@@ -262,29 +244,47 @@ int main(int argc, char* argv[]) {
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
 
-	int width, height;
-	SDL_GetWindowSize(window, &width, &height);
-	glViewport(0, 0, width, height);
+	auto resolution = window_mgr.get_window_size();
+	window_mgr.set_state(VIEW, 0, 0, resolution.x, resolution.y);
 
 	bool	  running = true;
 	SDL_Event event;
 
-	glClearColor(0.5f, 0.0f, 0.0f, 1.0f);
-	glEnable(GL_DEPTH_TEST);
+	window_mgr.set_state(GL_CLEAR_COLOR, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	raw::shader shader_program("shaders/objects/vertex_shader.glsl",
-							   "shaders/objects/color_shader.frag");
+								   "shaders/objects/color_shader.frag");
 	raw::shader light_shader("shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag");
 	light_shader.use();
-	light_shader.set_vec3("lightColor", 1.0f, 1.0f, 1.0f);
 	shader_program.use();
+	shader_program.set_float("obj_mat.shininess", 32.0);
+	shader_program.set_vec3("dir_light.direction", 0, -1, 0);
+	shader_program.set_vec3("dir_light.ambient", 0.1, 0.1, 0.1);
+	shader_program.set_vec3("dir_light.diffuse", 1.0, 1.0, 1.0);
+	shader_program.set_vec3("dir_light.specular", 0.1, 0.1, 0.1);
+	for (int i = 0; i < AM_POINT_LIGHTS; ++i) {
+		shader_program.set_vec3("point_lights[" + std::to_string(i) + "].position",
+								light_pos[i * 3], light_pos[i * 3 + 1], light_pos[i * 3 + 2]);
+		shader_program.set_vec3("point_lights[" + std::to_string(i) + "].ambient", 0.00, 0.00,
+								0.00);
+		shader_program.set_vec3("point_lights[" + std::to_string(i) + "].diffuse", 0.0, 0.0, 0.0);
+		shader_program.set_vec3("point_lights[" + std::to_string(i) + "].specular", 0.0, 0.0, 0.0);
+	}
 
 	glm::vec3 cameraPos	  = glm::vec3(0.0f, 0.0f, 5.0f);
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp	  = glm::vec3(0.0f, 1.0f, 0.0f);
 
+	shader_program.set_vec3("sp_light.ambient", 0.01, 0.01, 0.01);
+	shader_program.set_vec3("sp_light.diffuse", 1.0, 1.0, 1.0);
+	shader_program.set_vec3("sp_light.specular", 0.5, 0.5, 0.5);
+	shader_program.set_vec3("sp_light.position", cameraPos.x, cameraPos.y, cameraPos.z);
+	shader_program.set_vec3("sp_light.direction", cameraFront.x, cameraFront.y, cameraFront.z);
+	shader_program.set_float("sp_light.cut_off", glm::cos(glm::radians(10.5f)));
+	shader_program.set_float("sp_light.outer_cut_off", glm::cos(glm::radians(19.5f)));
+
 	glm::mat4 model		 = glm::mat4(1.0f);
-	glm::mat4 view		 = raw::look_at(cameraPos, cameraFront + cameraPos, cameraUp);
+	glm::mat4 view		 = glm::lookAt(cameraPos, cameraFront + cameraPos, cameraUp);
 	glm::mat4 projection = glm::mat4(1.0f);
 	shader_program.set_mat4("model", glm::value_ptr(model));
 	shader_program.set_mat4("view", glm::value_ptr(view));
@@ -297,6 +297,7 @@ int main(int argc, char* argv[]) {
 	light_shader.set_mat4("model", glm::value_ptr(model));
 	light_shader.set_mat4("view", glm::value_ptr(view));
 	light_shader.set_mat4("projection", glm::value_ptr(projection));
+	light_shader.set_vec3("lightColor", 1, 1, 1);
 
 	raw::shader lines_shader("shaders/lines/vertex_shader.glsl", "shaders/lines/color_shader.frag");
 	lines_shader.use();
@@ -305,16 +306,15 @@ int main(int argc, char* argv[]) {
 	lines_shader.set_mat4("view", glm::value_ptr(view));
 	lines_shader.set_mat4("projection", glm::value_ptr(projection));
 
-	SDL_SetWindowMouseGrab(window, true);
-	SDL_SetWindowRelativeMouseMode(window, true);
+	window_mgr.set_state(MOUSE_GRAB, window_mgr.get(), true);
+	window_mgr.set_state(RELATIVE_MOUSE_MODE, window_mgr.get(), true);
 
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 100);
-
-	glEnable(GL_MULTISAMPLE);
+	window_mgr.set_state(GL_RULE, GL_DEPTH_TEST);
+	window_mgr.set_state(GL_ATTR, SDL_GL_MULTISAMPLEBUFFERS, 1);
+	window_mgr.set_state(GL_ATTR, SDL_GL_MULTISAMPLESAMPLES, 4);
+	window_mgr.set_state(GL_RULE, GL_MULTISAMPLE);
 
 	float yaw = -90.0f, pitch = 0.0f;
-	float oldx = 0.0f, oldy = 0.0f;
 
 	float		   cameraSpeed	  = 0.05f;
 	constexpr long updateMoveTime = 360;
@@ -329,11 +329,12 @@ int main(int argc, char* argv[]) {
 	float	  delta_angle = 1.0f;
 
 	while (running) {
-		while (SDL_PollEvent(&event)) {
+		while (window_mgr.poll_event(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {
 				std::cout << "Don't close me mf!" << std::endl;
 				running = false;
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
+                // that is so, SO trash, I need to make something better in the future
 				if (event.key.scancode == SDL_SCANCODE_SPACE) {
 					pressedButton = raw::button::SPACE;
 				} else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
@@ -369,6 +370,8 @@ int main(int argc, char* argv[]) {
 					pressedButton = raw::button::U;
 				} else if (event.key.scancode == SDL_SCANCODE_O) {
 					pressedButton = raw::button::O;
+				} else if (event.key.scancode == SDL_SCANCODE_T) {
+					pressedButton = raw::button::T;
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				float xoffset = event.motion.xrel;
@@ -397,12 +400,12 @@ int main(int argc, char* argv[]) {
 				pressedButton = raw::button::NONE;
 			} else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
 				event.wheel.y < 0 ? fov += 1.0f : fov -= 1.0f;
-				if (fov < 0.0000001f)
+				if (fov < 1)
 					fov = 1.0f;
 				if (fov > 180.0f)
 					fov = 180.0f;
 				projection =
-					raw::perspective(glm::radians(fov), width / float(height), 0.1f, 100.0f);
+					glm::perspective(glm::radians(fov), resolution.x / float(resolution.y), 0.1f, 100.0f);
 				shader_program.use();
 				shader_program.set_mat4("projection", glm::value_ptr(projection));
 				light_shader.use();
@@ -444,31 +447,37 @@ int main(int argc, char* argv[]) {
 				break;
 			case raw::button::I: {
 				glm::quat delta =
-					glm::angleAxis(glm::radians(delta_angle), glm::vec3(1.0f, 0.0f, 0.0f));
+					glm::angleAxis(glm::radians(delta_angle), glm::vec3(0.0f, 1.0f, 0.0f));
 				object_quat = object_quat * delta;
 				break;
 			}
+			case raw::button::T:
+				shader_program.use();
+				shader_program.set_bool("need_dir_light", dir_light);
+				dir_light = !dir_light;
+				break;
 			case raw::button::K: {
 				glm::quat delta =
-					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(1.0f, 0.0f, 0.0f));
+					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(0.0f, -1.0f, 0.0f));
 				object_quat = object_quat * delta;
 				break;
 			}
 			case raw::button::J: {
 				glm::quat delta =
-					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(0.0f, 1.0f, 0.0f));
+					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(-1.0f, 0.0f, 0.0f));
 				object_quat = object_quat * delta;
 				break;
 			}
 			case raw::button::L: {
 				glm::quat delta =
-					glm::angleAxis(glm::radians(delta_angle), glm::vec3(0.0f, 1.0f, 0.0f));
+					glm::angleAxis(glm::radians(delta_angle), glm::vec3(0.0f, 0.0f, -1.0f));
 				object_quat = object_quat * delta;
 				break;
 			}
+
 			case raw::button::U: {
 				glm::quat delta =
-					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(0.0f, 0.0f, 1.0f));
+					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(1.0f, 0.0f, 0.0f));
 				object_quat = object_quat * delta;
 				break;
 			}
@@ -486,20 +495,17 @@ int main(int argc, char* argv[]) {
 		view = raw::look_at(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		shader_program.use();
-		shader_program.set_vec3("lightPos", lightPos.x, lightPos.y, lightPos.z);
+		shader_program.set_vec3("sp_light.position", cameraPos.x, cameraPos.y, cameraPos.z);
+		shader_program.set_vec3("sp_light.direction", cameraFront.x, cameraFront.y, cameraFront.z);
 		shader_program.set_vec3("viewPos", cameraPos.x, cameraPos.y, cameraPos.z);
-		shader_program.set_vec3("lightColor", 1.0f, 1.0f, 1.0f);
-
-		shader_program.set_float("ambientStrength", 0.2f);
-		shader_program.set_float("specularStrength", 0.5f);
-		shader_program.set_float("shininess", 32.0f);
 		shader_program.set_mat4("view", glm::value_ptr(view));
 		light_shader.use();
 		light_shader.set_mat4("view", glm::value_ptr(view));
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		float rotation_angle = (float)SDL_GetTicks() / 1000.0f * glm::radians(50.0f);
+		auto delta = clock.get_elapsed_time();
+		std::cout << "Time since epoch: " << delta;
+		float rotation_angle = delta() / 1000 * glm::radians(50.0f);
 		for (unsigned int i = 0; i < sizeof(cubes) / sizeof(glm::vec3); i++) {
 			glm::mat4 current_cube_model(1.0f);
 
@@ -509,8 +515,8 @@ int main(int argc, char* argv[]) {
 					glm::translate(glm::mat4(1.0f), cubes[i]) * model_quat_rotation;
 			} else {
 				if (i == 10) {
-					current_cube_model = glm::translate(
-						glm::scale(model, glm::vec3(-0.5f, -0.5f, -0.5f)), cubes[10]);
+					current_cube_model =
+						glm::translate(glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f)), cubes[10]);
 
 				} else if (i < 10) {
 					current_cube_model = glm::translate(current_cube_model, cubes[i]);
@@ -555,24 +561,28 @@ int main(int argc, char* argv[]) {
 
 		glBindVertexArray(light_vao);
 		light_shader.use();
-		glm::mat4 lightModel = glm::mat4(1.0f);
-		lightModel			 = glm::translate(lightModel, lightPos);
-		lightModel			 = glm::scale(lightModel, glm::vec3(0.2f));
-		light_shader.set_mat4("model", glm::value_ptr(lightModel));
-		glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+		// amount of position determined by how much float are in there (1 float size is determined
+		// via sizeof(float) then cause there is 3 values representing position divide it all by 3)
+		for (int i = 0; i < sizeof(light_pos) / sizeof(float) / 3; ++i) {
+			glm::mat4 lightModel = glm::mat4(1.0f);
+			lightModel			 = glm::translate(
+				  lightModel,
+				  glm::vec3(light_pos[i * 3], light_pos[i * 3 + 1], light_pos[i * 3 + 2]));
+			lightModel = glm::scale(lightModel, glm::vec3(0.2f));
+			light_shader.set_mat4("model", glm::value_ptr(lightModel));
+			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+		}
 		glBindVertexArray(0);
-		SDL_GL_SwapWindow(window);
+		SDL_GL_SwapWindow(window_mgr.get());
 	}
 
-    glDeleteVertexArrays(1, &vao_1);
-    glDeleteVertexArrays(1, &light_vao);
-    glDeleteVertexArrays(1, &line_vao);
-    glDeleteBuffers(1, &vbo_1);
-    glDeleteBuffers(1, &vbo_lines);
-    glDeleteBuffers(1, &ebo_1);
-    SDL_GL_DestroyContext(gl_context);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
+    // if someone sees that code, don't be mad at me for not using classes to manage vao/vbo/ebo, I am working on mesh class already (for models)
+	glDeleteVertexArrays(1, &vao_1);
+	glDeleteVertexArrays(1, &light_vao);
+	glDeleteVertexArrays(1, &line_vao);
+	glDeleteBuffers(1, &vbo_1);
+	glDeleteBuffers(1, &vbo_lines);
+	glDeleteBuffers(1, &ebo_1);
 
 	return 0;
 }

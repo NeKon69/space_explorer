@@ -6,10 +6,13 @@
 #define SPACE_EXPLORER_SHADER_H
 
 #include <glad/glad.h>
-#include <string>
+
 #include <fstream>
-#include <sstream>
+#include <glm/glm.hpp>
 #include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace raw {
 
@@ -27,12 +30,11 @@ public:
 	bool set_float(const std::string& name, float value) const;
 	bool set_vec2(const std::string& name, float x, float y) const;
 	bool set_vec3(const std::string& name, float x, float y, float z) const;
-	bool set_vec4(const std::string& name, float x, float y, float z, float w) const;
+	bool set_vec3s(std::vector<std::string> names, std::vector<glm::vec3> values) const;
+    bool set_vec4(const std::string& name, float x, float y, float z, float w) const;
 	bool set_mat4(const std::string& name, const float* value) const;
 };
 
 } // namespace raw
-
-
 
 #endif // SPACE_EXPLORER_SHADER_H

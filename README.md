@@ -1,1 +1,2 @@
 # С++ project
+We can calculate such a value using the following equation: \begin{equation} I = \frac{\theta - \gamma}{\epsilon} \end{equation} Here \(\epsilon\) (epsilon) is the cosine difference between the inner (\(\phi\)) and the outer cone (\(\gamma\)) (\(\epsilon = \phi - \gamma\)). The resulting \(I\) value is then the intensity of the spotlight at the current fragment.

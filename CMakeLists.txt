@@ -11,6 +11,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(SDL3 REQUIRED CONFIG)
 find_package(glad REQUIRED CONFIG)
+find_package(Freetype REQUIRED)
+
 
 
 file(GLOB_RECURSE SOURCES src/*.c src/*.cpp tests/src/*.c tests/src/*.cpp)
@@ -57,4 +59,4 @@ else()
     message(WARNING "images directory not found: ${IMAGES_DIR}")
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad freetype)
