@@ -2,8 +2,8 @@
 // Created by progamers on 6/27/25.
 //
 
-#define PASSIVE_VALUE static inline constexpr auto
 #include <glm/glm.hpp>
+#include "helper_macros.h"
 
 #ifndef SPACE_EXPLORER_CAMERA_H
 #define SPACE_EXPLORER_CAMERA_H
@@ -19,13 +19,13 @@ PASSIVE_VALUE CAMERA_SPEED = 0.05f;
 } // namespace predef
 
 namespace camera_move {
-void UP(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
+void UP (glm::vec3& pos, glm::vec3 front, glm::vec3 up);
 void DOWN(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
-void LEFT(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
-void RIGHT(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
+void LEFT (glm::vec3& pos, glm::vec3 front, glm::vec3 up);
+void RIGHT (glm::vec3& pos, glm::vec3 front, glm::vec3 up);
 void FORWARD(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
 void BACKWARD(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
-void MOVE_FUNCTION(glm::vec3&, glm::vec3, glm::vec3);
+void MOVE_FUNCTION(glm::vec3&, glm::vec3,       glm::vec3);
 } // namespace camera_move
 
 class camera {

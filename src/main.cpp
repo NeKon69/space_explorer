@@ -9,13 +9,13 @@
 #include <glad/glad.h>
 
 #include <chrono>
+#include <functional>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
-#include <memory>
-#include <random>
+#include <print>
 #include <string>
 #include FT_FREETYPE_H
 
@@ -101,13 +101,14 @@ glm::mat4 perspective(float fov_rad, float aspect, float near, float far) {
 
 } // namespace raw
 template<typename mat>
+// I guess no more bit shifting string to kout (cout)
 void print_matrix(mat matrix) {
 	auto size = matrix.length();
 	for (int i = 0; i < size; ++i) {
 		for (int j = 0; j < size; ++j) {
-			printf("%f\t", matrix[i][j]);
+			std::print("{}\t", matrix[i][j]);
 		}
-		printf("\n");
+		std::print("\n");
 	}
 }
 
@@ -172,6 +173,8 @@ int main(int argc, char* argv[]) {
 
 	raw::window_manager window_mgr;
 	window_mgr.init("Mike Hawk");
+
+	// I can't wait to just demolish all those things with my new progamers models
 
 	unsigned int vao_1 = 0;
 	glGenVertexArrays(1, &vao_1);
@@ -326,6 +329,11 @@ int main(int argc, char* argv[]) {
 	glm::quat object_quat = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	float	  delta_angle = 1.0f;
 
+    auto TAB_CALLBACK = std::function([&camera](){camera.move(raw::camera_move::DOWN);});
+    auto SPACE_CALLBACK = std::function([&camera](){camera.move(raw::camera_move::UP);});
+    // so on...
+    // problem is I am not sure if it's the best you can do..., like it would be fine if I could place it in some namespace, but placing it into main really sucks to see
+
 	while (running) {
 		while (window_mgr.poll_event(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {
@@ -401,28 +409,27 @@ int main(int argc, char* argv[]) {
 		if ((end - start > std::chrono::milliseconds(1000 / updateMoveTime)) &&
 			pressedButton != raw::button::NONE) {
 			switch (pressedButton) {
-
-            case raw::button::DOWN:
-            case raw::button::S:
+			case raw::button::DOWN:
+			case raw::button::S:
 				camera.move(raw::camera_move::BACKWARD);
-                break;
-            case raw::button::UP:
-            case raw::button::W:
-                camera.move(raw::camera_move::FORWARD);
+				break;
+			case raw::button::UP:
+			case raw::button::W:
+				camera.move(raw::camera_move::FORWARD);
 				break;
 			case raw::button::LEFT:
-            case raw::button::A:
-                camera.move(raw::camera_move::LEFT);
+			case raw::button::A:
+				camera.move(raw::camera_move::LEFT);
 				break;
 			case raw::button::RIGHT:
-            case raw::button::D:
-                camera.move(raw::camera_move::RIGHT);
+			case raw::button::D:
+				camera.move(raw::camera_move::RIGHT);
 				break;
-            case raw::button::SPACE:
-                camera.move(raw::camera_move::UP);
-                break;
-            case raw::button::TAB:
-                camera.move(raw::camera_move::DOWN);
+			case raw::button::SPACE:
+				camera.move(raw::camera_move::UP);
+				break;
+			case raw::button::TAB:
+				camera.move(raw::camera_move::DOWN);
 				break;
 			case raw::button::I: {
 				glm::quat delta =
@@ -479,6 +486,7 @@ int main(int argc, char* argv[]) {
 		shader_program.set_vec3("viewPos", camera.front());
 		shader_program.set_mat4("view", glm::value_ptr(view));
 		light_shader.use();
+		print_matrix(view);
 		light_shader.set_mat4("view", glm::value_ptr(view));
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

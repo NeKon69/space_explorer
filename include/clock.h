@@ -5,11 +5,10 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include "helper_macros.h"
 
 #ifndef SPACE_EXPLORER_CLOCK_H
 #define SPACE_EXPLORER_CLOCK_H
-
-using std_clock = std::chrono::high_resolution_clock;
 
 namespace raw {
 
@@ -57,7 +56,7 @@ struct time {
 		return this->val - rhs.val;
 	}
 
-    [[nodiscard]] inline bool operator<(time rhs) const {
+	[[nodiscard]] inline bool operator<(time rhs) const {
 		return this->val < rhs.val;
 	}
 	[[nodiscard]] inline bool operator!=(time rhs) const {

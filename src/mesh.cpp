@@ -46,10 +46,11 @@ void mesh::setup_mash() {
 	glBindVertexArray(0);
 }
 
-// that's probably slower than just md std::to_string, but I so don't care so i would use that one
+// that's probably slower than just std::to_string, but I also don't care, so I would use that one (just for fun)
 void to_char_ptr(char *number, UI& amount_of_digits, UI &number_of_map) {
+    constexpr char bits = '0' - 1;
 	for (UI num = 0; num < amount_of_digits; ++num) {
-		number[num] = char(fmod(number_of_map / pow(10, num), 10));
+		number[num] = bits + char(number_of_map / int(pow(10, num)) % 10);
 	}
 	++number_of_map;
 }
@@ -60,8 +61,11 @@ void mesh::draw(raw::shader &shader) {
 
 	for (UI i = 0; i < textures.size(); ++i) {
 		glActiveTexture(GL_TEXTURE0 + i);
+        UI amount_of_digits = 1;
+        if(diffuse_num > 9) {
+            amount_of_digits = std::log(diffuse_num);
+        }
 
-		UI amount_of_digits = log10(diffuse_num);
 
 		char *number = (char *)malloc(sizeof(char) * amount_of_digits);
 		if (!number) {

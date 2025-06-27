@@ -95,42 +95,61 @@ void shader::use() const {
 }
 
 bool shader::set_bool(const std::string& name, bool value) const {
+    if(cashed_locations[name] != 0) {
+        glUniform1i(cashed_locations[name], (int)(value));
+        return true;
+    }
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
 		return false;
 	}
-
+    cashed_locations[name] = location;
 	glUniform1i(location, (int)value);
 	return true;
 }
 
 bool shader::set_int(const std::string& name, int value) const {
+    if(cashed_locations[name] != 0) {
+        glUniform1i(cashed_locations[name], value);
+        return true;
+    }
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
 		return false;
 	}
+    cashed_locations[name] = location;
 	glUniform1i(location, value);
 	return true;
 }
 
 bool shader::set_float(const std::string& name, float value) const {
+    if(cashed_locations[name] != 0) {
+        glUniform1f(cashed_locations[name], value);
+        return true;
+    }
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
 		return false;
 	}
+    cashed_locations[name] = location;
 	glUniform1f(location, value);
 	return true;
 }
 
 bool shader::set_vec2(const std::string& name, float x, float y) const {
+    if(cashed_locations[name] != 0) {
+        glUniform2f(cashed_locations[name], x, y);
+        return true;
+    }
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << "\n";
 		return false;
 	}
+    cashed_locations[name] = location;
 	glUniform2f(location, x, y);
 	return true;
 }
@@ -140,12 +159,17 @@ bool shader::set_vec2(const std::string& name, glm::vec2 vec) const {
 }
 
 bool shader::set_vec3(const std::string& name, float x, float y, float z) const {
+    if(cashed_locations[name] != 0) {
+        glUniform3f(cashed_locations[name], x, y, z);
+        return true;
+    }
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << " " << z
 				  << "\n";
 		return false;
 	}
+    cashed_locations[name] = location;
 	glUniform3f(location, x, y, z);
 	return true;
 }
@@ -155,13 +179,18 @@ bool shader::set_vec3(const std::string& name, glm::vec3 vec) const {
 }
 
 bool shader::set_vec4(const std::string& name, float x, float y, float z, float w) const {
+    if(cashed_locations[name] != 0) {
+        glUniform4f(cashed_locations[name], x, y, z, w);
+        return true;
+    }
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << " " << z
 				  << " " << w << "\n";
 		return false;
 	}
-	glUniform4f(location, x, y, z, w);
+    cashed_locations[name] = location;
+    glUniform4f(location, x, y, z, w);
 	return true;
 }
 
@@ -175,6 +204,7 @@ bool shader::set_mat4(const std::string& name, const float* value) const {
 		std::cerr << "Failed to initialize " << name << " with value(matrix): " << value << "\n";
 		return false;
 	}
+    cashed_locations[name] = location;
 	glUniformMatrix4fv(location, 1, GL_FALSE, value);
 	return true;
 }

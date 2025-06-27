@@ -12,7 +12,7 @@
 #include <string>
 
 #include "context_manager.h"
-#define PASSIVE_VALUE static inline constexpr auto
+#include "helper_macros.h"
 
 namespace raw {
 
@@ -37,14 +37,10 @@ public:
 	// if you don't like what predefined attributes I have, you could set what you want manually.
 	template<typename F, typename... Ts>
 	void set_state(F&& func, Ts... values) {
-		// I don't really know will is it working or not, but it almost doesn't matter anyway since
+		// I don't really know is it working or not, but it almost doesn't matter anyway since
 		// usually R-values converting to L-values isn't a problem in OPENGL (usually)
 		std::forward<F>(func)(std::forward<Ts>(values)...);
 	}
-
-	// well, that's kinda sad, but they do say that no one knows in what order classes are
-	// initialized, hence we'll have even classes for opengl, and SDL, we unfortunately have to
-	// have this, because we need to control in what order we are initializing things
 	void init(const std::string& name);
 
 	[[nodiscard]] bool poll_event(SDL_Event* event);
