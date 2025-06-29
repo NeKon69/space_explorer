@@ -334,11 +334,17 @@ int main(int argc, char* argv[]) {
 	auto SPACE_CALLBACK = std::function([&camera]() {
 		camera.move(raw::camera_move::UP);
 	});
-	// so on...
-	// problem is I am not sure if it's the best you can do..., like it would be fine if I could
-	// place it in some namespace, but placing it into main really sucks to see
+	auto LEFT_CALLBACK	= std::function([&camera]() {
+		 camera.move(raw::camera_move::LEFT);
+	 });
+	auto RIGHT_CALLBACK = std::function([&camera]() {
+		camera.move(raw::camera_move::RIGHT);
+	});
 
-	while (running) {
+		// so on...
+		// problem is I am not sure if it's the best you can do..., like it would be fine if I could
+		// place it in some namespace, but placing it into main really sucks to see
+    while (running) {
 		while (window_mgr.poll_event(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {
 				std::cout << "Don't close me mf!" << std::endl;

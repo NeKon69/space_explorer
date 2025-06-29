@@ -19,7 +19,9 @@ window_manager::window_manager(const std::string& window_name) {
 							  (SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN));
 	if (!window) {
 		std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-		throw std::runtime_error("Window creation was unsuccessful!");
+        throw std::runtime_error(
+                "Window could not be created! SDL_Error: " + std::string(SDL_GetError()) + " in " +
+                __FILE__ + " on " + std::to_string(__LINE__));
 	}
 }
 
