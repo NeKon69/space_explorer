@@ -21,9 +21,9 @@
 
 #include "camera.h"
 #include "clock.h"
+#include "gl_window.h"
 #include "shader.h"
 #include "stb_image.h"
-#include "window_manager.h"
 
 #define base_types(type, amount) std::vector<type>(amount, type(0.05))
 namespace raw {
@@ -171,8 +171,7 @@ int main(int argc, char* argv[]) {
 					   glm::vec3(0.0f, 0.0f, -1.5f),   glm::vec3(5.0f, 0.f, 0.f),
 					   glm::vec3(10.0f, 0.f, 0.f)};
 
-	raw::window_manager window_mgr;
-	window_mgr.init("Mike Hawk");
+	raw::gl_window window_mgr("Mike Hawk");
 
 	// I can't wait to just demolish all those things with my new progamers models
 
@@ -329,10 +328,15 @@ int main(int argc, char* argv[]) {
 	glm::quat object_quat = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	float	  delta_angle = 1.0f;
 
-    auto TAB_CALLBACK = std::function([&camera](){camera.move(raw::camera_move::DOWN);});
-    auto SPACE_CALLBACK = std::function([&camera](){camera.move(raw::camera_move::UP);});
-    // so on...
-    // problem is I am not sure if it's the best you can do..., like it would be fine if I could place it in some namespace, but placing it into main really sucks to see
+	auto TAB_CALLBACK	= std::function([&camera]() {
+		  camera.move(raw::camera_move::DOWN);
+	  });
+	auto SPACE_CALLBACK = std::function([&camera]() {
+		camera.move(raw::camera_move::UP);
+	});
+	// so on...
+	// problem is I am not sure if it's the best you can do..., like it would be fine if I could
+	// place it in some namespace, but placing it into main really sucks to see
 
 	while (running) {
 		while (window_mgr.poll_event(&event)) {

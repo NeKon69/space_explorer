@@ -66,7 +66,6 @@ void mesh::draw(raw::shader &shader) {
             amount_of_digits = std::log(diffuse_num);
         }
 
-
 		char *number = (char *)malloc(sizeof(char) * amount_of_digits);
 		if (!number) {
 			// START FCKING SCREAMING THAT NO MEMORY EVEN FOR 1-2 BYTES MF (LIKE WTHELL)

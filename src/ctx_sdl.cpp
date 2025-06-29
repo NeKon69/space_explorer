@@ -1,0 +1,23 @@
+//
+// Created by progamers on 6/26/25.
+//
+#include <SDL3/SDL.h>
+
+#include <iostream>
+
+#include "ctx_sdl.h"
+namespace raw {
+
+// first function to call in graphics application
+ctx_sdl::ctx_sdl() {
+	if (!SDL_Init(SDL_INIT_VIDEO)) {
+		std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+		exit(1);
+	}
+}
+
+ctx_sdl::~ctx_sdl() noexcept {
+	SDL_Quit();
+}
+
+} // namespace raw

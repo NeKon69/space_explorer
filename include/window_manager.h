@@ -11,7 +11,7 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "context_manager.h"
+#include "ctx_sdl.h"
 #include "helper_macros.h"
 
 namespace raw {
@@ -26,13 +26,13 @@ PASSIVE_VALUE& RELATIVE_MOUSE_MODE = SDL_SetWindowRelativeMouseMode;
 PASSIVE_VALUE& CLEAR_COLOR		   = glClearColor;
 } // namespace gl
 
-class window_manager final : public ctx_gl {
-private:
-	SDL_Window* window	= nullptr;
-	bool		created = false;
+class window_manager : public ctx_sdl {
+protected:
+	SDL_Window* window = nullptr;
 
 public:
-	window_manager();
+    window_manager() = delete;
+	window_manager(const std::string& window_name);
 
 	// if you don't like what predefined attributes I have, you could set what you want manually.
 	template<typename F, typename... Ts>
@@ -41,7 +41,6 @@ public:
 		// usually R-values converting to L-values isn't a problem in OPENGL (usually)
 		std::forward<F>(func)(std::forward<Ts>(values)...);
 	}
-	void init(const std::string& name);
 
 	[[nodiscard]] bool poll_event(SDL_Event* event);
 
@@ -49,8 +48,9 @@ public:
 
 	glm::ivec2 get_window_size();
 
-	~window_manager() noexcept final;
+	virtual ~window_manager() noexcept;
 };
+
 } // namespace raw
 
 #endif // SPACE_EXPLORER_WINDOW_MANAGER_H

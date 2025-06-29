@@ -4,7 +4,7 @@
 #include "shader.h"
 
 namespace raw {
-shader::shader(const char* vertex_path, const char* fragment_path) {
+shader::shader(const char* vertex_path, const char* fragment_path) : id(0) {
 	set_shaders(vertex_path, fragment_path);
 }
 
@@ -94,122 +94,122 @@ void shader::use() const {
 	glUseProgram(id);
 }
 
-bool shader::set_bool(const std::string& name, bool value) const {
-    if(cashed_locations[name] != 0) {
-        glUniform1i(cashed_locations[name], (int)(value));
-        return true;
-    }
+bool shader::set_bool(const std::string& name, bool value) {
+	if (cached_locations[name] != 0) {
+		glUniform1i(cached_locations[name], (int)(value));
+		return true;
+	}
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
 		return false;
 	}
-    cashed_locations[name] = location;
+	cached_locations[name] = location;
 	glUniform1i(location, (int)value);
 	return true;
 }
 
-bool shader::set_int(const std::string& name, int value) const {
-    if(cashed_locations[name] != 0) {
-        glUniform1i(cashed_locations[name], value);
-        return true;
-    }
+bool shader::set_int(const std::string& name, int value) {
+	if (cached_locations[name] != 0) {
+		glUniform1i(cached_locations[name], value);
+		return true;
+	}
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
 		return false;
 	}
-    cashed_locations[name] = location;
+	cached_locations[name] = location;
 	glUniform1i(location, value);
 	return true;
 }
 
-bool shader::set_float(const std::string& name, float value) const {
-    if(cashed_locations[name] != 0) {
-        glUniform1f(cashed_locations[name], value);
-        return true;
-    }
+bool shader::set_float(const std::string& name, float value) {
+	if (cached_locations[name] != 0) {
+		glUniform1f(cached_locations[name], value);
+		return true;
+	}
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << value << "\n";
 		return false;
 	}
-    cashed_locations[name] = location;
+	cached_locations[name] = location;
 	glUniform1f(location, value);
 	return true;
 }
 
-bool shader::set_vec2(const std::string& name, float x, float y) const {
-    if(cashed_locations[name] != 0) {
-        glUniform2f(cashed_locations[name], x, y);
-        return true;
-    }
+bool shader::set_vec2(const std::string& name, float x, float y) {
+	if (cached_locations[name] != 0) {
+		glUniform2f(cached_locations[name], x, y);
+		return true;
+	}
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << "\n";
 		return false;
 	}
-    cashed_locations[name] = location;
+	cached_locations[name] = location;
 	glUniform2f(location, x, y);
 	return true;
 }
 
-bool shader::set_vec2(const std::string& name, glm::vec2 vec) const {
+bool shader::set_vec2(const std::string& name, glm::vec2 vec) {
 	return set_vec2(name, vec.x, vec.y);
 }
 
-bool shader::set_vec3(const std::string& name, float x, float y, float z) const {
-    if(cashed_locations[name] != 0) {
-        glUniform3f(cashed_locations[name], x, y, z);
-        return true;
-    }
+bool shader::set_vec3(const std::string& name, float x, float y, float z) {
+	if (cached_locations[name] != 0) {
+		glUniform3f(cached_locations[name], x, y, z);
+		return true;
+	}
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << " " << z
 				  << "\n";
 		return false;
 	}
-    cashed_locations[name] = location;
+	cached_locations[name] = location;
 	glUniform3f(location, x, y, z);
 	return true;
 }
 
-bool shader::set_vec3(const std::string& name, glm::vec3 vec) const {
-    return set_vec3(name, vec.x, vec.y, vec.z);
+bool shader::set_vec3(const std::string& name, glm::vec3 vec) {
+	return set_vec3(name, vec.x, vec.y, vec.z);
 }
 
-bool shader::set_vec4(const std::string& name, float x, float y, float z, float w) const {
-    if(cashed_locations[name] != 0) {
-        glUniform4f(cashed_locations[name], x, y, z, w);
-        return true;
-    }
+bool shader::set_vec4(const std::string& name, float x, float y, float z, float w) {
+	if (cached_locations[name] != 0) {
+		glUniform4f(cached_locations[name], x, y, z, w);
+		return true;
+	}
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value: " << x << " " << y << " " << z
 				  << " " << w << "\n";
 		return false;
 	}
-    cashed_locations[name] = location;
-    glUniform4f(location, x, y, z, w);
+	cached_locations[name] = location;
+	glUniform4f(location, x, y, z, w);
 	return true;
 }
 
-bool shader::set_vec4(const std::string& name, glm::vec4 vec) const {
-    return set_vec4(name, vec.x, vec.y, vec.z, vec.w);
+bool shader::set_vec4(const std::string& name, glm::vec4 vec) {
+	return set_vec4(name, vec.x, vec.y, vec.z, vec.w);
 }
 
-bool shader::set_mat4(const std::string& name, const float* value) const {
+bool shader::set_mat4(const std::string& name, const float* value) {
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value(matrix): " << value << "\n";
 		return false;
 	}
-    cashed_locations[name] = location;
+	cached_locations[name] = location;
 	glUniformMatrix4fv(location, 1, GL_FALSE, value);
 	return true;
 }
 
-bool shader::set_vec3s(std::vector<std::string> names, std::vector<glm::vec3> values) const {
+bool shader::set_vec3s(std::vector<std::string> names, std::vector<glm::vec3> values) {
 	for (int i = 0; i < std::size(names); ++i) {
 		if (!set_vec3(names[i], values[i].x, values[i].y, values[i].z)) {
 			return false;
