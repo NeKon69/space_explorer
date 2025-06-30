@@ -19,6 +19,7 @@
 #include <string>
 #include FT_FREETYPE_H
 
+#include "button.h"
 #include "camera.h"
 #include "clock.h"
 #include "gl_window.h"
@@ -112,13 +113,11 @@ void print_matrix(mat matrix) {
 	}
 }
 
-namespace raw {
-enum class button { TAB, SPACE, LEFT, RIGHT, UP, DOWN, W, A, S, D, I, K, J, L, U, O, T, NONE };
-}
-
 int main(int argc, char* argv[]) {
-	bool	   dir_light = true;
-	raw::clock clock;
+	bool										  dir_light = true;
+	raw::clock									  clock;
+	raw::clock									  clock_callback;
+	std::unordered_map<SDL_Scancode, raw::button> buttons;
 	stbi_set_flip_vertically_on_load(true);
 
 	float cube_pos[] = {
@@ -307,8 +306,8 @@ int main(int argc, char* argv[]) {
 	lines_shader.set_mat4("view", glm::value_ptr(view));
 	lines_shader.set_mat4("projection", glm::value_ptr(projection));
 
-	window_mgr.set_state(raw::gl::MOUSE_GRAB, window_mgr.get(), true);
-	window_mgr.set_state(raw::gl::RELATIVE_MOUSE_MODE, window_mgr.get(), true);
+	//	window_mgr.set_state(raw::gl::MOUSE_GRAB, window_mgr.get(), true);
+	//	window_mgr.set_state(raw::gl::RELATIVE_MOUSE_MODE, window_mgr.get(), true);
 
 	window_mgr.set_state(raw::gl::RULE, GL_DEPTH_TEST);
 	window_mgr.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -317,77 +316,219 @@ int main(int argc, char* argv[]) {
 
 	float yaw = -90.0f, pitch = 0.0f;
 
-	constexpr long updateMoveTime = 360;
+	constexpr long updateMoveTime = 144;
 	auto		   start		  = std::chrono::high_resolution_clock::now();
 	auto		   end			  = std::chrono::high_resolution_clock::now();
-
-	raw::button pressedButton = raw::button::NONE;
 
 	float fov = 45.0f;
 
 	glm::quat object_quat = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	float	  delta_angle = 1.0f;
+	// so we don't pollute main, what we'll do is so smart, we initialize them in that field of
+	// view, then add them to our unordered map, and just delete them, works just like clock
+	{
+		static const auto TAB_CALLBACK	 = std::function([&camera, &clock_callback]() {
+			  auto time_since_epoch = clock_callback.get_elapsed_time();
+			  time_since_epoch.to_milli();
+			  if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				  camera.move(raw::camera_move::DOWN);
+				  clock_callback.restart();
+			  }
+		  });
+		static const auto SPACE_CALLBACK = std::function([&camera, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				camera.move(raw::camera_move::UP);
+				clock_callback.restart();
+			}
+		});
+		static const auto LEFT_CALLBACK	 = std::function([&camera, &clock_callback]() {
+			 auto time_since_epoch = clock_callback.get_elapsed_time();
+			 time_since_epoch.to_milli();
+			 if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				 camera.move(raw::camera_move::LEFT);
+				 clock_callback.restart();
+			 }
+		 });
+		static auto		  RIGHT_CALLBACK = [&camera, &clock_callback]() {
+			  auto time_since_epoch = clock_callback.get_elapsed_time();
+			  time_since_epoch.to_milli();
+			  if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				  camera.move(raw::camera_move::RIGHT);
+				  clock_callback.restart();
+			  }
+		};
 
-	auto TAB_CALLBACK	= std::function([&camera]() {
-		  camera.move(raw::camera_move::DOWN);
-	  });
-	auto SPACE_CALLBACK = std::function([&camera]() {
-		camera.move(raw::camera_move::UP);
-	});
-	auto LEFT_CALLBACK	= std::function([&camera]() {
-		 camera.move(raw::camera_move::LEFT);
-	 });
-	auto RIGHT_CALLBACK = std::function([&camera]() {
-		camera.move(raw::camera_move::RIGHT);
-	});
+		static auto UP_CALLBACK = [&camera, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				camera.move(raw::camera_move::FORWARD);
+				clock_callback.restart();
+			}
+		};
 
-		// so on...
-		// problem is I am not sure if it's the best you can do..., like it would be fine if I could
-		// place it in some namespace, but placing it into main really sucks to see
-    while (running) {
+		static auto DOWN_CALLBACK = [&camera, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				camera.move(raw::camera_move::BACKWARD);
+				clock_callback.restart();
+			}
+		};
+
+		static auto W_CALLBACK = [&camera, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				camera.move(raw::camera_move::FORWARD);
+				clock_callback.restart();
+			}
+		};
+
+		static auto A_CALLBACK = [&camera, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				camera.move(raw::camera_move::LEFT);
+				clock_callback.restart();
+			}
+		};
+
+		static auto S_CALLBACK = [&camera, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				camera.move(raw::camera_move::BACKWARD);
+				clock_callback.restart();
+			}
+		};
+
+		static auto D_CALLBACK = [&camera, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				camera.move(raw::camera_move::RIGHT);
+				clock_callback.restart();
+			}
+		};
+
+		static auto I_CALLBACK = [&object_quat, &delta_angle, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				glm::quat delta =
+					glm::angleAxis(glm::radians(delta_angle), glm::vec3(0.0f, 1.0f, 0.0f));
+				object_quat = object_quat * delta;
+				clock_callback.restart();
+			}
+		};
+
+		static auto K_CALLBACK = [&object_quat, &delta_angle, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				glm::quat delta =
+					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(0.0f, 1.0f, 0.0f));
+				object_quat = object_quat * delta;
+				clock_callback.restart();
+			}
+		};
+
+		static auto J_CALLBACK = [&object_quat, &delta_angle, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				glm::quat delta =
+					glm::angleAxis(glm::radians(delta_angle), glm::vec3(1.0f, 0.0f, 0.0f));
+				object_quat = object_quat * delta;
+				clock_callback.restart();
+			}
+		};
+
+		static auto L_CALLBACK = [&object_quat, &delta_angle, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				glm::quat delta =
+					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(1.0f, 0.0f, 0.0f));
+				object_quat = object_quat * delta;
+				clock_callback.restart();
+			}
+		};
+
+		static auto U_CALLBACK = [&object_quat, &delta_angle, &clock_callback]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				glm::quat delta =
+					glm::angleAxis(glm::radians(delta_angle), glm::vec3(0.0f, 0.0f, 1.0f));
+				object_quat = object_quat * delta;
+				clock_callback.restart();
+			}
+		};
+
+		static auto O_CALLBACK = [&object_quat, &delta_angle, &clock_callback, &updateMoveTime]() {
+			auto time_since_epoch = clock_callback.get_elapsed_time();
+			time_since_epoch.to_milli();
+			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
+				glm::quat delta =
+					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(0.0f, 0.0f, 1.0f));
+				object_quat = object_quat * delta;
+				clock_callback.restart();
+			}
+		};
+
+		static auto T_CALLBACK = [&shader_program, &dir_light]() {
+			shader_program.use();
+			dir_light = true;
+			shader_program.set_bool("need_dir_light", dir_light);
+		};
+
+		static auto T_RELEASE_CALLBACK = [&shader_program, &dir_light]() {
+			shader_program.use();
+			dir_light = false;
+			shader_program.set_bool("need_dir_light", dir_light);
+		};
+
+		static auto ESCAPE_CALLBACK = [&running]() {
+			std::cout << "Don't close me mf!" << std::endl;
+			running = false;
+		};
+
+		// that's so much boilerplate code, I hate it, but that's how it goes
+		buttons[SDL_SCANCODE_TAB]	 = raw::button(TAB_CALLBACK);
+		buttons[SDL_SCANCODE_SPACE]	 = raw::button(SPACE_CALLBACK);
+		buttons[SDL_SCANCODE_LEFT]	 = raw::button(LEFT_CALLBACK);
+		buttons[SDL_SCANCODE_RIGHT]	 = raw::button(RIGHT_CALLBACK);
+		buttons[SDL_SCANCODE_UP]	 = raw::button(UP_CALLBACK);
+		buttons[SDL_SCANCODE_DOWN]	 = raw::button(DOWN_CALLBACK);
+		buttons[SDL_SCANCODE_W]		 = raw::button(W_CALLBACK);
+		buttons[SDL_SCANCODE_A]		 = raw::button(A_CALLBACK);
+		buttons[SDL_SCANCODE_S]		 = raw::button(S_CALLBACK);
+		buttons[SDL_SCANCODE_D]		 = raw::button(D_CALLBACK);
+		buttons[SDL_SCANCODE_I]		 = raw::button(I_CALLBACK);
+		buttons[SDL_SCANCODE_K]		 = raw::button(K_CALLBACK);
+		buttons[SDL_SCANCODE_J]		 = raw::button(J_CALLBACK);
+		buttons[SDL_SCANCODE_L]		 = raw::button(L_CALLBACK);
+		buttons[SDL_SCANCODE_U]		 = raw::button(U_CALLBACK);
+		buttons[SDL_SCANCODE_O]		 = raw::button(O_CALLBACK);
+		buttons[SDL_SCANCODE_T]		 = raw::button(T_CALLBACK, T_RELEASE_CALLBACK);
+		buttons[SDL_SCANCODE_ESCAPE] = raw::button(ESCAPE_CALLBACK);
+	}
+
+	// so on...
+	// problem is I am not sure if it's the best you can do..., like it would be fine if I could
+	// place it in some namespace, but placing it into main really sucks to see
+	while (running) {
 		while (window_mgr.poll_event(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {
 				std::cout << "Don't close me mf!" << std::endl;
 				running = false;
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
-				// that is so, SO trash, I need to make something better in the future
-				if (event.key.scancode == SDL_SCANCODE_SPACE) {
-					pressedButton = raw::button::SPACE;
-				} else if (event.key.scancode == SDL_SCANCODE_ESCAPE) {
-					std::cout << "Don't close me mf!" << std::endl;
-					running = false;
-				} else if (event.key.scancode == SDL_SCANCODE_LEFT) {
-					pressedButton = raw::button::LEFT;
-				} else if (event.key.scancode == SDL_SCANCODE_RIGHT) {
-					pressedButton = raw::button::RIGHT;
-				} else if (event.key.scancode == SDL_SCANCODE_UP) {
-					pressedButton = raw::button::UP;
-				} else if (event.key.scancode == SDL_SCANCODE_DOWN) {
-					pressedButton = raw::button::DOWN;
-				} else if (event.key.scancode == SDL_SCANCODE_TAB) {
-					pressedButton = raw::button::TAB;
-				} else if (event.key.scancode == SDL_SCANCODE_A) {
-					pressedButton = raw::button::A;
-				} else if (event.key.scancode == SDL_SCANCODE_W) {
-					pressedButton = raw::button::W;
-				} else if (event.key.scancode == SDL_SCANCODE_S) {
-					pressedButton = raw::button::S;
-				} else if (event.key.scancode == SDL_SCANCODE_D) {
-					pressedButton = raw::button::D;
-				} else if (event.key.scancode == SDL_SCANCODE_I) {
-					pressedButton = raw::button::I;
-				} else if (event.key.scancode == SDL_SCANCODE_K) {
-					pressedButton = raw::button::K;
-				} else if (event.key.scancode == SDL_SCANCODE_J) {
-					pressedButton = raw::button::J;
-				} else if (event.key.scancode == SDL_SCANCODE_L) {
-					pressedButton = raw::button::L;
-				} else if (event.key.scancode == SDL_SCANCODE_U) {
-					pressedButton = raw::button::U;
-				} else if (event.key.scancode == SDL_SCANCODE_O) {
-					pressedButton = raw::button::O;
-				} else if (event.key.scancode == SDL_SCANCODE_T) {
-					pressedButton = raw::button::T;
+				if (buttons.contains(event.key.scancode)) {
+					buttons[event.key.scancode].press();
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				float xoffset = event.motion.xrel;
@@ -401,7 +542,7 @@ int main(int argc, char* argv[]) {
 
 				camera.rotate(yaw, pitch);
 			} else if (event.type == SDL_EVENT_KEY_UP) {
-				pressedButton = raw::button::NONE;
+				buttons[event.key.scancode].release();
 			} else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
 				event.wheel.y < 0 ? fov += 1.0f : fov -= 1.0f;
 				if (fov < 1)
@@ -414,80 +555,16 @@ int main(int argc, char* argv[]) {
 				shader_program.set_mat4("projection", glm::value_ptr(projection));
 				light_shader.use();
 				light_shader.set_mat4("projection", glm::value_ptr(projection));
+			} else if (event.type == SDL_EVENT_KEY_UP) {
+				if (buttons.contains(event.key.scancode)) {
+					buttons[event.key.scancode].release();
+				}
 			}
 		}
-		if ((end - start > std::chrono::milliseconds(1000 / updateMoveTime)) &&
-			pressedButton != raw::button::NONE) {
-			switch (pressedButton) {
-			case raw::button::DOWN:
-			case raw::button::S:
-				camera.move(raw::camera_move::BACKWARD);
-				break;
-			case raw::button::UP:
-			case raw::button::W:
-				camera.move(raw::camera_move::FORWARD);
-				break;
-			case raw::button::LEFT:
-			case raw::button::A:
-				camera.move(raw::camera_move::LEFT);
-				break;
-			case raw::button::RIGHT:
-			case raw::button::D:
-				camera.move(raw::camera_move::RIGHT);
-				break;
-			case raw::button::SPACE:
-				camera.move(raw::camera_move::UP);
-				break;
-			case raw::button::TAB:
-				camera.move(raw::camera_move::DOWN);
-				break;
-			case raw::button::I: {
-				glm::quat delta =
-					glm::angleAxis(glm::radians(delta_angle), glm::vec3(0.0f, 1.0f, 0.0f));
-				object_quat = object_quat * delta;
-				break;
-			}
-			case raw::button::T:
-				shader_program.use();
-				shader_program.set_bool("need_dir_light", dir_light);
-				dir_light = !dir_light;
-				break;
-			case raw::button::K: {
-				glm::quat delta =
-					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(0.0f, -1.0f, 0.0f));
-				object_quat = object_quat * delta;
-				break;
-			}
-			case raw::button::J: {
-				glm::quat delta =
-					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(-1.0f, 0.0f, 0.0f));
-				object_quat = object_quat * delta;
-				break;
-			}
-			case raw::button::L: {
-				glm::quat delta =
-					glm::angleAxis(glm::radians(delta_angle), glm::vec3(0.0f, 0.0f, -1.0f));
-				object_quat = object_quat * delta;
-				break;
-			}
-
-			case raw::button::U: {
-				glm::quat delta =
-					glm::angleAxis(glm::radians(-delta_angle), glm::vec3(1.0f, 0.0f, 0.0f));
-				object_quat = object_quat * delta;
-				break;
-			}
-			case raw::button::O: {
-				glm::quat delta =
-					glm::angleAxis(glm::radians(delta_angle), glm::vec3(0.0f, 0.0f, 1.0f));
-				object_quat = object_quat * delta;
-				break;
-			}
-			}
-			start = std::chrono::high_resolution_clock::now();
+        // that works, but it sucks tremendously, well, for now it'll go
+		for (auto& [key, button] : buttons) {
+			button.update();
 		}
-		end = std::chrono::high_resolution_clock::now();
-
 		view = camera.value();
 
 		shader_program.use();
@@ -558,8 +635,9 @@ int main(int argc, char* argv[]) {
 
 		glBindVertexArray(light_vao);
 		light_shader.use();
-		// amount of position determined by how much float are in there (1 float size is determined
-		// via sizeof(float) then cause there is 3 values representing position divide it all by 3)
+		// amount of position determined by how much float are in there (1 float size is
+		// determined via sizeof(float) then cause there is 3 values representing position
+		// divide it all by 3)
 		for (int i = 0; i < sizeof(light_pos) / sizeof(float) / 3; ++i) {
 			glm::mat4 lightModel = glm::mat4(1.0f);
 			lightModel			 = glm::translate(
@@ -572,9 +650,8 @@ int main(int argc, char* argv[]) {
 		glBindVertexArray(0);
 		SDL_GL_SwapWindow(window_mgr.get());
 	}
-
-	// if someone sees that code, don't be mad at me for not using classes to manage vao/vbo/ebo, I
-	// am working on mesh class already (for models)
+	// if someone sees that code, don't be mad at me for not using classes to manage
+	// vao/vbo/ebo, I am working on mesh class already (for models)
 	glDeleteVertexArrays(1, &vao_1);
 	glDeleteVertexArrays(1, &light_vao);
 	glDeleteVertexArrays(1, &line_vao);

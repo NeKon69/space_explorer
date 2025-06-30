@@ -53,7 +53,7 @@ struct time {
 	inline long double operator-(time rhs) const {
 		auto cp = rhs;
 		cp.handle_conversion(curr);
-		return this->val - rhs.val;
+		return this->val - cp.val;
 	}
 
 	[[nodiscard]] inline bool operator<(time rhs) const {
