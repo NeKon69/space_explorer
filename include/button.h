@@ -21,11 +21,11 @@ public:
 	button(std::function<void()> pressed);
 
 	// setters
-	void set_pressed_callback(void (*pressed)()) {
+	void set_pressed_callback(const std::function<void()>& pressed) {
 		pressed_callback = pressed;
 	}
 
-	void set_released_callback(void (*released)()) {
+	void set_released_callback(const std::function<void()>& released) {
 		released_callback = released;
 	}
 

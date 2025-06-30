@@ -3,7 +3,6 @@
 //
 // Yes, I know, I am crazy, but I am still learning, so be less brutal at me pls.
 #define STB_IMAGE_IMPLEMENTATION
-#define AM_POINT_LIGHTS 4
 #include <SDL3/SDL.h>
 #include <ft2build.h>
 #include <glad/glad.h>
@@ -23,8 +22,11 @@
 #include "camera.h"
 #include "clock.h"
 #include "gl_window.h"
+#include "model.h"
 #include "shader.h"
 #include "stb_image.h"
+
+PASSIVE_VALUE AM_POINT_LIGHTS = 4;
 
 #define base_types(type, amount) std::vector<type>(amount, type(0.05))
 namespace raw {
@@ -120,128 +122,40 @@ int main(int argc, char* argv[]) {
 	std::unordered_map<SDL_Scancode, raw::button> buttons;
 	stbi_set_flip_vertically_on_load(true);
 
-	float cube_pos[] = {
-		-0.5f, -0.5f, -0.5f, 0.0f,	0.0f,  -1.0f, 1.0f,	 0.0f,	0.0f,  0.5f,  -0.5f, -0.5f,
-		0.0f,  0.0f,  -1.0f, 0.0f,	1.0f,  0.0f,  0.5f,	 0.5f,	-0.5f, 0.0f,  0.0f,	 -1.0f,
-		0.0f,  0.0f,  1.0f,	 -0.5f, 0.5f,  -0.5f, 0.0f,	 0.0f,	-1.0f, 1.0f,  1.0f,	 0.0f,
+	// Данные для куба-источника света
+	float light_cube_vertices[] = {-0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,	0.5f,  -0.5f,
+								   0.5f,  0.5f,	 -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, -0.5f, -0.5f,
 
-		-0.5f, -0.5f, 0.5f,	 0.0f,	0.0f,  1.0f,  1.0f,	 0.0f,	1.0f,  0.5f,  -0.5f, 0.5f,
-		0.0f,  0.0f,  1.0f,	 0.0f,	1.0f,  1.0f,  0.5f,	 0.5f,	0.5f,  0.0f,  0.0f,	 1.0f,
-		1.0f,  1.0f,  1.0f,	 -0.5f, 0.5f,  0.5f,  0.0f,	 0.0f,	1.0f,  0.0f,  0.0f,	 0.0f,
+								   -0.5f, -0.5f, 0.5f,	0.5f,  -0.5f, 0.5f,	 0.5f,	0.5f,  0.5f,
+								   0.5f,  0.5f,	 0.5f,	-0.5f, 0.5f,  0.5f,	 -0.5f, -0.5f, 0.5f,
 
-		-0.5f, 0.5f,  0.5f,	 -1.0f, 0.0f,  0.0f,  0.0f,	 0.0f,	0.0f,  -0.5f, 0.5f,	 -0.5f,
-		-1.0f, 0.0f,  0.0f,	 1.0f,	1.0f,  0.0f,  -0.5f, -0.5f, -0.5f, -1.0f, 0.0f,	 0.0f,
-		1.0f,  0.0f,  0.0f,	 -0.5f, -0.5f, 0.5f,  -1.0f, 0.0f,	0.0f,  1.0f,  0.0f,	 1.0f,
+								   -0.5f, 0.5f,	 0.5f,	-0.5f, 0.5f,  -0.5f, -0.5f, -0.5f, -0.5f,
+								   -0.5f, -0.5f, -0.5f, -0.5f, -0.5f, 0.5f,	 -0.5f, 0.5f,  0.5f,
 
-		0.5f,  0.5f,  0.5f,	 1.0f,	0.0f,  0.0f,  1.0f,	 1.0f,	1.0f,  0.5f,  0.5f,	 -0.5f,
-		1.0f,  0.0f,  0.0f,	 0.0f,	0.0f,  1.0f,  0.5f,	 -0.5f, -0.5f, 1.0f,  0.0f,	 0.0f,
-		0.0f,  1.0f,  0.0f,	 0.5f,	-0.5f, 0.5f,  1.0f,	 0.0f,	0.0f,  0.0f,  1.0f,	 1.0f,
+								   0.5f,  0.5f,	 0.5f,	0.5f,  0.5f,  -0.5f, 0.5f,	-0.5f, -0.5f,
+								   0.5f,  -0.5f, -0.5f, 0.5f,  -0.5f, 0.5f,	 0.5f,	0.5f,  0.5f,
 
-		-0.5f, -0.5f, -0.5f, 0.0f,	-1.0f, 0.0f,  1.0f,	 0.0f,	0.0f,  0.5f,  -0.5f, -0.5f,
-		0.0f,  -1.0f, 0.0f,	 0.0f,	1.0f,  0.0f,  0.5f,	 -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,
-		0.0f,  1.0f,  1.0f,	 -0.5f, -0.5f, 0.5f,  0.0f,	 -1.0f, 0.0f,  1.0f,  0.0f,	 1.0f,
+								   -0.5f, -0.5f, -0.5f, 0.5f,  -0.5f, -0.5f, 0.5f,	-0.5f, 0.5f,
+								   0.5f,  -0.5f, 0.5f,	-0.5f, -0.5f, 0.5f,	 -0.5f, -0.5f, -0.5f,
 
-		-0.5f, 0.5f,  -0.5f, 0.0f,	1.0f,  0.0f,  1.0f,	 1.0f,	0.0f,  0.5f,  0.5f,	 -0.5f,
-		0.0f,  1.0f,  0.0f,	 0.0f,	0.0f,  1.0f,  0.5f,	 0.5f,	0.5f,  0.0f,  1.0f,	 0.0f,
-		1.0f,  1.0f,  1.0f,	 -0.5f, 0.5f,  0.5f,  0.0f,	 1.0f,	0.0f,  0.0f,  0.0f,	 0.0f,
-	};
-
-	unsigned int indices[] = {0,  1,  2,  2,  3,  0,
-
-							  4,  5,  6,  6,  7,  4,
-
-							  8,  9,  10, 10, 11, 8,
-
-							  12, 13, 14, 14, 15, 12,
-
-							  16, 17, 18, 18, 19, 16,
-
-							  20, 21, 22, 22, 23, 20};
+								   -0.5f, 0.5f,	 -0.5f, 0.5f,  0.5f,  -0.5f, 0.5f,	0.5f,  0.5f,
+								   0.5f,  0.5f,	 0.5f,	-0.5f, 0.5f,  0.5f,	 -0.5f, 0.5f,  -0.5f};
 
 	float light_pos[] = {// positions in x y z coordinate system
-
 						 2.5, 2.5, 5, -5, -5, 10, 0, -5, -5, -5, 5, 5};
 
-	glm::vec3 cubes[] {glm::vec3(-2.0f, 0.0f, 0.0f),   glm::vec3(2.0f, 0.0f, 0.0f),
-					   glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
-					   glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
-					   glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
-					   glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f),
-					   glm::vec3(0.0f, 0.0f, -1.5f),   glm::vec3(5.0f, 0.f, 0.f),
-					   glm::vec3(10.0f, 0.f, 0.f)};
-
-	raw::gl_window window_mgr("Mike Hawk");
+	raw::gl_window  window_mgr("Mike Hawk");
+    raw::model		backpack("assets/models/iphone/iphone.obj");
 
 	// I can't wait to just demolish all those things with my new progamers models
-
-	unsigned int vao_1 = 0;
-	glGenVertexArrays(1, &vao_1);
-	glBindVertexArray(vao_1);
-
-	unsigned int vbo_1 = 0;
-	glGenBuffers(1, &vbo_1);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_1);
-
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_pos), cube_pos, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), nullptr);
-	glEnableVertexAttribArray(0);
-
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-
-	unsigned int ebo_1 = 0;
-
-	glGenBuffers(1, &ebo_1);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_1);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
 	unsigned int light_vao = 0;
 	glGenVertexArrays(1, &light_vao);
 	glBindVertexArray(light_vao);
 
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_1);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_1);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), nullptr);
-	glEnableVertexAttribArray(0);
-
-	glBindVertexArray(0);
-
-	float normal_lines_data[24 * 2 * 3];
-	float normal_length = 0.2f;
-
-	unsigned int j = 0;
-	for (size_t i = 0; i < sizeof(cube_pos) / sizeof(cube_pos[0]); i += 9) {
-		glm::vec3 position	 = glm::vec3(cube_pos[i], cube_pos[i + 1], cube_pos[i + 2]);
-		glm::vec3 normal_vec = glm::vec3(cube_pos[i + 3], cube_pos[i + 4], cube_pos[i + 5]);
-
-		normal_lines_data[j++] = position.x;
-		normal_lines_data[j++] = position.y;
-		normal_lines_data[j++] = position.z;
-
-		glm::vec3 end_point	   = position + normal_vec * normal_length;
-		normal_lines_data[j++] = end_point.x;
-		normal_lines_data[j++] = end_point.y;
-		normal_lines_data[j++] = end_point.z;
-	}
-
-	unsigned int line_vao = 0;
-	glGenVertexArrays(1, &line_vao);
-	glBindVertexArray(line_vao);
-
-	unsigned int vbo_lines = 0;
-	glGenBuffers(1, &vbo_lines);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_lines);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(normal_lines_data), normal_lines_data, GL_STATIC_DRAW);
-
+	unsigned int light_vbo = 0;
+	glGenBuffers(1, &light_vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, light_vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(light_cube_vertices), light_cube_vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);
 	glBindVertexArray(0);
@@ -254,78 +168,75 @@ int main(int argc, char* argv[]) {
 
 	window_mgr.set_state(raw::gl::CLEAR_COLOR, 0.0f, 0.0f, 0.0f, 0.0f);
 
-	raw::shader shader_program("shaders/objects/vertex_shader.glsl",
-							   "shaders/objects/color_shader.frag");
 	raw::shader light_shader("shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag");
-	light_shader.use();
-	shader_program.use();
-	shader_program.set_float("obj_mat.shininess", 32.0);
-	shader_program.set_vec3("dir_light.direction", 0, -1, 0);
-	shader_program.set_vec3("dir_light.ambient", 0.1, 0.1, 0.1);
-	shader_program.set_vec3("dir_light.diffuse", 1.0, 1.0, 1.0);
-	shader_program.set_vec3("dir_light.specular", 0.1, 0.1, 0.1);
-	for (int i = 0; i < AM_POINT_LIGHTS; ++i) {
-		shader_program.set_vec3("point_lights[" + std::to_string(i) + "].position",
-								light_pos[i * 3], light_pos[i * 3 + 1], light_pos[i * 3 + 2]);
-		shader_program.set_vec3("point_lights[" + std::to_string(i) + "].ambient", 0.00, 0.00,
-								0.00);
-		shader_program.set_vec3("point_lights[" + std::to_string(i) + "].diffuse", 0.0, 0.0, 0.0);
-		shader_program.set_vec3("point_lights[" + std::to_string(i) + "].specular", 0.0, 0.0, 0.0);
-	}
 
 	raw::camera camera;
 
-	shader_program.set_vec3("sp_light.ambient", 0.01, 0.01, 0.01);
-	shader_program.set_vec3("sp_light.diffuse", 1.0, 1.0, 1.0);
-	shader_program.set_vec3("sp_light.specular", 0.5, 0.5, 0.5);
-	shader_program.set_vec3("sp_light.position", camera.pos());
-	shader_program.set_vec3("sp_light.direction", camera.front());
-	shader_program.set_float("sp_light.cut_off", glm::cos(glm::radians(10.5f)));
-	shader_program.set_float("sp_light.outer_cut_off", glm::cos(glm::radians(19.5f)));
+	glm::mat4 model_transform	= glm::mat4(1.0f);
+	glm::mat4 view_matrix		= camera.value();
+	glm::mat4 projection_matrix = glm::mat4(1.0f);
+    projection_matrix			= raw::perspective(glm::radians(45.0f),
+                                                   static_cast<float>(resolution.x) /
+                                                       static_cast<float>(resolution.y),
+                                                   0.1f, 100.0f);
 
-	glm::mat4 model		 = glm::mat4(1.0f);
-	glm::mat4 view		 = camera.value();
-	glm::mat4 projection = glm::mat4(1.0f);
-	shader_program.set_mat4("model", glm::value_ptr(model));
-	shader_program.set_mat4("view", glm::value_ptr(view));
-	shader_program.set_mat4("projection", glm::value_ptr(projection));
-
-	glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-	model = glm::translate(model, lightPos);
-	model = glm::scale(model, glm::vec3(0.2f));
 	light_shader.use();
-	light_shader.set_mat4("model", glm::value_ptr(model));
-	light_shader.set_mat4("view", glm::value_ptr(view));
-	light_shader.set_mat4("projection", glm::value_ptr(projection));
+	light_shader.set_mat4("view", glm::value_ptr(view_matrix));
+	light_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
 	light_shader.set_vec3("lightColor", 1, 1, 1);
 
-	raw::shader lines_shader("shaders/lines/vertex_shader.glsl", "shaders/lines/color_shader.frag");
-	lines_shader.use();
-	model = glm::mat4(1.0f);
-	lines_shader.set_mat4("model", glm::value_ptr(model));
-	lines_shader.set_mat4("view", glm::value_ptr(view));
-	lines_shader.set_mat4("projection", glm::value_ptr(projection));
+	raw::shader model_shader("shaders/models/vertex_shader.glsl",
+							 "shaders/models/color_shader.frag");
+	model_shader.use();
+	model_shader.set_int("obj_mat.diffuse_map", 0);
+	model_shader.set_int("obj_mat.specular_map", 1);
+	model_shader.set_float("obj_mat.shininess", 32.0f);
+	model_shader.set_vec3("dir_light.direction", 0.0f, -1.0f, 0.0f);
+	model_shader.set_vec3("dir_light.ambient", 0.1f, 0.1f, 0.1f);
+	model_shader.set_vec3("dir_light.diffuse", 0.8f, 0.8f, 0.8f);
+	model_shader.set_vec3("dir_light.specular", 0.5f, 0.5f, 0.5f);
+	for (int i = 0; i < AM_POINT_LIGHTS; ++i) {
+		model_shader.set_vec3("point_lights[" + std::to_string(i) + "].position", light_pos[i * 3],
+							  light_pos[i * 3 + 1], light_pos[i * 3 + 2]);
+		model_shader.set_vec3("point_lights[" + std::to_string(i) + "].ambient", 0.05f, 0.05f,
+							  0.05f);
+		model_shader.set_vec3("point_lights[" + std::to_string(i) + "].diffuse", 0.8f, 0.8f, 0.8f);
+		model_shader.set_vec3("point_lights[" + std::to_string(i) + "].specular", 1.0f, 1.0f, 1.0f);
+		model_shader.set_float("point_lights[" + std::to_string(i) + "].constant", 1.0f);
+		model_shader.set_float("point_lights[" + std::to_string(i) + "].linear", 0.09f);
+		model_shader.set_float("point_lights[" + std::to_string(i) + "].quadratic", 0.032f);
+	}
+	model_shader.set_vec3("sp_light.ambient", 0.0f, 0.0f, 0.0f);
+	model_shader.set_vec3("sp_light.diffuse", 1.0f, 1.0f, 1.0f);
+	model_shader.set_vec3("sp_light.specular", 1.0f, 1.0f, 1.0f);
+	model_shader.set_float("sp_light.cut_off", glm::cos(glm::radians(12.5f)));
+	model_shader.set_float("sp_light.outer_cut_off", glm::cos(glm::radians(17.5f)));
+	model_shader.set_float("sp_light.constant", 1.0f);
+	model_shader.set_float("sp_light.linear", 0.09f);
+	model_shader.set_float("sp_light.quadratic", 0.032f);
 
-	//	window_mgr.set_state(raw::gl::MOUSE_GRAB, window_mgr.get(), true);
-	//	window_mgr.set_state(raw::gl::RELATIVE_MOUSE_MODE, window_mgr.get(), true);
+	model_shader.set_mat4("model", glm::value_ptr(model_transform));
+	model_shader.set_mat4("view", glm::value_ptr(view_matrix));
+	model_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
+
+	window_mgr.set_state(raw::gl::MOUSE_GRAB, window_mgr.get(), true);
+	window_mgr.set_state(raw::gl::RELATIVE_MOUSE_MODE, window_mgr.get(), true);
 
 	window_mgr.set_state(raw::gl::RULE, GL_DEPTH_TEST);
 	window_mgr.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLEBUFFERS, 1);
 	window_mgr.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLESAMPLES, 4);
 	window_mgr.set_state(raw::gl::RULE, GL_MULTISAMPLE);
+	window_mgr.set_state(raw::gl::CLEAR_COLOR, 1.0f, 0.0f, 0.0f, 0.0f);
 
-	float yaw = -90.0f, pitch = 0.0f;
+		float yaw	= -90.0f,
+			  pitch = 0.0f;
 
 	constexpr long updateMoveTime = 144;
 	auto		   start		  = std::chrono::high_resolution_clock::now();
 	auto		   end			  = std::chrono::high_resolution_clock::now();
 
-	float fov = 45.0f;
-
 	glm::quat object_quat = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
 	float	  delta_angle = 1.0f;
-	// so we don't pollute main, what we'll do is so smart, we initialize them in that field of
-	// view, then add them to our unordered map, and just delete them, works just like clock
 	{
 		static const auto TAB_CALLBACK	 = std::function([&camera, &clock_callback]() {
 			  auto time_since_epoch = clock_callback.get_elapsed_time();
@@ -469,7 +380,7 @@ int main(int argc, char* argv[]) {
 			}
 		};
 
-		static auto O_CALLBACK = [&object_quat, &delta_angle, &clock_callback, &updateMoveTime]() {
+		static auto O_CALLBACK = [&object_quat, &delta_angle, &clock_callback]() {
 			auto time_since_epoch = clock_callback.get_elapsed_time();
 			time_since_epoch.to_milli();
 			if (!(time_since_epoch < raw::time(1000 / updateMoveTime))) {
@@ -480,16 +391,16 @@ int main(int argc, char* argv[]) {
 			}
 		};
 
-		static auto T_CALLBACK = [&shader_program, &dir_light]() {
-			shader_program.use();
+		static auto T_CALLBACK = [&model_shader, &dir_light]() {
+			model_shader.use();
 			dir_light = true;
-			shader_program.set_bool("need_dir_light", dir_light);
+			model_shader.set_bool("need_dir_light", dir_light);
 		};
 
-		static auto T_RELEASE_CALLBACK = [&shader_program, &dir_light]() {
-			shader_program.use();
+		static auto T_RELEASE_CALLBACK = [&model_shader, &dir_light]() {
+			model_shader.use();
 			dir_light = false;
-			shader_program.set_bool("need_dir_light", dir_light);
+			model_shader.set_bool("need_dir_light", dir_light);
 		};
 
 		static auto ESCAPE_CALLBACK = [&running]() {
@@ -497,7 +408,6 @@ int main(int argc, char* argv[]) {
 			running = false;
 		};
 
-		// that's so much boilerplate code, I hate it, but that's how it goes
 		buttons[SDL_SCANCODE_TAB]	 = raw::button(TAB_CALLBACK);
 		buttons[SDL_SCANCODE_SPACE]	 = raw::button(SPACE_CALLBACK);
 		buttons[SDL_SCANCODE_LEFT]	 = raw::button(LEFT_CALLBACK);
@@ -517,10 +427,7 @@ int main(int argc, char* argv[]) {
 		buttons[SDL_SCANCODE_T]		 = raw::button(T_CALLBACK, T_RELEASE_CALLBACK);
 		buttons[SDL_SCANCODE_ESCAPE] = raw::button(ESCAPE_CALLBACK);
 	}
-
-	// so on...
-	// problem is I am not sure if it's the best you can do..., like it would be fine if I could
-	// place it in some namespace, but placing it into main really sucks to see
+	float fov = 45.0f;
 	while (running) {
 		while (window_mgr.poll_event(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {
@@ -542,122 +449,69 @@ int main(int argc, char* argv[]) {
 
 				camera.rotate(yaw, pitch);
 			} else if (event.type == SDL_EVENT_KEY_UP) {
-				buttons[event.key.scancode].release();
+				if (buttons.contains(event.key.scancode)) {
+					buttons[event.key.scancode].release();
+				}
 			} else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
 				event.wheel.y < 0 ? fov += 1.0f : fov -= 1.0f;
 				if (fov < 1)
 					fov = 1.0f;
 				if (fov > 180.0f)
 					fov = 180.0f;
-				projection = glm::perspective(glm::radians(fov), resolution.x / float(resolution.y),
-											  0.1f, 100.0f);
-				shader_program.use();
-				shader_program.set_mat4("projection", glm::value_ptr(projection));
+				projection_matrix = glm::perspective(
+					glm::radians(fov), resolution.x / float(resolution.y), 0.1f, 100.0f);
 				light_shader.use();
-				light_shader.set_mat4("projection", glm::value_ptr(projection));
-			} else if (event.type == SDL_EVENT_KEY_UP) {
-				if (buttons.contains(event.key.scancode)) {
-					buttons[event.key.scancode].release();
-				}
+				light_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
+				model_shader.use();
+				model_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
 			}
 		}
-        // that works, but it sucks tremendously, well, for now it'll go
 		for (auto& [key, button] : buttons) {
 			button.update();
 		}
-		view = camera.value();
-
-		shader_program.use();
-		shader_program.set_vec3("sp_light.position", camera.pos());
-		shader_program.set_vec3("sp_light.direction", camera.front());
-		shader_program.set_vec3("viewPos", camera.front());
-		shader_program.set_mat4("view", glm::value_ptr(view));
-		light_shader.use();
-		print_matrix(view);
-		light_shader.set_mat4("view", glm::value_ptr(view));
+		view_matrix = camera.value();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		auto delta = clock.get_elapsed_time();
-		std::cout << "Time since epoch: " << delta;
-		float rotation_angle = delta() / 1000 * glm::radians(50.0f);
-		for (unsigned int i = 0; i < sizeof(cubes) / sizeof(glm::vec3); i++) {
-			glm::mat4 current_cube_model(1.0f);
 
-			if (i == 1) {
-				glm::mat4 model_quat_rotation = glm::mat4_cast(object_quat);
-				current_cube_model =
-					glm::translate(glm::mat4(1.0f), cubes[i]) * model_quat_rotation;
-			} else {
-				if (i == 10) {
-					current_cube_model =
-						glm::translate(glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f)), cubes[10]);
+		light_shader.use();
+		light_shader.set_mat4("view", glm::value_ptr(view_matrix));
 
-				} else if (i < 10) {
-					current_cube_model = glm::translate(current_cube_model, cubes[i]);
-					float angle		   = glm::radians(20.0f * i) + rotation_angle;
-					current_cube_model =
-						glm::rotate(current_cube_model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
-				} else if (i == 11) {
-					current_cube_model = glm::translate(current_cube_model, cubes[i]);
-				} else {
-					glm::vec3 rotationCenter   = cubes[11];
-					glm::vec3 relativePosition = cubes[i] - rotationCenter;
-
-					current_cube_model = glm::translate(current_cube_model, rotationCenter);
-					current_cube_model = glm::rotate(current_cube_model, rotation_angle,
-													 glm::vec3(0.0f, 1.0f, 0.0f));
-					current_cube_model = glm::translate(current_cube_model, -rotationCenter);
-
-					current_cube_model = glm::translate(current_cube_model, cubes[i]);
-					float angle		   = glm::radians(20.0f * i) + rotation_angle;
-					current_cube_model =
-						glm::rotate(current_cube_model, angle, glm::vec3(0.5f, 1.0f, 0.0f));
-					current_cube_model =
-						glm::scale(current_cube_model, glm::vec3(0.5f, 0.5f, 0.5f));
-				}
-			}
-
-			lines_shader.use();
-			lines_shader.set_mat4("model", glm::value_ptr(current_cube_model));
-			lines_shader.set_mat4("view", glm::value_ptr(view));
-			lines_shader.set_mat4("projection", glm::value_ptr(projection));
-
-			glBindVertexArray(line_vao);
-			glDrawArrays(GL_LINES, 0, 48);
-			glBindVertexArray(vao_1);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_1);
-			shader_program.use();
-			shader_program.set_mat4("model", glm::value_ptr(current_cube_model));
-			shader_program.set_mat4("view", glm::value_ptr(view));
-			shader_program.set_mat4("projection", glm::value_ptr(projection));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-		}
+		model_shader.use();
+		model_shader.set_vec3("sp_light.position", camera.pos());
+		model_shader.set_vec3("sp_light.direction", camera.front());
+		model_shader.set_vec3("viewPos", camera.pos());
+		model_shader.set_bool("need_dir_light", dir_light);
+		model_shader.set_mat4("view", glm::value_ptr(view_matrix));
 
 		glBindVertexArray(light_vao);
 		light_shader.use();
-		// amount of position determined by how much float are in there (1 float size is
-		// determined via sizeof(float) then cause there is 3 values representing position
-		// divide it all by 3)
 		for (int i = 0; i < sizeof(light_pos) / sizeof(float) / 3; ++i) {
-			glm::mat4 lightModel = glm::mat4(1.0f);
-			lightModel			 = glm::translate(
-				  lightModel,
+			glm::mat4 current_light_model_matrix = glm::mat4(1.0f);
+			current_light_model_matrix			 = glm::translate(
+				  current_light_model_matrix,
 				  glm::vec3(light_pos[i * 3], light_pos[i * 3 + 1], light_pos[i * 3 + 2]));
-			lightModel = glm::scale(lightModel, glm::vec3(0.2f));
-			light_shader.set_mat4("model", glm::value_ptr(lightModel));
-			glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+			current_light_model_matrix = glm::scale(current_light_model_matrix, glm::vec3(0.2f));
+			light_shader.set_mat4("model", glm::value_ptr(current_light_model_matrix));
+			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
 		glBindVertexArray(0);
+
+		glm::mat4 bugatti_model_transform = glm::mat4(1.0f);
+		bugatti_model_transform =
+			glm::translate(bugatti_model_transform, glm::vec3(0.0f, -1.0f, 0.0f));
+		bugatti_model_transform = glm::scale(bugatti_model_transform, glm::vec3(0.01f));
+		bugatti_model_transform = bugatti_model_transform * glm::mat4_cast(object_quat);
+
+		model_shader.use();
+		model_shader.set_mat4("model", glm::value_ptr(bugatti_model_transform));
+
+		backpack.draw(model_shader);
+
 		SDL_GL_SwapWindow(window_mgr.get());
 	}
-	// if someone sees that code, don't be mad at me for not using classes to manage
-	// vao/vbo/ebo, I am working on mesh class already (for models)
-	glDeleteVertexArrays(1, &vao_1);
+
 	glDeleteVertexArrays(1, &light_vao);
-	glDeleteVertexArrays(1, &line_vao);
-	glDeleteBuffers(1, &vbo_1);
-	glDeleteBuffers(1, &vbo_lines);
-	glDeleteBuffers(1, &ebo_1);
+	glDeleteBuffers(1, &light_vbo);
 
 	return 0;
 }

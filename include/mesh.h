@@ -18,32 +18,28 @@ class shader;
 struct vertex {
 	glm::vec3 pos;
 	glm::vec3 normal;
-	glm::vec3 tex_coords;
+	glm::vec2 tex_coords;
 };
 
 struct texture {
 	unsigned int id;
 	std::string	 type;
+    std::string	 path;
 };
 
 class mesh {
 public:
-	// no default constructors, cause it just won't make any sense
-	mesh() = delete;
-
-	mesh(vec<vertex>& vcs, vec<UI>& ids, vec<texture>& txs);
-	// no copying, cause well, mf waste of space would be crazy bad
-	mesh(mesh&)			  = delete;
-	mesh operator=(mesh&) = delete;
+    mesh() = default;
+	mesh(const vec<vertex>& vcs, const vec<UI>& ids, const vec<texture>& txs);
 
 	void		draw(shader& shader);
-	vec<vertex> get_vertices() {
+	vec<vertex> get_vertices() const {
 		return vertices;
 	}
-	vec<UI> get_indices() {
+	vec<UI> get_indices() const {
 		return indices;
 	}
-	vec<texture> get_textures() {
+	vec<texture> get_textures() const {
 		return textures;
 	}
 

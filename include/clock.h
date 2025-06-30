@@ -5,6 +5,8 @@
 #include <chrono>
 #include <cmath>
 #include <iostream>
+#include <utility>
+
 #include "helper_macros.h"
 
 #ifndef SPACE_EXPLORER_CLOCK_H
@@ -22,7 +24,7 @@ struct time {
 	inline void handle_conversion(time_rate target) {
 		// obtain how much to multiply in 1000^x where x is difference between types (nano, micro,
 		// etc...)
-		val	 = val / std::pow(1000, int(target) - int(curr));
+		val	 = val / std::pow(1000, std::to_underlying(target) - std::to_underlying(curr));
 		curr = target;
 	}
 
@@ -50,19 +52,20 @@ struct time {
 		return val;
 	}
 
-	inline long double operator-(time rhs) const {
+	inline long double operator-(const time& rhs) const {
 		auto cp = rhs;
 		cp.handle_conversion(curr);
 		return this->val - cp.val;
 	}
 
-	[[nodiscard]] inline bool operator<(time rhs) const {
-		return this->val < rhs.val;
+	[[nodiscard]] inline std::partial_ordering operator<=>(const time& rhs) const {
+        return val <=> rhs.val;
 	}
-	[[nodiscard]] inline bool operator!=(time rhs) const {
+
+	[[nodiscard]] inline bool operator!=(const time& rhs) const {
 		return this->val != rhs.val;
 	}
-	friend std::ostream& operator<<(std::ostream& os, time val);
+	friend std::ostream& operator<<(std::ostream& os, const time& par);
 };
 
 class clock {

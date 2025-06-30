@@ -26,17 +26,23 @@ PASSIVE_VALUE& RELATIVE_MOUSE_MODE = SDL_SetWindowRelativeMouseMode;
 PASSIVE_VALUE& CLEAR_COLOR		   = glClearColor;
 } // namespace gl
 
-class window_manager : public ctx_sdl {
+class window_manager {
 protected:
 	SDL_Window* window = nullptr;
+    ctx_sdl sdl_ctx;
 
 public:
     window_manager() = delete;
 	window_manager(const std::string& window_name);
 
+    window_manager(const window_manager&) = delete;
+    window_manager& operator=(const window_manager&) = delete;
+    window_manager(window_manager&&) = delete;
+    window_manager& operator=(window_manager&&) = delete;
+
 	// if you don't like what predefined attributes I have, you could set what you want manually.
 	template<typename F, typename... Ts>
-	void set_state(F&& func, Ts... values) {
+	void set_state(F&& func, Ts... values) const {
 		// I don't really know is it working or not, but it almost doesn't matter anyway since
 		// usually R-values converting to L-values isn't a problem in OPENGL (usually)
 		std::forward<F>(func)(std::forward<Ts>(values)...);

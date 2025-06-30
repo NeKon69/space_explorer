@@ -20,6 +20,11 @@ class ctx_sdl {
 public:
 	ctx_sdl();
 	virtual ~ctx_sdl() noexcept;
+
+    ctx_sdl(const ctx_sdl&) = delete;
+    ctx_sdl& operator=(const ctx_sdl&) = delete;
+    ctx_sdl(ctx_sdl&&) = delete;
+    ctx_sdl& operator=(ctx_sdl&&) = delete;
 };
 
 } // namespace raw

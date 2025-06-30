@@ -7,10 +7,10 @@
 
 namespace raw {
 
-void camera_move::DOWN(glm::vec3& pos, glm::vec3 front, glm::vec3 up) {
+void camera_move::DOWN(glm::vec3& pos, glm::vec3, glm::vec3) {
 	pos.y -= predef::CAMERA_SPEED;
 }
-void camera_move::UP(glm::vec3& pos, glm::vec3 front, glm::vec3 up) {
+void camera_move::UP(glm::vec3& pos, glm::vec3, glm::vec3) {
 	pos.y += predef::CAMERA_SPEED;
 }
 void camera_move::LEFT(glm::vec3& pos, glm::vec3 front, glm::vec3 up) {
@@ -19,10 +19,10 @@ void camera_move::LEFT(glm::vec3& pos, glm::vec3 front, glm::vec3 up) {
 void camera_move::RIGHT(glm::vec3& pos, glm::vec3 front, glm::vec3 up) {
 	pos += glm::normalize(glm::cross(front, up)) * raw::predef::CAMERA_SPEED;
 }
-void camera_move::FORWARD(glm::vec3& pos, glm::vec3 front, glm::vec3 up) {
+void camera_move::FORWARD(glm::vec3& pos, glm::vec3 front, glm::vec3) {
 	pos += front * raw::predef::CAMERA_SPEED;
 }
-void camera_move::BACKWARD(glm::vec3& pos, glm::vec3 front, glm::vec3 up) {
+void camera_move::BACKWARD(glm::vec3& pos, glm::vec3 front, glm::vec3) {
     pos -= front * raw::predef::CAMERA_SPEED;
 }
 
@@ -34,13 +34,13 @@ camera::camera()
 	  camera_up(predef::CAMERA_UP) {}
 camera::camera(glm::vec3 vec) : camera_pos(vec), camera_front(vec), camera_up(vec) {}
 
-glm::mat4 camera::value() {
+glm::mat4 camera::value() const {
 	return glm::lookAt(camera_pos, camera_front + camera_pos, camera_up);
 }
-glm::mat4 camera::operator()() {
+glm::mat4 camera::operator()() const {
 	return value();
 }
-glm::mat4 camera::update() {
+glm::mat4 camera::update() const {
 	return value();
 }
 

@@ -42,7 +42,7 @@ time clock::reset() {
     stop();
     return elapsed_time;
 }
-std::ostream& operator <<(std::ostream& os, time par) {
+std::ostream& operator <<(std::ostream& os, const time& par) {
     os << par.val;
     switch(par.curr) {
         case time_rate::NANO:

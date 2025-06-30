@@ -14,7 +14,7 @@ gl_window::gl_window(std::string window_name) : window_manager(window_name) {
 				  << std::endl;
 		// Idk why, but one day I got roasted for not using informative error messages, so here we
 		// go
-		std::runtime_error(
+		throw std::runtime_error(
 			"OpenGL context could not be created! SDL_Error: " + std::string(SDL_GetError()) +
 			" in " + std::string(__FILE__) + " on " + std::to_string(__LINE__) + " line");
 	}

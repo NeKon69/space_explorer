@@ -42,20 +42,20 @@ public:
 	camera();
 
 	// basically same things just under different names
-	glm::mat4 value();
-	glm::mat4 operator()();
-	glm::mat4 update();
+	glm::mat4 value()const ;
+	glm::mat4 operator()()const;
+	glm::mat4 update()const;
 
 	void rotate(float yaw, float pitch);
 	void move(decltype(camera_move::MOVE_FUNCTION) func);
 
-	glm::vec3 pos() {
+	glm::vec3 pos() const {
 		return camera_pos;
 	}
-	glm::vec3 front() {
+	glm::vec3 front() const {
 		return camera_front;
 	}
-	glm::vec3 up() {
+	glm::vec3 up() const {
 		return camera_up;
 	}
 };

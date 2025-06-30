@@ -12,6 +12,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(SDL3 REQUIRED CONFIG)
 find_package(glad REQUIRED CONFIG)
 find_package(Freetype REQUIRED)
+find_package(assimp CONFIG REQUIRED)
+
 
 
 
@@ -43,20 +45,20 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 )
 
 set(RUNTIME_OUTPUT_DIR $<TARGET_FILE_DIR:${PROJECT_NAME}>)
-set(SOURCE_SHADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders)
-if(EXISTS "${SOURCE_SHADER_DIR}")
+
+set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
+if(EXISTS "${ASSETS_DIR}")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-            "${SOURCE_SHADER_DIR}" "${RUNTIME_OUTPUT_DIR}/shaders" VERBATIM)
+            "${ASSETS_DIR}" "${RUNTIME_OUTPUT_DIR}/assets" VERBATIM)
 else()
-    message(WARNING "shaders directory not found: ${SOURCE_SHADER_DIR}")
+    message(WARNING "assets directory not found: ${ASSETS_DIR}")
 endif()
 
-set(IMAGES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/images)
-if(EXISTS "${IMAGES_DIR}")
+set(SHADERS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders)
+if(EXISTS "${SHADERS_DIR}")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-            "${IMAGES_DIR}" "${RUNTIME_OUTPUT_DIR}/images" VERBATIM)
+            "${SHADERS_DIR}" "${RUNTIME_OUTPUT_DIR}/src/shaders" VERBATIM)
 else()
-    message(WARNING "images directory not found: ${IMAGES_DIR}")
+    message(WARNING "shaders directory not found: ${SHADERS_DIR}")
 endif()
-
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad freetype)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad freetype assimp::assimp)
