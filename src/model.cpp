@@ -21,7 +21,7 @@ void model::draw(raw::shader &shader) {
 
 void model::load_model(const std::string &path) {
 	Assimp::Importer importer;
-	const aiScene	*scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		throw std::runtime_error(std::string(
 			std::format("Failed to load model from {}: {}", path, importer.GetErrorString())));
@@ -51,7 +51,8 @@ mesh model::process_mesh(const aiMesh &ai_mesh, const aiScene &model) {
         if (ai_mesh.HasNormals()) {
             v.normal = glm::vec3(ai_mesh.mNormals[i].x, ai_mesh.mNormals[i].y, ai_mesh.mNormals[i].z);
         } else {
-            v.normal = glm::vec3(0.0f, 0.0f, 0.0f);
+            std::cout << "ALARM! MESH '" << ai_mesh.mName.C_Str() << "' HAS NO NORMALS AFTER ASSIMP PROCESSING!" << std::endl;
+            v.normal = glm::vec3(0.0f, 1.0f, 0.0f);
         }
 
         if (ai_mesh.mTextureCoords[0]) {

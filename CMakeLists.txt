@@ -57,7 +57,7 @@ endif()
 set(SHADERS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders)
 if(EXISTS "${SHADERS_DIR}")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
-            "${SHADERS_DIR}" "${RUNTIME_OUTPUT_DIR}/src/shaders" VERBATIM)
+            "${SHADERS_DIR}" "${RUNTIME_OUTPUT_DIR}/shaders" VERBATIM)
 else()
     message(WARNING "shaders directory not found: ${SHADERS_DIR}")
 endif()

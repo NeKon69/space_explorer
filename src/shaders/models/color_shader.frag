@@ -125,17 +125,18 @@ vec3 calc_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 view_dir
 
 void main() {
     vec3 result = vec3(0.0);
-    vec3 viewDir = normalize(viewPos - FragPos);
-
-    if(need_dir_light) {
-        result += calc_dir_light(dir_light, Normal, viewDir);
-    }
-
-    for(int i = 0; i < MAX_POINT_LIGHTS; ++i) {
-        result += calc_point_light(point_lights[i], Normal, FragPos, viewDir);
-    }
-
-    result += calc_spot_light(sp_light, Normal, FragPos, viewDir);
+    result = Normal;
+//    vec3 viewDir = normalize(viewPos - FragPos);
+//
+//    if(need_dir_light) {
+//        result += calc_dir_light(dir_light, Normal, viewDir);
+//    }
+//
+//    for(int i = 0; i < MAX_POINT_LIGHTS; ++i) {
+//        result += calc_point_light(point_lights[i], Normal, FragPos, viewDir);
+//    }
+//
+//    result += calc_spot_light(sp_light, Normal, FragPos, viewDir);
 
     FragColor = vec4(result, 1.0);
 }

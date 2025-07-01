@@ -9,7 +9,7 @@ illum 7
 
 newmtl Mat
 Kd 0.00999999977648 0.00999999977648 0.00999999977648
-map_Kd /home/progamers/CLionProjects/space_explorer/cmake-build-debug/models/iphone/camera-lens-icon.jpg
+map_Kd camera-lens-icon.jpg
 Ks 1.00000000000000 1.00000000000000 1.00000000000000
 Ns 100
 illum 7

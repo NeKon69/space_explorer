@@ -499,7 +499,7 @@ int main(int argc, char* argv[]) {
 		glm::mat4 bugatti_model_transform = glm::mat4(1.0f);
 		bugatti_model_transform =
 			glm::translate(bugatti_model_transform, glm::vec3(0.0f, -1.0f, 0.0f));
-		bugatti_model_transform = glm::scale(bugatti_model_transform, glm::vec3(0.01f));
+		bugatti_model_transform = glm::scale(bugatti_model_transform, glm::vec3(0.02f));
 		bugatti_model_transform = bugatti_model_transform * glm::mat4_cast(object_quat);
 
 		model_shader.use();

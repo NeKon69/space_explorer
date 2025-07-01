@@ -59,16 +59,12 @@ void to_char_ptr(char *number, const UI &amount_of_digits, UI &number_of_map) {
 }
     void mesh::draw(raw::shader &shader) {
         shader.use();
-
-        // 1. Сообщаем шейдеру, какие текстурные юниты использовать для сэмплеров.
-        // Делаем это здесь, а не в main, чтобы каждый меш был самодостаточным.
         shader.set_int("obj_mat.diffuse_map", 0);
         shader.set_int("obj_mat.specular_map", 1);
 
         bool has_diffuse = false;
         bool has_specular = false;
 
-        // 2. Проходим по всем текстурам, которые ЕСТЬ у этого меша, и привязываем их.
         for (const auto& texture : textures) {
             if (texture.type == "texture_diffuse") {
                 glActiveTexture(GL_TEXTURE0);
@@ -80,10 +76,6 @@ void to_char_ptr(char *number, const UI &amount_of_digits, UI &number_of_map) {
                 has_specular = true;
             }
         }
-
-        // 3. (КЛЮЧЕВОЙ МОМЕНТ) Если у меша НЕТ какого-то типа текстуры,
-        // мы должны явно отвязать старую текстуру от этого юнита.
-        // `glBindTexture(GL_TEXTURE_2D, 0)` отвязывает текущую текстуру.
         if (!has_diffuse) {
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, 0);
@@ -93,13 +85,11 @@ void to_char_ptr(char *number, const UI &amount_of_digits, UI &number_of_map) {
             glBindTexture(GL_TEXTURE_2D, 0);
         }
 
-        // 4. Теперь, когда текстурные юниты в правильном состоянии, рисуем меш.
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 
-        // 5. Сбрасываем состояние для чистоты (хорошая практика).
         glBindVertexArray(0);
-        glActiveTexture(GL_TEXTURE0); // Возвращаем активный юнит к дефолтному.
+        glActiveTexture(GL_TEXTURE0);
     }
 
 } // namespace raw
