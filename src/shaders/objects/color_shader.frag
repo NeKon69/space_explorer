@@ -8,6 +8,9 @@ struct directional_light {
 };
 
 struct material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
     float shininess;
 };
 
@@ -41,7 +44,6 @@ struct spot_light {
 
 in vec3 FragPos;
 in vec3 Normal;
-in vec3 Color;
 
 #define AM_POINT_LIGHTS 4
 
@@ -63,9 +65,9 @@ vec3 calc_dir_light(directional_light light, vec3 normal, vec3 viewDir) {
     vec3 reflectDir = normalize(reflect(-lightDir, norm));
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), obj_mat.shininess);
     // combine results
-    vec3 ambient = light.ambient * Color;
-    vec3 diffuse = light.diffuse * diff * Color;
-    vec3 specular = light.specular * spec;
+    vec3 ambient = light.ambient * obj_mat.ambient;
+    vec3 diffuse = light.diffuse * diff * obj_mat.diffuse;
+    vec3 specular = light.specular * spec * obj_mat.specular;
     return (ambient + diffuse + specular);
 }
 
@@ -78,16 +80,16 @@ vec3 calc_point_light(point_light light, vec3 normal, vec3 frag_pos, vec3 view_d
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
     // then ambient
-    vec3 ambient = light.ambient * Color;
+    vec3 ambient = light.ambient * obj_mat.ambient;
 
     // then diffuse
     float standardDiff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * standardDiff * Color;
+    vec3 diffuse = light.diffuse * standardDiff * obj_mat.diffuse;
 
     // and finally specular
     vec3 reflectDir = normalize(reflect(-lightDir, norm));
     float spec = pow(max(dot(view_dir, reflectDir), 0.0), obj_mat.shininess);
-    vec3 specular = light.specular * spec;
+    vec3 specular = light.specular * spec * obj_mat.specular;
 
     vec3 result = (ambient + diffuse + specular) * attenuation;
     return result;
@@ -104,16 +106,16 @@ vec3 calc_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 view_dir
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
     // then ambient
-    vec3 ambient = light.ambient * Color;
+    vec3 ambient = light.ambient * obj_mat.ambient;
 
     // then diffuse
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * Color;
+    vec3 diffuse = light.diffuse * diff * obj_mat.diffuse;
 
     // and finally specular
     vec3 reflectDir = normalize(reflect(-lightDir, norm));
     float spec = pow(max(dot(view_dir, reflectDir), 0.0), obj_mat.shininess);
-    vec3 specular = light.specular * spec;
+    vec3 specular = light.specular * spec * obj_mat.specular;
 
     return ((ambient * attenuation) + (diffuse + specular) * intensity * attenuation);
 }

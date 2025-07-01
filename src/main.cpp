@@ -183,9 +183,12 @@ int main(int argc, char* argv[]) {
 	object_shader.set_float("sp_light.linear", 0.09f);
 	object_shader.set_float("sp_light.quadratic", 0.032f);
 
-	object_shader.set_mat4("model", glm::value_ptr(model_transform));
 	object_shader.set_mat4("view", glm::value_ptr(view_matrix));
 	object_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
+
+    object_shader.set_vec3("obj_mat.ambient", 0.1f, 0.1f, 0.1f);
+    object_shader.set_vec3("obj_mat.diffuse", 1.0f, 0.5f, 0.31f);
+    object_shader.set_vec3("obj_mat.specular", 0.5f, 0.5f, 0.5f);
 
 	window_mgr.set_state(raw::gl::MOUSE_GRAB, window_mgr.get(), true);
 	window_mgr.set_state(raw::gl::RELATIVE_MOUSE_MODE, window_mgr.get(), true);
