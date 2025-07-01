@@ -57,6 +57,7 @@ void to_char_ptr(char *number, const UI &amount_of_digits, UI &number_of_map) {
 	}
 	++number_of_map;
 }
+
     void mesh::draw(raw::shader &shader) {
         shader.use();
         shader.set_int("obj_mat.diffuse_map", 0);

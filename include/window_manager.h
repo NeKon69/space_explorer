@@ -24,6 +24,7 @@ PASSIVE_VALUE& VIEW				   = glViewport;
 PASSIVE_VALUE& MOUSE_GRAB		   = SDL_SetWindowMouseGrab;
 PASSIVE_VALUE& RELATIVE_MOUSE_MODE = SDL_SetWindowRelativeMouseMode;
 PASSIVE_VALUE& CLEAR_COLOR		   = glClearColor;
+PASSIVE_VALUE& DEPTH_FUNC           = glDepthFunc;
 } // namespace gl
 
 class window_manager {

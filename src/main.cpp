@@ -16,6 +16,7 @@
 #include <iostream>
 #include <print>
 #include <string>
+#include <filesystem>
 #include FT_FREETYPE_H
 
 #include "button.h"
@@ -33,7 +34,7 @@ namespace raw {
 float calculate_phong_diffuse(const glm::vec3& light_dir, const glm::vec3& normal) {
 	return fmax(0.0f, glm::dot(light_dir, glm::normalize(normal)));
 }
-
+// i remember days when i was learning linear algebra and i was like "what the crap matrices and vectors are"
 glm::vec3 calculate_normal(glm::vec3 v1, glm::vec3 v2, glm::vec3 v3) {
 	glm::vec3 edge1	 = v2 - v1;
 	glm::vec3 edge2	 = v3 - v1;
@@ -144,8 +145,8 @@ int main(int argc, char* argv[]) {
 	float light_pos[] = {// positions in x y z coordinate system
 						 2.5, 2.5, 5, -5, -5, 10, 0, -5, -5, -5, 5, 5};
 
-	raw::gl_window  window_mgr("Mike Hawk");
-    raw::model		backpack("assets/models/iphone/iphone.obj");
+	raw::gl_window window_mgr("Mike Hawk");
+	raw::model backpack("assets/models/Eyeball/eyeball.obj");
 
 	// I can't wait to just demolish all those things with my new progamers models
 	unsigned int light_vao = 0;
@@ -175,10 +176,9 @@ int main(int argc, char* argv[]) {
 	glm::mat4 model_transform	= glm::mat4(1.0f);
 	glm::mat4 view_matrix		= camera.value();
 	glm::mat4 projection_matrix = glm::mat4(1.0f);
-    projection_matrix			= raw::perspective(glm::radians(45.0f),
-                                                   static_cast<float>(resolution.x) /
-                                                       static_cast<float>(resolution.y),
-                                                   0.1f, 100.0f);
+	projection_matrix			= raw::perspective(
+		  glm::radians(45.0f), static_cast<float>(resolution.x) / static_cast<float>(resolution.y),
+		  0.1f, 100.0f);
 
 	light_shader.use();
 	light_shader.set_mat4("view", glm::value_ptr(view_matrix));
@@ -228,8 +228,7 @@ int main(int argc, char* argv[]) {
 	window_mgr.set_state(raw::gl::RULE, GL_MULTISAMPLE);
 	window_mgr.set_state(raw::gl::CLEAR_COLOR, 1.0f, 0.0f, 0.0f, 0.0f);
 
-		float yaw	= -90.0f,
-			  pitch = 0.0f;
+	float yaw = -90.0f, pitch = 0.0f;
 
 	constexpr long updateMoveTime = 144;
 	auto		   start		  = std::chrono::high_resolution_clock::now();
