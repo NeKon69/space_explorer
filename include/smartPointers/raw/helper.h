@@ -22,6 +22,8 @@ struct combined {
 
 namespace raw {
 
+namespace deleter {
+
 template<typename T>
 static void delete_single_object(void* obj_ptr, size_t) {
 	delete static_cast<T*>(obj_ptr);
@@ -60,6 +62,7 @@ static void deallocate_hub_for_new_array(void* hub_ptr, void*) {
 static void deallocate_make_shared_block(void*, void* base_block_ptr) {
 	std::free(base_block_ptr);
 }
+} // namespace deleter
 
 /**
  * @brief Creates a unique_ptr that manages a static array.
@@ -84,8 +87,9 @@ template<typename T, typename... Args>
 /**
  * @brief Creates a shared_ptr that manages a single object.
  * @param args Constructor arguments for the new object.
+ * @param func function to call on destroy, defaults to destroy_make_shared_object
  */
-std::enable_if_t<!std::is_array_v<T>, raw::shared_ptr<T>> make_shared(Args&&... args) {
+std::enable_if_t<!std::is_array_v<T>, raw::shared_ptr<T>> make_shared(Args&&... args, decltype(deleter::destroy_make_shared_object<T>) func = deleter::destroy_make_shared_object<T>) {
 	// Allocate a block of memory that can hold both the object and the hub
 	std::byte* raw_block =
 		static_cast<std::byte*>(std::aligned_alloc(alignof(combined<T>), sizeof(combined<T>)));
@@ -97,8 +101,7 @@ std::enable_if_t<!std::is_array_v<T>, raw::shared_ptr<T>> make_shared(Args&&... 
 	try {
 		// Try constructing the object and the hub in the allocated memory with proper alignment
 		constructed_hub = new (raw_block + offsetof(combined<T>, hub_ptr))
-			hub(constructed_ptr, raw_block, &destroy_make_shared_object<T>,
-				deallocate_make_shared_block);
+			hub(constructed_ptr, raw_block, func, deleter::deallocate_make_shared_block);
 		constructed_ptr =
 			new (raw_block + offsetof(combined<T>, ptr)) T(std::forward<Args>(args)...);
 		constructed_hub->set_managed_object_ptr(constructed_ptr);
@@ -143,9 +146,9 @@ std::enable_if_t<std::is_array_v<T>, raw::shared_ptr<T>> make_shared(size_t size
 	raw::hub*	  constructed_hub = nullptr;
 
 	try {
-		constructed_hub =
-			new (raw_block) raw::hub(nullptr, raw_block, &destroy_make_shared_array<element_type>,
-									 &deallocate_make_shared_block, size);
+		constructed_hub = new (raw_block)
+			raw::hub(nullptr, raw_block, &deleter::destroy_make_shared_array<element_type>,
+					 &deleter::deallocate_make_shared_block, size);
 
 		constructed_ptr = new (raw_block + data_offset) element_type[size]();
 		constructed_hub->set_managed_object_ptr(constructed_ptr);
@@ -165,7 +168,6 @@ std::enable_if_t<std::is_array_v<T>, raw::shared_ptr<T>> make_shared(size_t size
 
 	return raw::shared_ptr<T>(constructed_ptr, constructed_hub);
 }
-
 } // namespace raw
 
 #endif // SMARTPOINTERS_HELPER_H

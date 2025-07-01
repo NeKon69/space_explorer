@@ -110,8 +110,8 @@ public:
 	explicit shared_ptr(T* p) noexcept {
 		if (p) {
 			this->ptr	  = p;
-			this->hub_ptr = new hub(this->ptr, nullptr, &raw::delete_single_object<T>,
-									&raw::deallocate_hub_for_new_single);
+			this->hub_ptr = new hub(this->ptr, nullptr, &raw::deleter::delete_single_object<T>,
+									&raw::deleter::deallocate_hub_for_new_single);
 		} else {
 			this->ptr	  = nullptr;
 			this->hub_ptr = nullptr;
@@ -125,8 +125,8 @@ public:
 
 	inline explicit shared_ptr(unique_ptr<T>&& unique) noexcept {
 		this->ptr	  = unique.release();
-		this->hub_ptr = new hub(this->ptr, nullptr, &raw::delete_single_object<T>,
-								&raw::deallocate_hub_for_new_single);
+		this->hub_ptr = new hub(this->ptr, nullptr, &raw::deleter::delete_single_object<T>,
+								&raw::deleter::deallocate_hub_for_new_single);
 	}
 
 	shared_ptr& operator=(unique_ptr<T>&& unique) noexcept {
@@ -165,8 +165,8 @@ public:
 	explicit shared_ptr(T* p) noexcept {
 		if (p != nullptr) {
 			this->ptr	  = p;
-			this->hub_ptr = new hub(this->ptr, nullptr, &raw::delete_array_object<T>,
-									&raw::deallocate_hub_for_new_array);
+			this->hub_ptr = new hub(this->ptr, nullptr, &raw::deleter::delete_array_object<T>,
+									&raw::deleter::deallocate_hub_for_new_array);
 		} else {
 			this->ptr	  = nullptr;
 			this->hub_ptr = nullptr;
@@ -179,8 +179,8 @@ public:
 
 	inline explicit shared_ptr(unique_ptr<T[]>&& unique) noexcept {
 		this->ptr	  = unique.release();
-		this->hub_ptr = new hub(this->ptr, nullptr, &raw::delete_array_object<T>,
-								&raw::deallocate_hub_for_new_array);
+		this->hub_ptr = new hub(this->ptr, nullptr, &raw::deleter::delete_array_object<T>,
+								&raw::deleter::deallocate_hub_for_new_array);
 	}
 
 	inline explicit shared_ptr(T* p, hub* hub) noexcept {
