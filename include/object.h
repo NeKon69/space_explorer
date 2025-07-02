@@ -30,12 +30,27 @@ private:
 	raw::unique_ptr<UI, gl_data_deleter_buffer> ebo;
     raw::unique_ptr<int>				indices_size;
 
+protected:
+    glm::mat4	  transformation = glm::mat4(1.0f);
+    raw::shared_ptr<raw::shader> shader;
+
 public:
 	object(object&&) noexcept;
 	object& operator=(object&&) noexcept;
 
+    void		 rotate(float degree, const glm::vec3& rotation);
+    void		 move(const glm::vec3& destination);
+    void		 scale(const glm::vec3& factor);
+    void		 reset();
+    /**
+     * \brief
+     * draw the image
+     * \param reset should matrix reset? defaults to true
+     */
+    void		 draw(bool reset = true);
+
 	template<typename T, typename Y>
-	object(const T vertices, const Y indices) : indices_size(new int(0)), vao(new UI(0)),  vbo(new UI(0)), ebo(new UI(0)){
+	object(const T vertices, const Y indices) : indices_size(new int(0)), vao(new UI(0)),  vbo(new UI(0)), ebo(new UI(0)) {
 		setup_object(vertices, indices);
 	}
 

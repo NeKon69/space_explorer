@@ -55,4 +55,8 @@ glm::ivec2 gl_window::get_window_size() {
 	return resolution;
 }
 
+void gl_window::clear() {
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+}
+
 } // namespace raw
