@@ -8,8 +8,25 @@
 #include "smart_ptr_base.h"
 
 namespace raw {
+
 template<typename T>
+struct default_deleter {
+	explicit default_deleter(T* obj) {
+		delete obj;
+	}
+};
+template<typename T>
+struct default_deleter<T[]> {
+	explicit default_deleter(T* obj) {
+		delete[] obj;
+	}
+};
+
+template<typename T, typename D>
 class unique_ptr : public smart_ptr_base<T> {
+private:
+	using deleter = D;
+
 public:
 	// Inherit constructors
 	using smart_ptr_base<T>::smart_ptr_base;
@@ -20,7 +37,7 @@ public:
 		std::cout << "unique_ptr destructor called" << std::endl;
 		std::cout << "Pointer address: " << this->ptr << std::endl;
 #endif
-		delete this->ptr;
+		deleter(this->ptr);
 	}
 
 	// Move constructor
@@ -37,7 +54,7 @@ public:
 
 	unique_ptr& operator=(std::nullptr_t) noexcept {
 		// Clean up the current pointer
-		delete this->ptr;
+		deleter(this->ptr);
 		this->ptr = nullptr;
 		return *this;
 	}
@@ -56,7 +73,7 @@ public:
 		if (this->ptr == p) {
 			return;
 		}
-		delete this->ptr;
+		deleter(this->ptr);
 		this->ptr = p;
 	}
 
@@ -65,8 +82,11 @@ public:
 	}
 };
 
-template<typename T>
-class unique_ptr<T[]> : public smart_ptr_base<T[]> {
+template<typename T, typename D>
+class unique_ptr<T[], D> : public smart_ptr_base<T[]> {
+private:
+	using deleter = D;
+
 public:
 	// Inherit constructors
 	using smart_ptr_base<T[]>::smart_ptr_base;
@@ -77,7 +97,7 @@ public:
 		std::cout << "unique_ptr destructor called" << std::endl;
 		std::cout << "Pointer address: " << this->ptr << std::endl;
 #endif
-		delete[] this->ptr;
+		deleter(this->ptr);
 	}
 
 	// Move constructor
@@ -94,7 +114,7 @@ public:
 
 	unique_ptr& operator=(std::nullptr_t) noexcept {
 		// Clean up the current pointer
-		delete[] this->ptr;
+		deleter(this->ptr);
 		this->ptr = nullptr;
 		return *this;
 	}
@@ -113,7 +133,7 @@ public:
 		if (this->ptr == p) {
 			return;
 		}
-		delete[] this->ptr;
+		deleter(this->ptr);
 		this->ptr = p;
 	}
 

@@ -8,7 +8,7 @@
 #include <vector>
 
 namespace raw {
-#define PASSIVE_VALUE static inline constexpr auto
+#define PASSIVE_VALUE static constexpr auto
 using std_clock = std::chrono::high_resolution_clock;
 using UI		= unsigned int;
 template<typename T>

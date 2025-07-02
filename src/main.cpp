@@ -128,15 +128,20 @@ int main(int argc, char* argv[]) {
 
 	glm::vec3 cube_positions[] = {glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 5.0f, -15.0f)};
 
-	raw::gl_window window_mgr("Mike Hawk");
+	raw::gl_window window("Mike Hawk");
 
-	auto resolution = window_mgr.get_window_size();
-	window_mgr.set_state(raw::gl::VIEW, 0, 0, resolution.x, resolution.y);
+    window.set_state(raw::gl::RULE, GL_DEPTH_TEST);
+    window.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLEBUFFERS, 1);
+    window.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLESAMPLES, 4);
+    window.set_state(raw::gl::RULE, GL_MULTISAMPLE);
+
+	auto resolution = window.get_window_size();
+	window.set_state(raw::gl::VIEW, 0, 0, resolution.x, resolution.y);
 
 	bool	  running = true;
 	SDL_Event event;
 
-	window_mgr.set_state(raw::gl::CLEAR_COLOR, 0.0f, 0.0f, 0.0f, 0.0f);
+	window.set_state(raw::gl::CLEAR_COLOR, 0.0f, 0.0f, 0.0f, 0.0f);
 
 	raw::shader light_shader("shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag");
 
@@ -186,23 +191,24 @@ int main(int argc, char* argv[]) {
 	object_shader.set_mat4("view", glm::value_ptr(view_matrix));
 	object_shader.set_mat4("projection", glm::value_ptr(projection_matrix));
 
-    object_shader.set_vec3("obj_mat.ambient", 0.1f, 0.1f, 0.1f);
-    object_shader.set_vec3("obj_mat.diffuse", 1.0f, 0.5f, 0.31f);
-    object_shader.set_vec3("obj_mat.specular", 0.5f, 0.5f, 0.5f);
+	object_shader.set_vec3("obj_mat.ambient", 0.1f, 0.1f, 0.1f);
+	object_shader.set_vec3("obj_mat.diffuse", 1.0f, 0.5f, 0.31f);
+	object_shader.set_vec3("obj_mat.specular", 0.5f, 0.5f, 0.5f);
 
-	window_mgr.set_state(raw::gl::MOUSE_GRAB, window_mgr.get(), true);
-	window_mgr.set_state(raw::gl::RELATIVE_MOUSE_MODE, window_mgr.get(), true);
+	window.set_state(raw::gl::MOUSE_GRAB, window.get(), true);
+	window.set_state(raw::gl::RELATIVE_MOUSE_MODE, window.get(), true);
 
-	window_mgr.set_state(raw::gl::RULE, GL_DEPTH_TEST);
-	window_mgr.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLEBUFFERS, 1);
-	window_mgr.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLESAMPLES, 4);
-	window_mgr.set_state(raw::gl::RULE, GL_MULTISAMPLE);
-	window_mgr.set_state(raw::gl::CLEAR_COLOR, 0.1f, 0.1f, 0.1f, 1.0f);
+	window.set_state(raw::gl::RULE, GL_DEPTH_TEST);
+	window.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLEBUFFERS, 1);
+	window.set_state(raw::gl::ATTR, SDL_GL_MULTISAMPLESAMPLES, 4);
+	window.set_state(raw::gl::RULE, GL_MULTISAMPLE);
+	window.set_state(raw::gl::CLEAR_COLOR, 0.1f, 0.1f, 0.1f, 1.0f);
 
 	raw::cube cube(object_shader);
 	raw::cube light_cube(light_shader);
 
-	float yaw = -90.0f, pitch = 0.0f;
+	float yaw	= -90.0f;
+	float pitch = 0.0f;
 
 	constexpr long updateMoveTime = 144;
 	auto		   start		  = std::chrono::high_resolution_clock::now();
@@ -402,7 +408,7 @@ int main(int argc, char* argv[]) {
 	}
 	float fov = 45.0f;
 	while (running) {
-		while (window_mgr.poll_event(&event)) {
+		while (window.poll_event(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {
 				std::cout << "Don't close me mf!" << std::endl;
 				running = false;
@@ -476,7 +482,7 @@ int main(int argc, char* argv[]) {
 			light_cube.draw();
 			light_cube.reset();
 		}
-		SDL_GL_SwapWindow(window_mgr.get());
+		SDL_GL_SwapWindow(window.get());
 	}
 	return 0;
 }

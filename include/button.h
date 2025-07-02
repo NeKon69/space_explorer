@@ -11,14 +11,14 @@ namespace raw {
 class button {
 private:
 	std::function<void()> pressed_callback	= nullptr;
-    std::function<void()> released_callback = nullptr;
-	bool is_pressed				= false;
-    bool is_released			= false;
+	std::function<void()> released_callback = nullptr;
+	bool				  is_pressed		= false;
+	bool				  is_released		= false;
 
 public:
 	button() = default;
 	button(std::function<void()> pressed, std::function<void()> released);
-	button(std::function<void()> pressed);
+	explicit button(std::function<void()> pressed);
 
 	// setters
 	void set_pressed_callback(const std::function<void()>& pressed) {
@@ -30,7 +30,7 @@ public:
 	}
 
 	// getter
-	bool pressed() const {
+	[[nodiscard]] inline bool pressed() const {
 		return is_pressed;
 	}
 

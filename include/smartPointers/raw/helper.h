@@ -68,20 +68,23 @@ static void deallocate_make_shared_block(void*, void* base_block_ptr) {
  * @brief Creates a unique_ptr that manages a static array.
  * @param size size of the array.
  */
-template<typename T>
+template<typename T, typename D = raw::default_deleter<T>>
 std::enable_if_t<std::is_array_v<T>, raw::unique_ptr<T>> make_unique(size_t size) {
 	using element_type = std::remove_extent_t<T>;
-	return raw::unique_ptr<T>(new element_type[size]());
+	return raw::unique_ptr<T, D>(new element_type[size]());
 }
 
-template<typename T, typename... Args>
+template<typename T, typename D = raw::default_deleter<T>, typename... Args>
 /**
  * @brief Creates a unique_ptr that manages a single object.
  * @param args Constructor arguments for the new object.
  */
 std::enable_if_t<!std::is_array_v<T>, raw::unique_ptr<T>> make_unique(Args&&... args) {
-	return unique_ptr<T>(new T(std::forward<Args>(args)...));
+	return unique_ptr<T, D>(new T(std::forward<Args>(args)...));
 }
+
+// I am too lazy to implement the availability to add deleters to shared_ptr (I'll add when
+// necessary)
 
 template<typename T, typename... Args>
 /**
@@ -89,7 +92,9 @@ template<typename T, typename... Args>
  * @param args Constructor arguments for the new object.
  * @param func function to call on destroy, defaults to destroy_make_shared_object
  */
-std::enable_if_t<!std::is_array_v<T>, raw::shared_ptr<T>> make_shared(Args&&... args, decltype(deleter::destroy_make_shared_object<T>) func = deleter::destroy_make_shared_object<T>) {
+std::enable_if_t<!std::is_array_v<T>, raw::shared_ptr<T>> make_shared(
+	Args&&... args, decltype(deleter::destroy_make_shared_object<T>) func =
+						deleter::destroy_make_shared_object<T>) {
 	// Allocate a block of memory that can hold both the object and the hub
 	std::byte* raw_block =
 		static_cast<std::byte*>(std::aligned_alloc(alignof(combined<T>), sizeof(combined<T>)));
@@ -131,7 +136,6 @@ std::enable_if_t<std::is_array_v<T>, raw::shared_ptr<T>> make_shared(size_t size
 
 	size_t hub_size	   = sizeof(raw::hub);
 	size_t data_offset = (hub_size + overall_alignment - 1) / overall_alignment * overall_alignment;
-	size_t total_block_size			  = data_offset + size * sizeof(element_type);
 	size_t unaligned_total_block_size = data_offset + size * sizeof(element_type);
 	size_t aligned_total_block_size	  = (unaligned_total_block_size + overall_alignment - 1) /
 									  overall_alignment * overall_alignment;

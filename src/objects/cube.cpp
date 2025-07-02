@@ -8,7 +8,7 @@
 
 namespace raw {
 
-cube::cube(raw::shader& sh) : object(this->cube_pos, this->indices), shader(sh) {}
+cube::cube(raw::shader& sh) : object(cube_pos, indices), shader(sh) {}
 
 void cube::rotate(const float degree, const glm::vec3& rotation) {
 	transformation = glm::rotate(transformation, degree, rotation);

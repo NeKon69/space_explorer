@@ -19,13 +19,13 @@ PASSIVE_VALUE CAMERA_SPEED = 0.05f;
 } // namespace predef
 
 namespace camera_move {
-void UP (glm::vec3& pos, glm::vec3 front, glm::vec3 up);
+void UP(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
 void DOWN(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
-void LEFT (glm::vec3& pos, glm::vec3 front, glm::vec3 up);
-void RIGHT (glm::vec3& pos, glm::vec3 front, glm::vec3 up);
+void LEFT(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
+void RIGHT(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
 void FORWARD(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
 void BACKWARD(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
-void MOVE_FUNCTION(glm::vec3&, glm::vec3,       glm::vec3);
+void MOVE_FUNCTION(glm::vec3&, glm::vec3, glm::vec3);
 } // namespace camera_move
 
 class camera {
@@ -38,24 +38,24 @@ public:
 	// that constructor seems to be useless, since who in the right mind would create vec3's and
 	// then pass it here, I think more logical would be to let the class handle all of it
 	camera(glm::vec3 _pos, glm::vec3 _front, glm::vec3 _up);
-	camera(glm::vec3 vec);
+	explicit camera(glm::vec3 vec);
 	camera();
 
 	// basically same things just under different names
-	glm::mat4 value()const ;
-	glm::mat4 operator()()const;
-	glm::mat4 update()const;
+	[[nodiscard]] glm::mat4 value()const ;
+    [[nodiscard]] glm::mat4 operator()()const;
+    [[nodiscard]] glm::mat4 update()const;
 
 	void rotate(float yaw, float pitch);
 	void move(decltype(camera_move::MOVE_FUNCTION) func);
 
-	glm::vec3 pos() const {
+    [[nodiscard]] inline glm::vec3 pos() const {
 		return camera_pos;
 	}
-	glm::vec3 front() const {
+    [[nodiscard]] inline glm::vec3 front() const {
 		return camera_front;
 	}
-	glm::vec3 up() const {
+    [[nodiscard]] inline glm::vec3 up() const {
 		return camera_up;
 	}
 };
