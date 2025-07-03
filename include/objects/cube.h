@@ -47,7 +47,7 @@ private:
 public:
     // that class is complete trash now haha, it makes sense actually that object hold shader and transformation matrix, since you apply to the OBJECT those transformations not to the cube specifically
     using object::object;
-	explicit cube(raw::shared_ptr<raw::shader> sh);
+	explicit cube(const raw::shared_ptr<raw::shader>& sh);
 };
 
 } // namespace raw

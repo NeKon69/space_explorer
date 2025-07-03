@@ -5,7 +5,11 @@
 
 namespace raw {
 shader::shader(const char* vertex_path, const char* fragment_path) : id(0) {
-	set_shaders(vertex_path, fragment_path);
+	if (!set_shaders(vertex_path, fragment_path)) {
+		std::cerr << "Failed to create shader program." << std::endl;
+		throw std::runtime_error(std::format("Failed to create shader program from {} and {}",
+											 vertex_path, fragment_path));
+	}
 }
 
 shader::~shader() {
@@ -199,6 +203,10 @@ bool shader::set_vec4(const std::string& name, glm::vec4 vec) {
 }
 
 bool shader::set_mat4(const std::string& name, const float* value) {
+	if (cached_locations[name] != 0) {
+		glUniformMatrix4fv(cached_locations[name], 1, GL_FALSE, value);
+		return true;
+	}
 	unsigned int location = glGetUniformLocation(id, name.c_str());
 	if (location == (unsigned int)(-1)) {
 		std::cerr << "Failed to initialize " << name << " with value(matrix): " << value << "\n";

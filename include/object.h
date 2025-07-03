@@ -42,9 +42,10 @@ public:
     void		 move(const glm::vec3& destination);
     void		 scale(const glm::vec3& factor);
     void		 reset();
+    void set_shader(const raw::shared_ptr<raw::shader>& sh);
     /**
      * \brief
-     * draw the image
+     * draw the object
      * \param reset should matrix reset? defaults to true
      */
     void		 draw(bool reset = true);

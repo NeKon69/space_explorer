@@ -18,7 +18,7 @@ enum class time_rate { NANO, MICRO, MILLI, ORD };
 
 struct time {
 	long double val;
-	time_rate	curr = time_rate::MILLI;
+	time_rate	curr = time_rate::NANO;
 	explicit constexpr time(long double value) : val(value) {};
 
 	inline void handle_conversion(time_rate target) {
@@ -71,9 +71,7 @@ struct time {
 class clock {
 private:
 	time clock_start = time(
-		std::chrono::duration_cast<std::chrono::microseconds>((std_clock::now()).time_since_epoch())
-			.count() /
-		1000.0);
+		((std_clock::now()).time_since_epoch()).count());
 	time clock_stop;
 	// Check how good clock resolution is
 	static_assert(std::ratio_less_equal_v<std::chrono::high_resolution_clock::period, std::micro>,

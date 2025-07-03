@@ -5,11 +5,8 @@
 
 namespace raw {
 
-inline double ticks_now() {
-	return std::chrono::duration_cast<std::chrono::microseconds>(
-			   (std_clock::now()).time_since_epoch())
-			   .count() /
-		   1000.0;
+inline long double ticks_now() {
+	return((std_clock::now()).time_since_epoch()).count();
 }
 
 clock::clock() : clock_stop(0) {

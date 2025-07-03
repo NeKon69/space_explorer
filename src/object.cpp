@@ -50,6 +50,10 @@ void object::draw(bool should_reset) {
         reset();
     }
 }
+void object::set_shader(const raw::shared_ptr<raw::shader>& sh) {
+    shader = sh;
+    shader->use();
+}
 
 void object::reset() {
 	transformation = glm::mat4(1.0f);

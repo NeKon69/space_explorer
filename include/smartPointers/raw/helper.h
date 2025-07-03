@@ -86,15 +86,14 @@ std::enable_if_t<!std::is_array_v<T>, raw::unique_ptr<T>> make_unique(Args&&... 
 // I am too lazy to implement the availability to add deleters to shared_ptr (I'll add when
 // necessary)
 
-template<typename T, typename... Args>
+template<typename T, typename D = raw::default_deleter<T>, typename... Args>
 /**
  * @brief Creates a shared_ptr that manages a single object.
  * @param args Constructor arguments for the new object.
  * @param func function to call on destroy, defaults to destroy_make_shared_object
  */
 std::enable_if_t<!std::is_array_v<T>, raw::shared_ptr<T>> make_shared(
-	Args&&... args, decltype(deleter::destroy_make_shared_object<T>) func =
-						deleter::destroy_make_shared_object<T>) {
+	Args&&... args) {
 	// Allocate a block of memory that can hold both the object and the hub
 	std::byte* raw_block =
 		static_cast<std::byte*>(std::aligned_alloc(alignof(combined<T>), sizeof(combined<T>)));
@@ -106,7 +105,7 @@ std::enable_if_t<!std::is_array_v<T>, raw::shared_ptr<T>> make_shared(
 	try {
 		// Try constructing the object and the hub in the allocated memory with proper alignment
 		constructed_hub = new (raw_block + offsetof(combined<T>, hub_ptr))
-			hub(constructed_ptr, raw_block, func, deleter::deallocate_make_shared_block);
+			hub(constructed_ptr, raw_block, deleter::destroy_make_shared_object<T>, deleter::deallocate_make_shared_block);
 		constructed_ptr =
 			new (raw_block + offsetof(combined<T>, ptr)) T(std::forward<Args>(args)...);
 		constructed_hub->set_managed_object_ptr(constructed_ptr);
