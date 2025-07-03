@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
 
 	raw::gl_window window("Mike Hawk");
 
-    raw::gl::RULE(GL_DEPTH_TEST);
+	raw::gl::RULE(GL_DEPTH_TEST);
 	raw::gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	raw::gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 4);
 	raw::gl::RULE(GL_MULTISAMPLE);
@@ -169,13 +169,14 @@ int main(int argc, char* argv[]) {
 	object_shader->set_vec3("dir_light.diffuse", 0.8f, 0.8f, 0.8f);
 	object_shader->set_vec3("dir_light.specular", 0.5f, 0.5f, 0.5f);
 	for (int i = 0; i < AM_POINT_LIGHTS; ++i) {
-		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].position", light_pos[i * 3],
-							   light_pos[i * 3 + 1], light_pos[i * 3 + 2]);
+		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].position",
+								light_pos[i * 3], light_pos[i * 3 + 1], light_pos[i * 3 + 2]);
 		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].ambient", 0.05f, 0.05f,
-							   0.05f);
-		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].diffuse", 0.8f, 0.8f, 0.8f);
+								0.05f);
+		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].diffuse", 0.8f, 0.8f,
+								0.8f);
 		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].specular", 1.0f, 1.0f,
-							   1.0f);
+								1.0f);
 		object_shader->set_float("point_lights[" + std::to_string(i) + "].constant", 1.0f);
 		object_shader->set_float("point_lights[" + std::to_string(i) + "].linear", 0.09f);
 		object_shader->set_float("point_lights[" + std::to_string(i) + "].quadratic", 0.032f);
@@ -373,14 +374,8 @@ int main(int argc, char* argv[]) {
 
 		static auto T_CALLBACK = [&object_shader, &dir_light]() {
 			object_shader->use();
-			dir_light = true;
 			object_shader->set_bool("need_dir_light", dir_light);
-		};
-
-		static auto T_RELEASE_CALLBACK = [&object_shader, &dir_light]() {
-			object_shader->use();
-			dir_light = false;
-			object_shader->set_bool("need_dir_light", dir_light);
+			dir_light = !dir_light;
 		};
 
 		static auto ESCAPE_CALLBACK = [&running]() {
@@ -388,26 +383,26 @@ int main(int argc, char* argv[]) {
 			running = false;
 		};
 
-		buttons[SDL_SCANCODE_TAB]	 = raw::button(TAB_CALLBACK);
-		buttons[SDL_SCANCODE_SPACE]	 = raw::button(SPACE_CALLBACK);
-		buttons[SDL_SCANCODE_LEFT]	 = raw::button(LEFT_CALLBACK);
-		buttons[SDL_SCANCODE_RIGHT]	 = raw::button(RIGHT_CALLBACK);
-		buttons[SDL_SCANCODE_UP]	 = raw::button(UP_CALLBACK);
-		buttons[SDL_SCANCODE_DOWN]	 = raw::button(DOWN_CALLBACK);
-		buttons[SDL_SCANCODE_W]		 = raw::button(W_CALLBACK);
-		buttons[SDL_SCANCODE_A]		 = raw::button(A_CALLBACK);
-		buttons[SDL_SCANCODE_S]		 = raw::button(S_CALLBACK);
-		buttons[SDL_SCANCODE_D]		 = raw::button(D_CALLBACK);
-		buttons[SDL_SCANCODE_I]		 = raw::button(I_CALLBACK);
-		buttons[SDL_SCANCODE_K]		 = raw::button(K_CALLBACK);
-		buttons[SDL_SCANCODE_J]		 = raw::button(J_CALLBACK);
-		buttons[SDL_SCANCODE_L]		 = raw::button(L_CALLBACK);
-		buttons[SDL_SCANCODE_U]		 = raw::button(U_CALLBACK);
-		buttons[SDL_SCANCODE_O]		 = raw::button(O_CALLBACK);
-		buttons[SDL_SCANCODE_T]		 = raw::button(T_CALLBACK, T_RELEASE_CALLBACK);
-		buttons[SDL_SCANCODE_ESCAPE] = raw::button(ESCAPE_CALLBACK);
+		buttons[SDL_SCANCODE_TAB]	 = raw::button(raw::func_type::HELD, TAB_CALLBACK);
+		buttons[SDL_SCANCODE_SPACE]	 = raw::button(raw::func_type::HELD, SPACE_CALLBACK);
+		buttons[SDL_SCANCODE_LEFT]	 = raw::button(raw::func_type::HELD, LEFT_CALLBACK);
+		buttons[SDL_SCANCODE_RIGHT]	 = raw::button(raw::func_type::HELD, RIGHT_CALLBACK);
+		buttons[SDL_SCANCODE_UP]	 = raw::button(raw::func_type::HELD, UP_CALLBACK);
+		buttons[SDL_SCANCODE_DOWN]	 = raw::button(raw::func_type::HELD, DOWN_CALLBACK);
+		buttons[SDL_SCANCODE_W]		 = raw::button(raw::func_type::HELD, W_CALLBACK);
+		buttons[SDL_SCANCODE_A]		 = raw::button(raw::func_type::HELD, A_CALLBACK);
+		buttons[SDL_SCANCODE_S]		 = raw::button(raw::func_type::HELD, S_CALLBACK);
+		buttons[SDL_SCANCODE_D]		 = raw::button(raw::func_type::HELD, D_CALLBACK);
+		buttons[SDL_SCANCODE_I]		 = raw::button(raw::func_type::HELD, I_CALLBACK);
+		buttons[SDL_SCANCODE_K]		 = raw::button(raw::func_type::HELD, K_CALLBACK);
+		buttons[SDL_SCANCODE_J]		 = raw::button(raw::func_type::HELD, J_CALLBACK);
+		buttons[SDL_SCANCODE_L]		 = raw::button(raw::func_type::HELD, L_CALLBACK);
+		buttons[SDL_SCANCODE_U]		 = raw::button(raw::func_type::HELD, U_CALLBACK);
+		buttons[SDL_SCANCODE_O]		 = raw::button(raw::func_type::HELD, O_CALLBACK);
+		buttons[SDL_SCANCODE_T]		 = raw::button(raw::func_type::PRESSED, T_CALLBACK);
+		buttons[SDL_SCANCODE_ESCAPE] = raw::button(raw::func_type::PRESSED, ESCAPE_CALLBACK);
 	}
-	float fov = 45.0f;
+	float		 fov			= 45.0f;
 	while (running) {
 		while (window.poll_event(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {

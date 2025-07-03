@@ -13,7 +13,7 @@ namespace raw {
 class sdl_video {
 public:
 	sdl_video();
-	virtual ~sdl_video() noexcept;
+	~sdl_video() noexcept;
 
 	sdl_video(const sdl_video&)			   = delete;
 	sdl_video& operator=(const sdl_video&) = delete;

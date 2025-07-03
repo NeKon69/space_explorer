@@ -11,11 +11,14 @@
 
 namespace raw {
 void init_glad() {
+    static bool inited = false;
+    if(inited) return;
 	if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
 		std::cerr << "Failed to initialize GLAD" << std::endl;
 		throw std::runtime_error("Failed to initialize GLAD: " + std::string(__FILE__) + " - " +
 								 std::to_string(__LINE__));
 	}
+    inited = true;
 }
 } // namespace raw
 

@@ -50,6 +50,7 @@ public:
     void		 draw(bool reset = true);
 
 	template<typename T, typename Y>
+	requires std::ranges::range<T> && std::ranges::range<Y>
 	object(const T vertices, const Y indices) : indices_size(new int(0)), vao(new UI(0)),  vbo(new UI(0)), ebo(new UI(0)) {
 		setup_object(vertices, indices);
 	}
@@ -60,6 +61,7 @@ public:
 	 * can use it with vector, but can't with c-style arrays)
 	 */
 	template<typename T, typename Y>
+    requires std::ranges::range<T> && std::ranges::range<Y>
 	void setup_object(const T vertices, const Y indices) {
         // still require some manual setup
 		*indices_size = indices.size();

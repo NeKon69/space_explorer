@@ -25,6 +25,7 @@ void LEFT(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
 void RIGHT(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
 void FORWARD(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
 void BACKWARD(glm::vec3& pos, glm::vec3 front, glm::vec3 up);
+// Not defined, acts only as a type for function pointer
 void MOVE_FUNCTION(glm::vec3&, glm::vec3, glm::vec3);
 } // namespace camera_move
 
@@ -38,7 +39,6 @@ public:
 	// that constructor seems to be useless, since who in the right mind would create vec3's and
 	// then pass it here, I think more logical would be to let the class handle all of it
 	camera(glm::vec3 _pos, glm::vec3 _front, glm::vec3 _up);
-	explicit camera(glm::vec3 vec);
 	camera();
 
 	// basically same things just under different names

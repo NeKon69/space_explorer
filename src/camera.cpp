@@ -32,7 +32,6 @@ camera::camera()
 	: camera_pos(predef::CAMERA_POS),
 	  camera_front(predef::CAMERA_FRONT),
 	  camera_up(predef::CAMERA_UP) {}
-camera::camera(glm::vec3 vec) : camera_pos(vec), camera_front(vec), camera_up(vec) {}
 
 glm::mat4 camera::value() const {
 	return glm::lookAt(camera_pos, camera_front + camera_pos, camera_up);

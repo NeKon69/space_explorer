@@ -27,9 +27,9 @@ class gl_window {
 private:
 	SDL_GLContext ctx	 = nullptr;
 	SDL_Window*	  window = nullptr;
-
+    static sdl_video video_context;
 public:
-	static sdl_video video_context;
+
 	explicit gl_window(const std::string& window_name);
 
 	gl_window(const gl_window&)			   = delete;
@@ -52,7 +52,7 @@ public:
 
 	glm::ivec2 get_window_size();
 
-	virtual ~gl_window() noexcept;
+	~gl_window();
 };
 } // namespace raw
 
