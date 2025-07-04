@@ -43,22 +43,26 @@ gl_window::~gl_window() noexcept {
 	SDL_DestroyWindow(window);
 }
 
-bool gl_window::poll_event(SDL_Event* event) {
+bool gl_window::poll_event(SDL_Event* event) const {
 	return SDL_PollEvent(event);
 }
 
-SDL_Window* gl_window::get() {
+SDL_Window* gl_window::get() const {
 	return window;
 }
 
-glm::ivec2 gl_window::get_window_size() {
+glm::ivec2 gl_window::get_window_size() const {
 	glm::ivec2 resolution;
 	SDL_GetWindowSize(window, &resolution.x, &resolution.y);
 	return resolution;
 }
 
-void gl_window::clear() {
+void gl_window::clear() const {
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+void gl_window::update() const {
+    SDL_GL_SwapWindow(window);
 }
 
 } // namespace raw

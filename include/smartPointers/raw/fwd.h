@@ -5,8 +5,6 @@
 #ifndef SMARTPOINTERS_FWD_H
 #define SMARTPOINTERS_FWD_H
 
-#include <memory>
-
 namespace raw {
 
 template<typename T>

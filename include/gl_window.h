@@ -13,6 +13,8 @@
 #include "sdl_video.h"
 
 namespace raw {
+    class event_handler;
+    class scene;
 namespace gl {
 // add more if you need
 inline PASSIVE_VALUE& ATTR				  = SDL_GL_SetAttribute;
@@ -29,9 +31,13 @@ inline PASSIVE_VALUE& STENCIL_FUNC	  = glStencilFunc;
 } // namespace gl
 class gl_window {
 private:
+    bool running = true;
+    // I'll replace this with smart pointer later, but for now I don't really care
 	SDL_GLContext ctx	 = nullptr;
 	SDL_Window*	  window = nullptr;
     static sdl_video video_context;
+    friend class event_handler;
+    friend class scene;
 public:
 
 	explicit gl_window(const std::string& window_name);
@@ -48,13 +54,15 @@ public:
 //		std::forward<F>(func)(std::forward<Ts>(values)...);
 //	}
 
-	[[nodiscard]] bool poll_event(SDL_Event* event);
+	[[nodiscard]] bool poll_event(SDL_Event* event) const;
 
-    void clear();
+    void clear() const;
 
-	SDL_Window* get();
+	SDL_Window* get() const;
 
-	glm::ivec2 get_window_size();
+	glm::ivec2 get_window_size() const;
+
+    void update() const;
 
 	~gl_window();
 };

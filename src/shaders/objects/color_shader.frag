@@ -52,7 +52,6 @@ uniform material obj_mat;
 uniform directional_light dir_light;
 uniform spot_light sp_light;
 uniform bool need_dir_light;
-uniform vec3 viewPos;
 
 out vec4 FragColor;
 
@@ -123,7 +122,7 @@ vec3 calc_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 view_dir
 
 void main() {
     vec3 result = vec3(0.0);
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 viewDir = normalize(sp_light.position - FragPos);
 
     if(need_dir_light) {
         result += calc_dir_light(dir_light, Normal, viewDir);
