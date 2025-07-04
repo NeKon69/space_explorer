@@ -446,69 +446,70 @@ int main(int argc, char* argv[]) {
 				outline_shader->set_mat4("projection", glm::value_ptr(projection_matrix));
 			}
 		}
-        for(auto [scancode, button] : buttons) {
-            button.update();
-        }
-        view_matrix = camera.value();
+		for (auto& [scancode, button] : buttons) {
+			button.update();
+		}
+		view_matrix = camera.value();
 
-        window.clear();
+		window.clear();
 
-        object_shader->use();
-        object_shader->set_vec3("sp_light.position", camera.pos());
-        object_shader->set_vec3("sp_light.direction", camera.front());
-        object_shader->set_vec3("viewPos", camera.pos());
-        object_shader->set_bool("need_dir_light", dir_light);
-        object_shader->set_mat4("view", glm::value_ptr(view_matrix));
+		object_shader->use();
+		object_shader->set_vec3("sp_light.position", camera.pos());
+		object_shader->set_vec3("sp_light.direction", camera.front());
+		object_shader->set_vec3("viewPos", camera.pos());
+		object_shader->set_bool("need_dir_light", dir_light);
+		object_shader->set_mat4("view", glm::value_ptr(view_matrix));
 
-        light_shader->use();
-        light_shader->set_mat4("view", glm::value_ptr(view_matrix));
+		light_shader->use();
+		light_shader->set_mat4("view", glm::value_ptr(view_matrix));
 
-        outline_shader->use();
-        outline_shader->set_mat4("view", glm::value_ptr(view_matrix));
+		outline_shader->use();
+		outline_shader->set_mat4("view", glm::value_ptr(view_matrix));
 
-        object_shader->use();
+        glEnable(GL_CULL_FACE);
+		object_shader->use();
 
-        glEnable(GL_DEPTH_TEST);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        glStencilMask(0x00); // don’t update stencil buffer while drawing the floor
+        glDepthFunc(GL_LESS);
+
+        glStencilMask(0x00);
         cube.set_shader(object_shader);
-        // render platform
         cube.move(glm::vec3(0.0f, -2.0f, 0.0f));
         cube.scale(glm::vec3(15.0f, 0.2f, 15.0f));
         cube.draw();
+
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0xFF);
-        // after testing turns out this for loop completes in about 2000 nanoseconds on my rtx5070
+
+        cube.set_shader(object_shader);
         for (auto cube_position : cube_positions) {
             cube.move(cube_position);
             cube.draw();
         }
+
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
         glStencilMask(0x00);
-        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
+
         cube.set_shader(outline_shader);
-        // render cubes
-        for(auto cube_position : cube_positions) {
+        for (auto cube_position : cube_positions) {
             cube.move(cube_position);
-            cube.scale(glm::vec3(1.1f));
+            cube.scale(glm::vec3(1.01f));
             cube.draw();
         }
         glStencilMask(0xFF);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_STENCIL_TEST);
+		// render light_cubes
+		light_shader->use();
+		for (int i = 0; i < std::size(light_pos) / 3; ++i) {
+			light_cube.move(
+				glm::vec3(light_pos[i * 3], light_pos[i * 3 + 1], light_pos[i * 3 + 2]));
+			light_cube.scale(glm::vec3(0.2f));
+			light_cube.draw();
+		}
 
-        // render light_cubes
-        light_shader->use();
-        for (int i = 0; i < std::size(light_pos) / 3; ++i) {
-            light_cube.move(
-                    glm::vec3(light_pos[i * 3], light_pos[i * 3 + 1], light_pos[i * 3 + 2]));
-            light_cube.scale(glm::vec3(0.2f));
-            light_cube.draw();
-        }
-
-        SDL_GL_SwapWindow(window.get());
-
+		SDL_GL_SwapWindow(window.get());
 	}
 	return 0;
 }

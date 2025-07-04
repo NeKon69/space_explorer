@@ -3,9 +3,6 @@
 //
 #include "objects/cube.h"
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 namespace raw {
 
 cube::cube(const raw::shared_ptr<raw::shader>& sh) : object(cube_pos, indices) {

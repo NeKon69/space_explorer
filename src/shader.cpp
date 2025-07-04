@@ -99,7 +99,7 @@ void shader::use() const {
 }
 
 bool shader::set_bool(const std::string& name, bool value) {
-	if (cached_locations[name] != 0) {
+	if (cached_locations.contains(name)) {
 		glUniform1i(cached_locations[name], (int)(value));
 		return true;
 	}
@@ -114,7 +114,7 @@ bool shader::set_bool(const std::string& name, bool value) {
 }
 
 bool shader::set_int(const std::string& name, int value) {
-	if (cached_locations[name] != 0) {
+	if (cached_locations.contains(name)) {
 		glUniform1i(cached_locations[name], value);
 		return true;
 	}
@@ -129,7 +129,7 @@ bool shader::set_int(const std::string& name, int value) {
 }
 
 bool shader::set_float(const std::string& name, float value) {
-	if (cached_locations[name] != 0) {
+	if (cached_locations.contains(name)) {
 		glUniform1f(cached_locations[name], value);
 		return true;
 	}
@@ -144,7 +144,7 @@ bool shader::set_float(const std::string& name, float value) {
 }
 
 bool shader::set_vec2(const std::string& name, float x, float y) {
-	if (cached_locations[name] != 0) {
+	if (cached_locations.contains(name)) {
 		glUniform2f(cached_locations[name], x, y);
 		return true;
 	}
@@ -163,7 +163,7 @@ bool shader::set_vec2(const std::string& name, glm::vec2 vec) {
 }
 
 bool shader::set_vec3(const std::string& name, float x, float y, float z) {
-	if (cached_locations[name] != 0) {
+	if (cached_locations.contains(name)) {
 		glUniform3f(cached_locations[name], x, y, z);
 		return true;
 	}
@@ -183,7 +183,7 @@ bool shader::set_vec3(const std::string& name, glm::vec3 vec) {
 }
 
 bool shader::set_vec4(const std::string& name, float x, float y, float z, float w) {
-	if (cached_locations[name] != 0) {
+	if (cached_locations.contains(name)) {
 		glUniform4f(cached_locations[name], x, y, z, w);
 		return true;
 	}
@@ -203,7 +203,7 @@ bool shader::set_vec4(const std::string& name, glm::vec4 vec) {
 }
 
 bool shader::set_mat4(const std::string& name, const float* value) {
-	if (cached_locations[name] != 0) {
+	if (cached_locations.contains(name)) {
 		glUniformMatrix4fv(cached_locations[name], 1, GL_FALSE, value);
 		return true;
 	}

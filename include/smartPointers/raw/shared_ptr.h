@@ -9,6 +9,8 @@
 #include "smart_ptr_base.h"
 
 namespace raw {
+// no custom deleters for now, but it's super easy to add them, so I'll do it when needed
+
 template<typename T>
 class shared_ptr_base : public smart_ptr_base<T> {
 protected:
