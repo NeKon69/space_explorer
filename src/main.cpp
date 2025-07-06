@@ -4,7 +4,7 @@
 #include "scene.h"
 
 int main(int argc, char* argv[]) {
-    raw::scene scene("Mike Hawk");
-    scene.run();
+	raw::scene scene("Mike Hawk");
+	scene.run();
 	return 0;
 }

@@ -21,7 +21,8 @@ void model::draw(raw::shader &shader) {
 
 void model::load_model(const std::string &path) {
 	Assimp::Importer importer;
-    const aiScene *scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
+	const aiScene	*scene = importer.ReadFile(
+		  path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 		throw std::runtime_error(std::string(
 			std::format("Failed to load model from {}: {}", path, importer.GetErrorString())));
@@ -48,18 +49,21 @@ mesh model::process_mesh(const aiMesh &ai_mesh, const aiScene &model) {
 
 		v.pos = glm::vec3(ai_mesh.mVertices[i].x, ai_mesh.mVertices[i].y, ai_mesh.mVertices[i].z);
 
-        if (ai_mesh.HasNormals()) {
-            v.normal = glm::vec3(ai_mesh.mNormals[i].x, ai_mesh.mNormals[i].y, ai_mesh.mNormals[i].z);
-        } else {
-            std::cout << "ALARM! MESH '" << ai_mesh.mName.C_Str() << "' HAS NO NORMALS AFTER ASSIMP PROCESSING!" << std::endl;
-            v.normal = glm::vec3(0.0f, 1.0f, 0.0f);
-        }
+		if (ai_mesh.HasNormals()) {
+			v.normal =
+				glm::vec3(ai_mesh.mNormals[i].x, ai_mesh.mNormals[i].y, ai_mesh.mNormals[i].z);
+		} else {
+			std::cout << "ALARM! MESH '" << ai_mesh.mName.C_Str()
+					  << "' HAS NO NORMALS AFTER ASSIMP PROCESSING!" << std::endl;
+			v.normal = glm::vec3(0.0f, 1.0f, 0.0f);
+		}
 
-        if (ai_mesh.mTextureCoords[0]) {
-            v.tex_coords = glm::vec2(ai_mesh.mTextureCoords[0][i].x, ai_mesh.mTextureCoords[0][i].y);
-        } else {
-            v.tex_coords = glm::vec2(0.0f, 0.0f);
-        }
+		if (ai_mesh.mTextureCoords[0]) {
+			v.tex_coords =
+				glm::vec2(ai_mesh.mTextureCoords[0][i].x, ai_mesh.mTextureCoords[0][i].y);
+		} else {
+			v.tex_coords = glm::vec2(0.0f, 0.0f);
+		}
 		vertices.push_back(v);
 	}
 
@@ -70,8 +74,7 @@ mesh model::process_mesh(const aiMesh &ai_mesh, const aiScene &model) {
 		}
 	}
 
-	if (ai_mesh.mMaterialIndex >= 0 &&
-		ai_mesh.mMaterialIndex < model.mNumMaterials) {
+	if (ai_mesh.mMaterialIndex >= 0 && ai_mesh.mMaterialIndex < model.mNumMaterials) {
 		const aiMaterial &material = *model.mMaterials[ai_mesh.mMaterialIndex];
 		textures = load_material_textures(material, aiTextureType_DIFFUSE, "texture_diffuse");
 
@@ -82,37 +85,37 @@ mesh model::process_mesh(const aiMesh &ai_mesh, const aiScene &model) {
 	return {vertices, indices, textures};
 }
 
-    vec<texture> model::load_material_textures(const aiMaterial &material, aiTextureType type,
-                                               const std::string &type_name) {
-        vec<texture> textures_for_mesh;
-        for (unsigned int i = 0; i < material.GetTextureCount(type); ++i) {
-            aiString str;
-            material.GetTexture(type, i, &str);
-            bool skip = false;
-            for (size_t j = 0; j < loaded_textures.size(); ++j) {
-                if (std::strcmp(loaded_textures[j].path.data(), str.C_Str()) == 0) {
-                    textures_for_mesh.push_back(loaded_textures[j]);
-                    skip = true;
-                    break;
-                }
-            }
-            if (!skip) {
-                texture tex;
-                tex.id = texture_from_file(str.C_Str(), directory);
-                tex.type = type_name;
-                tex.path = std::string(str.C_Str());
-                textures_for_mesh.push_back(tex);
-                loaded_textures.push_back(tex);
-            }
-        }
-        return textures_for_mesh;
-    }
+vec<texture> model::load_material_textures(const aiMaterial &material, aiTextureType type,
+										   const std::string &type_name) {
+	vec<texture> textures_for_mesh;
+	for (unsigned int i = 0; i < material.GetTextureCount(type); ++i) {
+		aiString str;
+		material.GetTexture(type, i, &str);
+		bool skip = false;
+		for (size_t j = 0; j < loaded_textures.size(); ++j) {
+			if (std::strcmp(loaded_textures[j].path.data(), str.C_Str()) == 0) {
+				textures_for_mesh.push_back(loaded_textures[j]);
+				skip = true;
+				break;
+			}
+		}
+		if (!skip) {
+			texture tex;
+			tex.id	 = texture_from_file(str.C_Str(), directory);
+			tex.type = type_name;
+			tex.path = std::string(str.C_Str());
+			textures_for_mesh.push_back(tex);
+			loaded_textures.push_back(tex);
+		}
+	}
+	return textures_for_mesh;
+}
 
 UI model::texture_from_file(const char *path, const std::string &directory, bool gamma) {
 	std::string filename = std::string(path);
 	filename			 = directory + '/' + filename;
 
-    std::cout << "Attempting to load texture: " << filename << std::endl;
+	std::cout << "Attempting to load texture: " << filename << std::endl;
 
 	unsigned int textureID;
 	glGenTextures(1, &textureID);

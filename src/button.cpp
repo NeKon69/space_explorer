@@ -41,7 +41,7 @@ void button::press() {
 void button::release() {
 	is_released = true;
 	is_pressed	= false;
-	is_held	= false;
+	is_held		= false;
 	first_press = true;
 }
 

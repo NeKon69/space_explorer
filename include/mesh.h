@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+
 #include "helper_macros.h"
 
 namespace raw {
@@ -24,12 +25,12 @@ struct vertex {
 struct texture {
 	unsigned int id;
 	std::string	 type;
-    std::string	 path;
+	std::string	 path;
 };
 
 class mesh {
 public:
-    mesh() = default;
+	mesh() = default;
 	mesh(const vec<vertex>& vcs, const vec<UI>& ids, const vec<texture>& txs);
 
 	void		draw(shader& shader);

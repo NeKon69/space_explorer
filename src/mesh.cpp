@@ -58,39 +58,39 @@ void to_char_ptr(char *number, const UI &amount_of_digits, UI &number_of_map) {
 	++number_of_map;
 }
 
-    void mesh::draw(raw::shader &shader) {
-        shader.use();
-        shader.set_int("obj_mat.diffuse_map", 0);
-        shader.set_int("obj_mat.specular_map", 1);
+void mesh::draw(raw::shader &shader) {
+	shader.use();
+	shader.set_int("obj_mat.diffuse_map", 0);
+	shader.set_int("obj_mat.specular_map", 1);
 
-        bool has_diffuse = false;
-        bool has_specular = false;
+	bool has_diffuse  = false;
+	bool has_specular = false;
 
-        for (const auto& texture : textures) {
-            if (texture.type == "texture_diffuse") {
-                glActiveTexture(GL_TEXTURE0);
-                glBindTexture(GL_TEXTURE_2D, texture.id);
-                has_diffuse = true;
-            } else if (texture.type == "texture_specular") {
-                glActiveTexture(GL_TEXTURE1);
-                glBindTexture(GL_TEXTURE_2D, texture.id);
-                has_specular = true;
-            }
-        }
-        if (!has_diffuse) {
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-        if (!has_specular) {
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
+	for (const auto &texture : textures) {
+		if (texture.type == "texture_diffuse") {
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture.id);
+			has_diffuse = true;
+		} else if (texture.type == "texture_specular") {
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, texture.id);
+			has_specular = true;
+		}
+	}
+	if (!has_diffuse) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	if (!has_specular) {
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
 
-        glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+	glBindVertexArray(vao);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 
-        glBindVertexArray(0);
-        glActiveTexture(GL_TEXTURE0);
-    }
+	glBindVertexArray(0);
+	glActiveTexture(GL_TEXTURE0);
+}
 
 } // namespace raw

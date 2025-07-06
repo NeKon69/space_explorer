@@ -38,8 +38,6 @@ camera::camera()
 	  camera_up(predef::CAMERA_UP),
 	  fov(predef::FOV) {}
 
-
-
 glm::mat4 camera::view_projection() const {
 	return projection() * view();
 }

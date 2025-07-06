@@ -6,6 +6,7 @@
 #define SPACE_EXPLORER_SDL_VIDEO_H
 
 #include <SDL3/SDL.h>
+
 #include <stdexcept>
 
 namespace raw {

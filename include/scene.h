@@ -8,22 +8,23 @@
 #include <glm/glm.hpp>
 
 #include "camera.h"
-#include "renderer.h"
 #include "event_handler.h"
+#include "renderer.h"
 
 namespace raw {
 class scene {
 private:
-	raw::event_handler	event_handler;
-    raw::renderer		renderer;
-	raw::camera camera;
-	glm::mat4	view_matrix;
-	glm::mat4	projection_matrix;
-    friend class event_handler;
-    friend class renderer;
+	raw::event_handler event_handler;
+	raw::renderer	   renderer;
+	raw::camera		   camera;
+	glm::mat4		   view_matrix;
+	glm::mat4		   projection_matrix;
+	friend class event_handler;
+	friend class renderer;
+
 public:
-    explicit scene(const std::string& window_name = "Mike Hawk");
-    void run();
+	explicit scene(const std::string& window_name = "Mike Hawk");
+	void run();
 };
 
 } // namespace raw

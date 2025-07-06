@@ -70,8 +70,7 @@ struct time {
 
 class clock {
 private:
-	time clock_start = time(
-		((std_clock::now()).time_since_epoch()).count());
+	time clock_start = time(((std_clock::now()).time_since_epoch()).count());
 	time clock_stop;
 	// Check how good clock resolution is
 	static_assert(std::ratio_less_equal_v<std::chrono::high_resolution_clock::period, std::micro>,

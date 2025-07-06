@@ -28,6 +28,21 @@ struct gl_data_deleter_array {
 	}
 };
 
+namespace drawing_method {
+void				  basic(UI* vao, UI indices_size);
+void				  lines(UI* vao, UI indices_size);
+void				  points(UI* vao, UI indices_size);
+void				  transparent_alpha(UI* vao, UI indices_size);
+void				  always_visible(UI* vao, UI indices_size);
+void				  backface_cull(UI* vao, UI indices_size);
+void				  polygon_offset_fill(UI* vao, UI indices_size);
+void				  stencil_mask_equal_1(UI* vao, UI indices_size);
+void				  depth_write_disabled(UI* vao, UI indices_size);
+void				  color_mask_red_only(UI* vao, UI indices_size);
+void				  blend_additive(UI* vao, UI indices_size);
+inline PASSIVE_VALUE& drawing_method = basic;
+} // namespace drawing_method
+
 class object {
 private:
 	// my own kiddie, it's ugly but i SOOO like it)))
@@ -35,7 +50,7 @@ private:
 	raw::unique_ptr<UI, gl_data_deleter_array>	vao;
 	raw::unique_ptr<UI, gl_data_deleter_buffer> vbo;
 	raw::unique_ptr<UI, gl_data_deleter_buffer> ebo;
-	raw::unique_ptr<int>						indices_size;
+	int											indices_size;
 
 protected:
 	glm::mat4					 transformation = glm::mat4(1.0f);
@@ -45,9 +60,12 @@ public:
 	object(object&&) noexcept;
 	object& operator=(object&&) noexcept;
 
-	void rotate(float degree, const glm::vec3& rotation);
-	void move(const glm::vec3& vec);
-	void scale(const glm::vec3& factor);
+	void	  rotate(float degree, const glm::vec3& axis);
+	void	  move(const glm::vec3& vec);
+	void	  scale(const glm::vec3& factor);
+	glm::mat4 get_mat() const {
+		return transformation;
+	}
 	void reset();
 	void set_shader(const raw::shared_ptr<raw::shader>& sh);
 	/**
@@ -55,12 +73,13 @@ public:
 	 * draw the object
 	 * \param reset should matrix reset? defaults to true
 	 */
-	void draw(bool reset = true);
+	void draw(decltype(drawing_method::drawing_method) drawing_method = drawing_method::basic,
+			  bool									   reset		  = true);
 
 	template<typename T, typename Y>
 		requires std::ranges::range<T> && std::ranges::range<Y>
 	object(const T vertices, const Y indices)
-		: vao(new UI(0)), vbo(new UI(0)), ebo(new UI(0)), indices_size(new int(0)) {
+		: vao(new UI(0)), vbo(new UI(0)), ebo(new UI(0)), indices_size(0) {
 		setup_object(vertices, indices);
 	}
 
@@ -73,7 +92,7 @@ public:
 		requires std::ranges::range<T> && std::ranges::range<Y>
 	void setup_object(const T vertices, const Y indices) {
 		// still require some manual setup
-		*indices_size = indices.size();
+		indices_size = indices.size();
 		glGenVertexArrays(1, vao.get());
 		glGenBuffers(1, vbo.get());
 		glGenBuffers(1, ebo.get());

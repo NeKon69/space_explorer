@@ -21,9 +21,9 @@ namespace raw {
 class shader {
 private:
 	std::unordered_map<std::string, UI> cached_locations;
-    unsigned int id;
-public:
+	unsigned int						id;
 
+public:
 	shader() = delete;
 	shader(const char* vertex_path, const char* fragment_path);
 	~shader();

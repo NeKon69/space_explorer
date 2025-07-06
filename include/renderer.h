@@ -17,8 +17,8 @@ class renderer {
 private:
 	raw::gl_window window;
 
-    raw::shared_ptr<raw::shader> object_shader;
-    raw::shared_ptr<raw::shader> light_shader;
+	raw::shared_ptr<raw::shader> object_shader;
+	raw::shared_ptr<raw::shader> light_shader;
 	raw::shared_ptr<raw::shader> outline_shader;
 
 	static constexpr std::initializer_list<glm::vec3> light_pos = {

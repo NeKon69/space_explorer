@@ -8,11 +8,7 @@
 #include <functional>
 
 namespace raw {
-    enum class func_type {
-        HELD,
-        PRESSED,
-        RELEASED
-    };
+enum class func_type { HELD, PRESSED, RELEASED };
 
 class button {
 private:
@@ -21,15 +17,16 @@ private:
 	std::function<void()> held_callback		= nullptr;
 	bool				  is_pressed		= false;
 	bool				  is_released		= false;
-    bool				  is_held			= false;
+	bool				  is_held			= false;
 
-    bool first_press = true;
+	bool first_press = true;
 
 public:
-    button() = default;
-    button(func_type type, std::function<void()> function);
-    button(std::function<void()> pressed, std::function<void()> held);
-	button(std::function<void()> pressed, std::function<void()> released, std::function<void()> held);
+	button() = default;
+	button(func_type type, std::function<void()> function);
+	button(std::function<void()> pressed, std::function<void()> held);
+	button(std::function<void()> pressed, std::function<void()> released,
+		   std::function<void()> held);
 	explicit button(std::function<void()> pressed);
 
 	// setters
@@ -41,9 +38,9 @@ public:
 		released_callback = released;
 	}
 
-    void set_held_callback(const std::function<void()>& held) {
-        held_callback = held;
-    }
+	void set_held_callback(const std::function<void()>& held) {
+		held_callback = held;
+	}
 
 	// getter
 	[[nodiscard]] inline bool pressed() const {

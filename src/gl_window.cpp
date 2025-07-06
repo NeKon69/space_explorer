@@ -10,12 +10,12 @@
 namespace raw {
 gl_window::gl_window(const std::string& window_name) {
 	gl::ATTR(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    gl::ATTR(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 1);
-    gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 1024);
-    gl::ATTR(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    gl::ATTR(SDL_GL_DOUBLEBUFFER, 1);
-    gl::ATTR(SDL_GL_DEPTH_SIZE, 24);
+	gl::ATTR(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+	gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 1024);
+	gl::ATTR(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	gl::ATTR(SDL_GL_DOUBLEBUFFER, 1);
+	gl::ATTR(SDL_GL_DEPTH_SIZE, 24);
 
 	window = SDL_CreateWindow(window_name.c_str(), 2560, 1440,
 							  (SDL_WINDOW_OPENGL | SDL_WINDOW_FULLSCREEN));
@@ -58,11 +58,11 @@ glm::ivec2 gl_window::get_window_size() const {
 }
 
 void gl_window::clear() const {
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void gl_window::update() const {
-    SDL_GL_SwapWindow(window);
+	SDL_GL_SwapWindow(window);
 }
 
 } // namespace raw

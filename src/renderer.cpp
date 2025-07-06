@@ -2,14 +2,21 @@
 // Created by progamers on 7/4/25.
 //
 #include "renderer.h"
+
 #include "scene.h"
 #define AM_POINT_LIGHTS 4
 namespace raw {
-renderer::renderer(std::string window_name) : window(window_name), object_shader(new raw::shader("shaders/objects/vertex_shader.glsl", "shaders/objects/color_shader.frag")),
-light_shader(new raw::shader("shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag")),
-outline_shader(new raw::shader("shaders/outline/vertex_shader.glsl", "shaders/outline/color_shader.frag")),
-cube_object(object_shader), light_cube(light_shader) {
-    // that's still the ugliest part of my code by far
+renderer::renderer(std::string window_name)
+	: window(window_name),
+	  object_shader(new raw::shader("shaders/objects/vertex_shader.glsl",
+									"shaders/objects/color_shader.frag")),
+	  light_shader(
+		  new raw::shader("shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag")),
+	  outline_shader(new raw::shader("shaders/outline/vertex_shader.glsl",
+									 "shaders/outline/color_shader.frag")),
+	  cube_object(object_shader),
+	  light_cube(light_shader) {
+	// that's still the ugliest part of my code by far
 	object_shader->use();
 	object_shader->set_float("obj_mat.shininess", 32.0f);
 	object_shader->set_vec3("dir_light.direction", 0.0f, -1.0f, 0.0f);
@@ -17,7 +24,8 @@ cube_object(object_shader), light_cube(light_shader) {
 	object_shader->set_vec3("dir_light.diffuse", 0.8f, 0.8f, 0.8f);
 	object_shader->set_vec3("dir_light.specular", 0.5f, 0.5f, 0.5f);
 	for (int i = 0; i < AM_POINT_LIGHTS; ++i) {
-		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].position", *(light_pos.begin() + i));
+		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].position",
+								*(light_pos.begin() + i));
 		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].ambient", 0.05f, 0.05f,
 								0.05f);
 		object_shader->set_vec3("point_lights[" + std::to_string(i) + "].diffuse", 0.8f, 0.8f,
@@ -60,25 +68,25 @@ cube_object(object_shader), light_cube(light_shader) {
 }
 
 void renderer::render() {
-    window.clear();
-    cube_object.set_shader(object_shader);
-    cube_object.move(glm::vec3(0.0f, -2.0f, 0.0f));
-    cube_object.scale(glm::vec3(15.0f, 0.2f, 15.0f));
-    cube_object.draw();
+	window.clear();
+	cube_object.set_shader(object_shader);
+	cube_object.move(glm::vec3(0.0f, -2.0f, 0.0f));
+	cube_object.scale(glm::vec3(15.0f, 0.2f, 15.0f));
+	cube_object.draw();
 
-    cube_object.set_shader(object_shader);
-    for (auto cube_position : cube_positions) {
-        cube_object.move(cube_position);
-        cube_object.draw();
-    }
+	cube_object.set_shader(object_shader);
+	for (auto cube_position : cube_positions) {
+		cube_object.move(cube_position);
+		cube_object.draw();
+	}
 
-    light_shader->use();
-    for (auto light_cube_pos : light_pos) {
-        light_cube.move(light_cube_pos);
-        light_cube.scale(glm::vec3(0.2f));
-        light_cube.draw();
-    }
-    window.update();
+	light_shader->use();
+	for (auto light_cube_pos : light_pos) {
+		light_cube.move(light_cube_pos);
+		light_cube.scale(glm::vec3(0.2f));
+		light_cube.draw();
+	}
+	window.update();
 }
 
 } // namespace raw

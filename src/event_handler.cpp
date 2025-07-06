@@ -117,9 +117,9 @@ void event_handler::handle(const SDL_Event &event) {
 }
 
 void event_handler::_update() {
-    for (auto &[_, button] : buttons) {
-        button.update();
-    }
+	for (auto &[_, button] : buttons) {
+		button.update();
+	}
 }
 
 } // namespace raw

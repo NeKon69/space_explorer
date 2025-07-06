@@ -43,7 +43,7 @@ private:
 	glm::vec3 camera_front;
 	glm::vec3 camera_up;
 
-    float yaw = -90.,f, pitch = 0.f;
+	float yaw = -90., f, pitch = 0.f;
 	float fov;
 	// those need to be manually set (I have the setter for it), since I don't really want to
 	// somehow make window and camera depend on each other
@@ -69,8 +69,8 @@ public:
 	 */
 	template<typename... Func>
 	void set_rotation(float xoffset, float yoffset, Func&&... update_shader_uniforms) {
-        yaw += xoffset;
-        pitch -= yoffset;
+		yaw += xoffset;
+		pitch -= yoffset;
 		if (pitch > 89.0f) {
 			pitch = 89.0f;
 		}
@@ -82,9 +82,10 @@ public:
 		front.y		 = sinf(glm::radians(pitch));
 		front.z		 = sinf(glm::radians(yaw)) * cosf(glm::radians(pitch));
 		camera_front = glm::normalize(front);
-		if constexpr (sizeof...(Func) > 0) {
-			(update_shader_uniforms(), ...);
-		}
+		// That's just a check for me, so I don't forget to update shader uniforms
+		static_assert(sizeof...(Func) != 0,
+					  "You must provide at least one function to update shader uniforms");
+		(update_shader_uniforms(), ...);
 	}
 
 	// again I come up with some stupid and at the same time genius ideas
@@ -97,24 +98,26 @@ public:
 	template<typename... Func>
 	void move(decltype(camera_move::MOVE_FUNCTION) func, Func&&... update_shader_uniforms) {
 		func(camera_pos, camera_front, camera_up);
-		if constexpr (sizeof...(Func) > 0) {
-			(update_shader_uniforms(), ...);
-		}
+		// That's just a check for me, so I don't forget to update shader uniforms
+		static_assert(sizeof...(Func) != 0,
+					  "You must provide at least one function to update shader uniforms");
+		(update_shader_uniforms(), ...);
 	}
 
 	template<typename... Func>
 	void adjust_fov(float delta, Func&&... update_shader_uniforms) {
-        fov += delta;
-        if (fov < 1.0f) {
-            fov = 1.0f;
-        }
-        if (fov > 180.0f) {
-            fov = 180.0f;
-        }
-        if constexpr (sizeof...(Func) > 0) {
-            (update_shader_uniforms(), ...);
-        }
-    }
+		fov += delta;
+		if (fov < 1.0f) {
+			fov = 1.0f;
+		}
+		if (fov > 180.0f) {
+			fov = 180.0f;
+		}
+		// That's just a check for me, so I don't forget to update shader uniforms
+		static_assert(sizeof...(Func) != 0,
+					  "You must provide at least one function to update shader uniforms");
+		(update_shader_uniforms(), ...);
+	}
 
 	[[nodiscard]] inline glm::vec3 pos() const {
 		return camera_pos;
@@ -126,8 +129,8 @@ public:
 		return camera_up;
 	}
 
-	void inline set_window_resolution(float x, float y) {
-		window_aspect_ratio = x / y;
+	void inline set_window_resolution(int x, int y) {
+		window_aspect_ratio = static_cast<float>(x) / static_cast<float>(y);
 	}
 };
 

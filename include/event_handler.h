@@ -57,7 +57,7 @@ public:
 public:
 	event_handler();
 	void setup(raw::scene *scene);
-	void handle(const SDL_Event& event);
+	void handle(const SDL_Event &event);
 
 private:
 	void _setup_keys(raw::scene *scene);
