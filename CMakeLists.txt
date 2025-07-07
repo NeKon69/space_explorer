@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(space_explorer VERSION 1.0 LANGUAGES C CXX)
+project(space_explorer VERSION 1.0 LANGUAGES C CXX CUDA)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CUDA_STANDARD 17)
+set(CMAKE_CUDA_ARCHITECTURES "all-major")
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
@@ -13,13 +15,12 @@ find_package(SDL3 REQUIRED CONFIG)
 find_package(glad REQUIRED CONFIG)
 find_package(Freetype REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+find_package(CUDAToolkit REQUIRED)
 
+set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/mesh.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp)
+set(CUDA_SOURCES src/mesh_generator.cu)
 
-
-
-file(GLOB_RECURSE SOURCES src/*.c src/*.cpp tests/src/*.c tests/src/*.cpp)
-
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${CUDA_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE include include/smartPointers)
 
@@ -61,4 +62,4 @@ if(EXISTS "${SHADERS_DIR}")
 else()
     message(WARNING "shaders directory not found: ${SHADERS_DIR}")
 endif()
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad freetype assimp::assimp)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad freetype assimp::assimp CUDA::cudart)
