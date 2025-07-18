@@ -200,6 +200,12 @@ void blend_additive(UI* vao, UI indices_size) {
 
 } // namespace drawing_method
 
+void object::gen_opengl_data() {
+    glGenVertexArrays(1, vao.get());
+    glGenBuffers(1, vbo.get());
+    glGenBuffers(1, ebo.get());
+}
+
 object::object(raw::object&& other) noexcept
 	: vao(std::move(other.vao)),
 	  vbo(std::move(other.vbo)),

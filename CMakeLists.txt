@@ -10,6 +10,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CUDA_STANDARD 20)
 
 find_package(SDL3 REQUIRED CONFIG)
 find_package(glad REQUIRED CONFIG)
@@ -17,8 +18,10 @@ find_package(Freetype REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 
-set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/mesh.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp)
-set(CUDA_SOURCES src/mesh_generator.cu)
+set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/mesh.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/cuda_from_gl_data.cpp src/sphere_generation/mesh_generator.cpp
+        )
+set(CUDA_SOURCES
+        src/sphere_generation/tessalation_kernel.cu src/sphere_generation/launch_tesselation.cu)
 
 add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${CUDA_SOURCES})
 
