@@ -52,10 +52,10 @@ struct time {
 		return val;
 	}
 
-	friend inline long double operator-(const time& lhs, const time& rhs) {
+	friend inline time operator-(const time& lhs, const time& rhs) {
 		auto cp = rhs;
 		cp.handle_conversion(lhs.curr);
-		return lhs.val - cp.val;
+		return time(lhs.val - cp.val);
 	}
 
 	[[nodiscard]] inline std::partial_ordering operator<=>(const time& rhs) const {

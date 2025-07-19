@@ -9,6 +9,7 @@
 #include "sphere_generation/cuda_buffer.h"
 #include "sphere_generation/kernel_launcher.h"
 #include "sphere_generation/tesselation_kernel.h"
+#include "clock.h"
 namespace raw {
 inline constexpr float GOLDEN_RATIO = 1.61803398874989484820;
 icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI steps,
@@ -23,7 +24,7 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 	//	if (steps % 2 != 0) {
 	//		throw std::runtime_error(std::format(
 	//			"[Error] Amount of steps should be multiple of two to launch properly, while was
-	//given: {}", 			steps));
+	// given: {}", 			steps));
 	//	}
 	if (steps > predef::MAX_STEPS) {
 		throw std::runtime_error(std::format(
@@ -49,7 +50,7 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 			   num_triangles_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
 	cudaMemcpy(indices_handle->get_data(), (void*)std::data(generate_icosahedron_indices()),
 			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
-
+    raw::clock timer;
 	for (UI i = 0; i < steps; ++i) {
 		cudaMemset(amount_of_triangles.get(), 0, sizeof(uint32_t));
 		cudaMemcpy(amount_of_vertices.get(), &num_triangles_cpu, sizeof(uint32_t),
@@ -73,6 +74,9 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 		num_triangles_cpu *= 4;
 		cudaDeviceSynchronize();
 	}
+    auto passed_time = timer.reset();
+    passed_time.to_milli();
+    std::cout << std::string("[Debug] Tesselation with amount of steps of ") << steps  << " took " << passed_time << " to complete\n";
 
 	if (steps % 2 != 0) {
 		cudaMemcpy(vertices_handle->get_data(), vertices_second.get(),

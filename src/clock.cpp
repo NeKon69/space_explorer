@@ -32,7 +32,7 @@ bool clock::is_running() const {
 time clock::restart() {
 	auto elapsed_time = time(0);
 	if (clock_start != clock_stop) {
-		elapsed_time = time(time(ticks_now()) - clock_start);
+		elapsed_time = time(ticks_now()) - clock_start;
 	}
 	start();
 	return elapsed_time;
@@ -40,7 +40,7 @@ time clock::restart() {
 time clock::reset() {
 	auto elapsed_time = time(0);
 	if (clock_start != clock_stop) {
-		elapsed_time = time(time(ticks_now()) - clock_start);
+		elapsed_time = time(ticks_now()) - clock_start;
 	}
 	stop();
 	return elapsed_time;
@@ -50,16 +50,16 @@ std::ostream& operator<<(std::ostream& os, const time& par) {
 	switch (par.curr) {
 		using enum raw::time_rate;
 	case NANO:
-		os << "ns\n";
+		os << "ns";
 		break;
 	case MICRO:
-		os << "us\n";
+		os << "us";
 		break;
 	case MILLI:
-		os << "ms\n";
+		os << "ms";
 		break;
 	case ORD:
-		os << "s\n";
+		os << "s";
 		break;
 	}
 	return os;
