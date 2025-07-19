@@ -26,7 +26,7 @@ void CUDA_SAFE_CALL(Func&& func, std::string func_name, Ts&&... ts) {
 	if (result != cudaSuccess) {
 		const char* msg = cudaGetErrorName(result);
 		throw std::runtime_error(std::format(
-			"{} failed with error: {} in file: {} on line {}", func_name, msg,
+			"[Error] Function {} failed with error: {} in file: {} on line {}", func_name, msg,
 			std::source_location::current().file_name(), std::source_location::current().line()));
 	}
 }

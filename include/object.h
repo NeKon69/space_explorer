@@ -11,6 +11,7 @@
 
 #include <glad/glad.h>
 #include <raw_memory.h>
+
 #include <glm/vec3.hpp>
 
 #include "helper_macros.h"
@@ -72,7 +73,10 @@ public:
 	}
 	void			 reset();
 	[[nodiscard]] UI get_vbo() const {
-		return *vbo.get();
+		return *vbo;
+	}
+	[[nodiscard]] UI get_ebo() const {
+		return *ebo;
 	}
 	void set_shader(const raw::shared_ptr<raw::shader>& sh);
 	/**

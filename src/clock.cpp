@@ -37,6 +37,7 @@ time clock::restart() {
 	start();
 	return elapsed_time;
 }
+
 time clock::reset() {
 	auto elapsed_time = time(0);
 	if (clock_start != clock_stop) {

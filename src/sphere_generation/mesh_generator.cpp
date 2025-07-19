@@ -18,22 +18,23 @@ icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI s
 
 void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius) {
 	// FIXME: divide this block of code into two separate parts so i can make this thing actually
-	// support LOD Since data should end up in the final buffer, we put that here
+	// support LOD.
+	// Since data should end up in the final buffer, we put that here
 	if (steps % 2 != 0) {
 		throw std::runtime_error(std::format(
 			"[Error] Amount of steps should be multiple of two to launch properly, while was given: {}",
 			steps));
 	}
 	if (steps > predef::MAX_STEPS) {
-		throw std::runtime_error(std::format("[Error] Amount of steps should not exceed maximum, which is {}, while was given {}", predef::MAX_STEPS, steps));
+		throw std::runtime_error(std::format(
+			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
+			predef::MAX_STEPS, steps));
 	}
-	glm::vec3* vertices = nullptr;
-	size_t	   vertices_bytes;
-	vertices_handle = raw::make_unique<cuda_from_gl_data>(vertices, &vertices_bytes, vbo);
+	size_t vertices_bytes = 0;
+	vertices_handle		  = raw::make_shared<cuda_from_gl_data<glm::vec3>>(&vertices_bytes, vbo);
 
-	UI*	   indices = nullptr;
-	size_t indices_bytes;
-	indices_handle = raw::make_unique<cuda_from_gl_data>(indices, &indices_bytes, ebo);
+	size_t indices_bytes = 0;
+	indices_handle		 = raw::make_shared<cuda_from_gl_data<UI>>(&indices_bytes, ebo);
 
 	// FIXME: add those to the class members so there would be an ability to allocate/free them as
 	// needed
@@ -44,14 +45,20 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 
 	UI amount_of_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
 
-	assign_data(indices, vertices, radius);
+	cudaMemcpy(vertices_handle->get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
+			   12 * sizeof(glm::vec3), cudaMemcpyHostToDevice);
+	cudaMemcpy(indices_handle->get_data(), (void*)std::data(generate_icosahedron_indices()),
+			   60 * sizeof(UI), cudaMemcpyHostToDevice);
+
 	for (UI i = 0; i < steps; ++i) {
 		if (i % 2 == 0) {
-			launch_tesselation(vertices, indices, vertices_second.get(), indices_second.get(),
+			launch_tesselation(vertices_handle->get_data(), indices_handle->get_data(),
+							   vertices_second.get(), indices_second.get(),
 							   amount_of_vertices.get(), amount_of_triangles.get(),
 							   amount_of_triangles_cpu, radius);
 		} else {
-			launch_tesselation(vertices_second.get(), indices_second.get(), vertices, indices,
+			launch_tesselation(vertices_second.get(), indices_second.get(),
+							   vertices_handle->get_data(), indices_handle->get_data(),
 							   amount_of_vertices.get(), amount_of_triangles.get(),
 							   amount_of_triangles_cpu, radius);
 		}
@@ -93,9 +100,9 @@ constexpr std::array<glm::vec3, 12> icosahedron_generator::generate_icosahedron_
 	return vertices;
 }
 constexpr std::array<UI, 60> icosahedron_generator::generate_icosahedron_indices() {
-	return {0,	4, 1, 0, 9, 4, 9, 5,  4, 4, 5,	8,	4,	8, 1, 8,  10, 1,  8, 3,
-			10, 5, 3, 8, 5, 2, 3, 2,  7, 3, 7,	10, 3,	7, 6, 10, 7,  11, 6, 11,
-			0,	6, 0, 1, 6, 6, 1, 10, 9, 0, 11, 9,	11, 2, 9, 2,  5,  7,  2, 11};
+	return {2, 10, 4,  2, 4,  0, 2, 0, 5, 2, 5,	 11, 2, 11, 10, 0, 4, 8, 4, 10,
+			6, 10, 11, 3, 11, 5, 7, 5, 0, 9, 1,	 8,	 6, 1,	6,	3, 1, 3, 7, 1,
+			7, 9,  1,  9, 8,  6, 8, 4, 3, 6, 10, 7,	 3, 11, 9,	7, 5, 8, 9, 0};
 }
 
 constexpr std::pair<std::array<glm::vec3, 12>, std::array<UI, 60>>
@@ -103,14 +110,4 @@ icosahedron_generator::generate_icosahedron_data(float radius) {
 	return std::pair {generate_icosahedron_vertices(radius), generate_icosahedron_indices()};
 }
 
-void icosahedron_generator::assign_data(raw::UI* indices, glm::vec3* vertices, float radius) {
-	auto vertices_arr = generate_icosahedron_vertices(radius);
-	auto indices_arr  = generate_icosahedron_indices();
-	for (UI i = 0; i < vertices_arr.size(); ++i) {
-		vertices[i] = vertices_arr[i];
-	}
-	for (UI i = 0; i < indices_arr.size(); ++i) {
-		indices[i] = indices_arr[i];
-	}
-}
 } // namespace raw

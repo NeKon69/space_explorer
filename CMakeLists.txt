@@ -18,7 +18,7 @@ find_package(Freetype REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 
-set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/mesh.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/cuda_from_gl_data.cpp src/sphere_generation/mesh_generator.cpp
+set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/mesh.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
         )
 set(CUDA_SOURCES
         src/sphere_generation/tessalation_kernel.cu src/sphere_generation/launch_tesselation.cu)

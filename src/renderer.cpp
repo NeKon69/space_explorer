@@ -15,7 +15,8 @@ renderer::renderer(std::string window_name)
 	  outline_shader(new raw::shader("shaders/outline/vertex_shader.glsl",
 									 "shaders/outline/color_shader.frag")),
 	  cube_object(object_shader),
-	  light_cube(light_shader) {
+	  light_cube(light_shader),
+	  sphere(object_shader) {
 	// that's still the ugliest part of my code by far
 	object_shader->use();
 	object_shader->set_float("obj_mat.shininess", 32.0f);
@@ -85,6 +86,13 @@ void renderer::render() {
 		light_cube.move(light_cube_pos);
 		light_cube.scale(glm::vec3(0.2f));
 		light_cube.draw();
+	}
+
+	object_shader->use();
+	for (auto sphere_pos : sphere_positions) {
+		sphere.move(sphere_pos);
+		sphere.scale(glm::vec3(1.5));
+		sphere.draw();
 	}
 	window.update();
 }

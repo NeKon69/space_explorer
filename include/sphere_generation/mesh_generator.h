@@ -15,8 +15,8 @@ namespace raw {
 
 namespace predef {
 PASSIVE_VALUE BASIC_RADIUS				= 1.0f;
-PASSIVE_VALUE BASIC_STEPS				= 5U;
-PASSIVE_VALUE MAX_STEPS					= 10U;
+PASSIVE_VALUE BASIC_STEPS				= 6U;
+PASSIVE_VALUE MAX_STEPS					= 12U;
 PASSIVE_VALUE BASIC_AMOUNT_OF_TRIANGLES = 20U;
 } // namespace predef
 
@@ -24,9 +24,8 @@ PASSIVE_VALUE BASIC_AMOUNT_OF_TRIANGLES = 20U;
 // icosahedron
 class icosahedron_generator {
 private:
-	raw::unique_ptr<cuda_from_gl_data> vertices_handle;
-	raw::unique_ptr<cuda_from_gl_data> indices_handle;
-	void							   assign_data(UI* indices, glm::vec3* vertices, float radius);
+	raw::shared_ptr<cuda_from_gl_data<glm::vec3>> vertices_handle;
+	raw::shared_ptr<cuda_from_gl_data<UI>>		  indices_handle;
 
 public:
 	icosahedron_generator() = default;
