@@ -46,6 +46,8 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:GNU>>:-Os>
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:Clang>>:-Os>
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:MSVC>>:/Os>
+
+        $<$<AND:$<CONFIG:Release>,$<CUDA_COMPILER_ID:NVCC>>:-03>
 )
 
 set(RUNTIME_OUTPUT_DIR $<TARGET_FILE_DIR:${PROJECT_NAME}>)

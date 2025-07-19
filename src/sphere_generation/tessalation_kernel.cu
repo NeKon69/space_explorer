@@ -50,11 +50,4 @@ __global__ void subdivide(const glm::vec3* in_vertices, const unsigned int* in_i
 	out_tri_ptr[9]	= new_i01;
 	out_tri_ptr[10] = new_i12;
 	out_tri_ptr[11] = new_i20;
-
-	__syncthreads();
-
-	if (x == 1) {
-		*p_triangle_count = 0;
-		*p_vertex_count	  = 0;
-	}
 }

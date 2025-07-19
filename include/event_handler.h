@@ -38,6 +38,8 @@ void update_uniform(raw::shared_ptr<raw::shader> &shader, std::string name, T va
 	}
 }
 
+
+
 class scene;
 
 template<typename T, typename... Shaders>

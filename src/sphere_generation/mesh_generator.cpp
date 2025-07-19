@@ -20,11 +20,11 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 	// FIXME: divide this block of code into two separate parts so i can make this thing actually
 	// support LOD.
 	// Since data should end up in the final buffer, we put that here
-	if (steps % 2 != 0) {
-		throw std::runtime_error(std::format(
-			"[Error] Amount of steps should be multiple of two to launch properly, while was given: {}",
-			steps));
-	}
+	//	if (steps % 2 != 0) {
+	//		throw std::runtime_error(std::format(
+	//			"[Error] Amount of steps should be multiple of two to launch properly, while was
+	//given: {}", 			steps));
+	//	}
 	if (steps > predef::MAX_STEPS) {
 		throw std::runtime_error(std::format(
 			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
@@ -42,29 +42,41 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 	cuda_buffer<UI>		   indices_second(indices_bytes);
 	cuda_buffer<uint32_t>  amount_of_triangles(sizeof(uint32_t));
 	cuda_buffer<uint32_t>  amount_of_vertices(sizeof(uint32_t));
-
-	UI amount_of_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
+	uint32_t			   num_vertices_cpu	 = 12;
+	uint32_t			   num_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
 
 	cudaMemcpy(vertices_handle->get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
-			   12 * sizeof(glm::vec3), cudaMemcpyHostToDevice);
+			   num_triangles_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
 	cudaMemcpy(indices_handle->get_data(), (void*)std::data(generate_icosahedron_indices()),
-			   60 * sizeof(UI), cudaMemcpyHostToDevice);
+			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
 
 	for (UI i = 0; i < steps; ++i) {
-
+		cudaMemset(amount_of_triangles.get(), 0, sizeof(uint32_t));
+		cudaMemcpy(amount_of_vertices.get(), &num_triangles_cpu, sizeof(uint32_t),
+				   cudaMemcpyHostToDevice);
 		if (i % 2 == 0) {
+			cudaMemcpy(vertices_second.get(), vertices_handle->get_data(),
+					   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
 			launch_tesselation(vertices_handle->get_data(), indices_handle->get_data(),
 							   vertices_second.get(), indices_second.get(),
 							   amount_of_vertices.get(), amount_of_triangles.get(),
-							   amount_of_triangles_cpu, radius);
+							   num_triangles_cpu, radius);
 		} else {
+			cudaMemcpy(vertices_handle->get_data(), vertices_second.get(),
+					   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
 			launch_tesselation(vertices_second.get(), indices_second.get(),
 							   vertices_handle->get_data(), indices_handle->get_data(),
 							   amount_of_vertices.get(), amount_of_triangles.get(),
-							   amount_of_triangles_cpu, radius);
+							   num_triangles_cpu, radius);
 		}
-        cudaDeviceSynchronize();
-        amount_of_triangles_cpu *= 4;
+		num_vertices_cpu += 3 * num_triangles_cpu;
+		num_triangles_cpu *= 4;
+		cudaDeviceSynchronize();
+	}
+
+	if (steps % 2 != 0) {
+		cudaMemcpy(vertices_handle->get_data(), vertices_second.get(),
+				   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
 	}
 
 	vertices_handle->unmap();

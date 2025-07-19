@@ -160,6 +160,8 @@ public:
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
 		glEnableVertexAttribArray(0);
 
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+			glEnableVertexAttribArray(1);
 		glBindVertexArray(0);
 	}
 
