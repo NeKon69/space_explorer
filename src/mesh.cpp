@@ -58,7 +58,7 @@ void to_char_ptr(char *number, const UI &amount_of_digits, UI &number_of_map) {
 	++number_of_map;
 }
 
-void mesh::draw(raw::shader &shader) {
+void mesh::draw(raw::shader &shader) const {
 	shader.use();
 	shader.set_int("obj_mat.diffuse_map", 0);
 	shader.set_int("obj_mat.specular_map", 1);
@@ -87,7 +87,7 @@ void mesh::draw(raw::shader &shader) {
 	}
 
 	glBindVertexArray(vao);
-	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
 
 	glBindVertexArray(0);
 	glActiveTexture(GL_TEXTURE0);

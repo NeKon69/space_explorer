@@ -55,7 +55,7 @@ private:
 	raw::unique_ptr<UI, gl_data_deleter_buffer> ebo;
 	size_t										indices_size;
 
-	void gen_opengl_data();
+	void gen_opengl_data() const;
 
 protected:
 	glm::mat4					 transformation = glm::mat4(1.0f);

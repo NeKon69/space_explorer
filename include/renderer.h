@@ -9,8 +9,8 @@
 
 #include "gl_window.h"
 #include "objects/cube.h"
-#include "shader.h"
 #include "objects/sphere.h"
+#include "shader.h"
 namespace raw {
 // I am not entirely sure what to put here, so I guess I just put something and then expend if
 // needed
@@ -27,10 +27,10 @@ private:
 		glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(2.0f, 5.0f, -15.0f)};
 	static constexpr std::initializer_list<glm::vec3> sphere_positions = {{2.f, 0.5, 0.5}};
 
-	raw::cube	 cube_object;
-	raw::cube	 light_cube;
+	raw::cube	cube_object;
+	raw::cube	light_cube;
 	raw::sphere sphere;
-    bool dir_light = true;
+	bool		dir_light = true;
 	friend class event_handler;
 	friend class scene;
 

@@ -1,14 +1,16 @@
-// I stole that code from someone from the internet since i thought it was really smart, but as it turns out it is dumb as hell
+// I stole that code from someone from the internet since i thought it was really smart, but as it
+// turns out it is dumb as hell
 #ifndef ICOSPHERE_GENERATOR_HPP
 #define ICOSPHERE_GENERATOR_HPP
-#include <vector>
 #include <cmath>
+#include <vector>
 namespace IcosphereGenerator {
 
 class Icosphere {
 private:
 	void insertVertex(std::vector<float> *vertices, float x, float y, float z) {
-        // Like why tf would you pass a fucking class member as a pointer to that member, wouldn't it be easier to just use the class member?
+		// Like why tf would you pass a fucking class member as a pointer to that member, wouldn't
+		// it be easier to just use the class member?
 		vertices->push_back(x);
 		vertices->push_back(y);
 		vertices->push_back(z);
@@ -19,7 +21,7 @@ private:
 
 	void addTriangle(std::vector<unsigned int> *indices, unsigned int a, unsigned int b,
 					 unsigned int c) {
-        // same applies here
+		// same applies here
 		indices->push_back(a);
 		indices->push_back(b);
 		indices->push_back(c);
@@ -30,14 +32,15 @@ public:
 	std::vector<unsigned int> indices;
 	int						  samples;
 	Icosphere(int samples_) {
-        // that's nothing to blame for, but it would be better to "construct" this "samples" member, rather than copying the value to it...
+		// that's nothing to blame for, but it would be better to "construct" this "samples" member,
+		// rather than copying the value to it...
 		samples = samples_;
 	}
 
 	void generate() {
 		float triangleSideLength = 1 / pow(2.0, (double)samples);
 
-        // Like wtf this isn't even used?????
+		// Like wtf this isn't even used?????
 		unsigned int meshStartingIndex = vertices.size();
 
 		int nSideTriangles = pow(2.0, (double)samples);
@@ -108,7 +111,7 @@ public:
 
 		for (int iy = 1; iy < nSideTriangles; iy++) {
 			float diff = list[(nSideTriangles + 2) - iy - 1] - list[(nSideTriangles + 1) - iy - 1];
-            // Why did you make a value you get from subtraction of two integers a float, like why?
+			// Why did you make a value you get from subtraction of two integers a float, like why?
 			list[(nSideTriangles + 1) + iy] = diff + list[(nSideTriangles + 1) + iy - 1];
 		}
 
@@ -125,7 +128,7 @@ public:
 
 				if (ix == 0) {
 					addTriangle(&indices, topCurrentIndex, bottomCurrentIndex,
-                                // i guess those brackets for better readability, but still wierd
+								// i guess those brackets for better readability, but still wierd
 								bottomCurrentIndex + (iy) * 2 + 1);
 				} else {
 					addTriangle(&indices, topCurrentIndex + (iy - 1) * 2,
@@ -251,7 +254,8 @@ public:
 	}
 
 	~Icosphere() {
-        // And what the fuck does that even mean? you clear the fucking data, what are you "shrinking to fit"??????? to fit where? in nullptr?
+		// And what the fuck does that even mean? you clear the fucking data, what are you
+		// "shrinking to fit"??????? to fit where? in nullptr?
 		vertices.clear();
 		vertices.shrink_to_fit();
 

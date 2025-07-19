@@ -24,22 +24,23 @@ private:
 
 public:
 	explicit sphere(const raw::shared_ptr<raw::shader>&, float radius = predef::BASIC_RADIUS);
-    // Yea yea it would've been more correct to use inheritance here, but for some unknown, very important reason i can't
-    void	  rotate(float degree, const glm::vec3& axis);
-    void	  move(const glm::vec3& vec);
-    void	  scale(const glm::vec3& factor);
-    glm::mat4 get_mat() const {
-        return obj.get_mat();
-    }
-    void			 reset();
-    void set_shader(const raw::shared_ptr<raw::shader>& sh);
-    /**
-     * \brief
-     * draw the object
-     * \param reset should matrix reset? defaults to true
-     */
-    void draw(decltype(drawing_method::drawing_method) drawing_method = drawing_method::basic,
-              bool									   reset		  = true);
+	// Yea yea it would've been more correct to use inheritance here, but for some unknown, very
+	// important reason i can't
+	void	  rotate(float degree, const glm::vec3& axis);
+	void	  move(const glm::vec3& vec);
+	void	  scale(const glm::vec3& factor);
+	glm::mat4 get_mat() const {
+		return obj.get_mat();
+	}
+	void reset();
+	void set_shader(const raw::shared_ptr<raw::shader>& sh);
+	/**
+	 * \brief
+	 * draw the object
+	 * \param reset should matrix reset? defaults to true
+	 */
+	void draw(decltype(drawing_method::drawing_method) drawing_method = drawing_method::basic,
+			  bool									   reset		  = true);
 };
 
 } // namespace raw

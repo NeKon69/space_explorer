@@ -68,8 +68,8 @@ vec3 calc_dir_light(directional_light light, vec3 normal, vec3 viewDir) {
     vec3 reflectDir = normalize(reflect(-lightDir, norm));
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), obj_mat.shininess);
 
-    vec3 ambient  = light.ambient * diffuse_color;
-    vec3 diffuse  = light.diffuse * diff * diffuse_color;
+    vec3 ambient = light.ambient * diffuse_color;
+    vec3 diffuse = light.diffuse * diff * diffuse_color;
     vec3 specular = light.specular * spec * specular_color;
 
     return (ambient + diffuse + specular);
@@ -82,7 +82,7 @@ vec3 calc_point_light(point_light light, vec3 normal, vec3 frag_pos, vec3 view_d
     vec3 diffuse_color = texture(obj_mat.diffuse_map, TexCoord).rgb;
     vec3 specular_color = texture(obj_mat.specular_map, TexCoord).rgb;
 
-    float distance    = length(light.position - frag_pos);
+    float distance = length(light.position - frag_pos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
     vec3 ambient = light.ambient * diffuse_color;
@@ -104,7 +104,7 @@ vec3 calc_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 view_dir
     vec3 diffuse_color = texture(obj_mat.diffuse_map, TexCoord).rgb;
     vec3 specular_color = texture(obj_mat.specular_map, TexCoord).rgb;
 
-    float distance    = length(light.position - frag_pos);
+    float distance = length(light.position - frag_pos);
     float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));
 
     vec3 ambient = light.ambient * diffuse_color;
@@ -125,14 +125,14 @@ vec3 calc_spot_light(spot_light light, vec3 normal, vec3 frag_pos, vec3 view_dir
 
 void main() {
     vec3 result = vec3(0.0);
-//    result = Normal;
+    //    result = Normal;
     vec3 viewDir = normalize(viewPos - FragPos);
 
-    if(need_dir_light) {
+    if (need_dir_light) {
         result += calc_dir_light(dir_light, Normal, viewDir);
     }
 
-    for(int i = 0; i < MAX_POINT_LIGHTS; ++i) {
+    for (int i = 0; i < MAX_POINT_LIGHTS; ++i) {
         result += calc_point_light(point_lights[i], Normal, FragPos, viewDir);
     }
 

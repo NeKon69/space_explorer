@@ -33,7 +33,7 @@ public:
 	mesh() = default;
 	mesh(const vec<vertex>& vcs, const vec<UI>& ids, const vec<texture>& txs);
 
-	void		draw(shader& shader);
+	void		draw(shader& shader) const;
 	vec<vertex> get_vertices() const {
 		return vertices;
 	}

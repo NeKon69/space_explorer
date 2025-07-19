@@ -16,6 +16,6 @@ object_info::object_info(raw::shared_ptr<raw::object> obj, glm::mat4 transformat
 object_info::object_info(raw::shared_ptr<raw::object> obj, glm::vec3 position, glm::vec3 scale,
 						 glm::vec3 rotation, float degree)
 	: transform(glm::translate(
-					glm::rotate(glm::scale(transform, scale), glm::radians(degree), rotation), position)) {}
+		  glm::rotate(glm::scale(transform, scale), glm::radians(degree), rotation), position)) {}
 
 } // namespace raw

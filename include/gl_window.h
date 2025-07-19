@@ -47,7 +47,8 @@ public:
 
 	// RIP legend...
 	//	// if you don't like what predefined attributes I have, you could set what you want
-	//manually. 	template<typename F, typename... Ts> 	void set_state(F&& func, Ts&&... values) const
+	// manually. 	template<typename F, typename... Ts> 	void set_state(F&& func, Ts&&... values)
+	// const
 	//{
 	//		// I don't really know is it working or not, but it almost doesn't matter anyway since
 	//		// usually R-values converting to L-values isn't a problem in OPENGL (usually)

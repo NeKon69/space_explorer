@@ -91,7 +91,7 @@ void renderer::render() {
 	object_shader->use();
 	for (auto sphere_pos : sphere_positions) {
 		sphere.move(sphere_pos);
-		sphere.scale(glm::vec3(1.5));
+		sphere.scale(glm::vec3(2));
 		sphere.draw();
 	}
 	window.update();

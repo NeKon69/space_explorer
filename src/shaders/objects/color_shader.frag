@@ -124,11 +124,11 @@ void main() {
     vec3 result = vec3(0.0);
     vec3 viewDir = normalize(sp_light.position - FragPos);
 
-    if(need_dir_light) {
+    if (need_dir_light) {
         result += calc_dir_light(dir_light, Normal, viewDir);
     }
 
-    for(int i = 0; i < AM_POINT_LIGHTS; ++i) {
+    for (int i = 0; i < AM_POINT_LIGHTS; ++i) {
         result += calc_point_light(point_lights[i], Normal, FragPos, viewDir);
     }
 

@@ -51,6 +51,7 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 			   60 * sizeof(UI), cudaMemcpyHostToDevice);
 
 	for (UI i = 0; i < steps; ++i) {
+
 		if (i % 2 == 0) {
 			launch_tesselation(vertices_handle->get_data(), indices_handle->get_data(),
 							   vertices_second.get(), indices_second.get(),
@@ -62,8 +63,8 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 							   amount_of_vertices.get(), amount_of_triangles.get(),
 							   amount_of_triangles_cpu, radius);
 		}
-
-		amount_of_triangles_cpu = 20 * std::pow(4, i);
+        cudaDeviceSynchronize();
+        amount_of_triangles_cpu *= 4;
 	}
 
 	vertices_handle->unmap();
