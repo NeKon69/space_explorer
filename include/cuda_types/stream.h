@@ -9,7 +9,9 @@
 namespace raw {
 class cuda_stream {
 private:
-	cudaStream_t		  _stream;
+	cudaStream_t _stream = nullptr;
+	// Yea yea, it's used to not delete same stream twice. I could've made "cuda_stream" object only
+	// moveable, but whatever
 	raw::shared_ptr<bool> created;
 
 public:

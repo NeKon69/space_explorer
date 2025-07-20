@@ -12,9 +12,7 @@ namespace predef {
 
 static const UI MAXIMUM_AMOUNT_OF_INDICES =
 	BASIC_AMOUNT_OF_TRIANGLES * static_cast<UI>(std::pow(4, MAX_STEPS)) + 2;
-// It's actually 10, but I'll try and see if my algorithm fails on ten, for now, lets keep it at 20
-static const UI MAXIMUM_AMOUNT_OF_VERTICES =
-	10 * static_cast<UI>(std::pow(4, MAX_STEPS));
+static const UI MAXIMUM_AMOUNT_OF_VERTICES = 10 * static_cast<UI>(std::pow(4, MAX_STEPS));
 } // namespace predef
 class sphere {
 private:
@@ -30,7 +28,8 @@ public:
 	void	  rotate(float degree, const glm::vec3& axis);
 	void	  move(const glm::vec3& vec);
 	void	  scale(const glm::vec3& factor);
-    void rotate_around(const float degree, const glm::vec3& axis, const glm::vec3& distance_to_object);
+	void	  rotate_around(const float degree, const glm::vec3& axis,
+							const glm::vec3& distance_to_object);
 	glm::mat4 get_mat() const {
 		return obj.get_mat();
 	}

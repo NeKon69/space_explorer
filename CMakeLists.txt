@@ -19,7 +19,9 @@ find_package(CUDAToolkit REQUIRED)
 
 set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/mesh.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
         src/objects/space_object.cpp
-        src/cuda_data_types/stream.cpp
+        src/cuda_types/stream.cpp
+        src/objects/drawable_space_object.cpp
+        src/objects/interaction_system.cpp
 )
 set(CUDA_SOURCES
         src/sphere_generation/tessallation_kernel.cu src/sphere_generation/launch_tessellation.cu)

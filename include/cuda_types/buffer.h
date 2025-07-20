@@ -7,18 +7,30 @@
 
 #include <cuda.h>
 #include <cuda_runtime.h>
+
 #include "helper_macros.h"
 #include "stream.h"
 namespace raw {
 template<typename T>
 class cuda_buffer {
 private:
+    // Boom! Genius use of streams
+    size_t						 _size = 0;
 	raw::shared_ptr<cuda_stream> data_stream;
 	T*							 ptr;
-	size_t						 _size = 0;
+
 
 public:
+	static cuda_buffer create(size_t size) {
+        // so there'll be only one stream for all buffers. nice!
+		static raw::shared_ptr<cuda_stream> _stream = raw::make_shared<cuda_stream>();
+		return cuda_buffer<T>(size, _stream);
+	}
 	explicit cuda_buffer(size_t size) : _size(size), data_stream(raw::make_shared<cuda_stream>()) {
+		CUDA_SAFE_CALL(cudaMallocAsync((void**)&ptr, _size, data_stream->stream()));
+	}
+	cuda_buffer(size_t size, raw::shared_ptr<cuda_stream> stream)
+		: _size(size), data_stream(std::move(stream)) {
 		CUDA_SAFE_CALL(cudaMallocAsync((void**)&ptr, _size, data_stream->stream()));
 	}
 	cuda_buffer(cuda_buffer& rhs) : data_stream(rhs.data_stream) {
@@ -29,13 +41,14 @@ public:
 		if (this == rhs) {
 			return *this;
 		}
-		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr, rhs.ptr, rhs._size, data_stream->stream()));
+		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr, rhs.ptr, rhs._size, cudaMemcpyDeviceToDevice,
+									   data_stream->stream()));
 		_size		= rhs._size;
 		data_stream = rhs.data_stream;
 		return *this;
 	}
 	cuda_buffer(cuda_buffer&& rhs) noexcept
-		: ptr(rhs.ptr), _size(rhs._size), data_stream(make_shared<cuda_stream>()) {}
+		: ptr(rhs.ptr), _size(rhs._size), data_stream(std::move(rhs.data_stream)){}
 	cuda_buffer& operator=(cuda_buffer&& rhs) noexcept {
 		if (ptr) {
 			CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
@@ -51,7 +64,7 @@ public:
 		ptr = nullptr;
 	}
 	T* get() const {
-		cudaStreamSynchronize(data_stream->stream());
+		data_stream->sync();
 		return ptr;
 	}
 	void allocate(size_t size) {
@@ -62,7 +75,8 @@ public:
 		_size = size;
 	}
 	void set_data(void* data, size_t size) {
-		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr, data, size, data_stream->stream()));
+		CUDA_SAFE_CALL(
+			cudaMemcpyAsync(ptr, data, size, cudaMemcpyHostToDevice, data_stream->stream()));
 	}
 	void free() {
 		CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream));

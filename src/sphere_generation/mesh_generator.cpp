@@ -36,12 +36,12 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 
 	// FIXME: add those to the class members so there would be an ability to allocate/free them as
 	// needed
-	cuda_buffer<glm::vec3> vertices_second(vertices_bytes);
-	cuda_buffer<UI>		   indices_second(indices_bytes);
-	cuda_buffer<uint32_t>  amount_of_triangles(sizeof(uint32_t));
-	cuda_buffer<uint32_t>  amount_of_vertices(sizeof(uint32_t));
-	uint32_t			   num_vertices_cpu	 = 12;
-	uint32_t			   num_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
+	auto	 vertices_second	 = cuda_buffer<glm::vec3>::create(vertices_bytes);
+	auto	 indices_second		 = cuda_buffer<UI>::create(indices_bytes);
+	auto	 amount_of_triangles = cuda_buffer<uint32_t>::create(sizeof(uint32_t));
+	auto	 amount_of_vertices	 = cuda_buffer<uint32_t>::create(sizeof(uint32_t));
+	uint32_t num_vertices_cpu	 = 12;
+	uint32_t num_triangles_cpu	 = predef::BASIC_AMOUNT_OF_TRIANGLES;
 
 	cudaMemcpy(vertices_handle->get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
 			   num_triangles_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);

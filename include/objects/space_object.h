@@ -5,7 +5,7 @@
 #ifndef SPACE_EXPLORER_SPACE_OBJECT_H
 #define SPACE_EXPLORER_SPACE_OBJECT_H
 #include <glm/glm.hpp>
-
+#include "clock.h"
 #include "cuda_types/buffer.h"
 #include "sphere.h"
 namespace raw {
@@ -24,26 +24,20 @@ struct space_object_data {
 							   double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS);
 };
 
+class interaction_system;
+class drawable_space_object;
 class space_object {
-public:
-	// The data for n-body
-	static cuda_buffer<space_object_data> d_objects;
-	static std::vector<space_object_data> c_objects;
-	static bool							  data_changed;
-	// Idk let's keep the fucking how to draw this object here, inheritance won't work, since then i
-	// would have fucking trillion billion data consumed on gpu, which we don't like
-	static sphere	  structure;
 private:
 	space_object_data object_data;
-
-	void add_new_object() const;
+	friend class drawable_space_object;
 
 public:
 	space_object();
 	explicit space_object(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
 						  double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS);
-	void update_position();
-	void draw();
+	void update_position(const interaction_system& system, time since_last_upd);
+	space_object(const space_object& object)			= default;
+	space_object& operator=(const space_object& object) = default;
 };
 
 } // namespace raw
