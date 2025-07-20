@@ -6,7 +6,7 @@
 #include "scene.h"
 #define AM_POINT_LIGHTS 4
 namespace raw {
-renderer::renderer(std::string window_name)
+renderer::renderer(const std::string &window_name)
 	: window(window_name),
 	  object_shader(new raw::shader("shaders/objects/vertex_shader.glsl",
 									"shaders/objects/color_shader.frag")),
@@ -67,6 +67,13 @@ renderer::renderer(std::string window_name)
 	auto resolution = window.get_window_size();
 	raw::gl::VIEW(0, 0, resolution.x, resolution.y);
 	_clock.restart();
+}
+
+raw::shared_ptr<raw::shader> renderer::get_basic_shader() const {
+	return object_shader;
+}
+std::vector<raw::shared_ptr<raw::shader>> renderer::get_all_shaders() const {
+    return {object_shader, light_shader, outline_shader};
 }
 
 void renderer::render() {

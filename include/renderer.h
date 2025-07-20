@@ -36,8 +36,23 @@ private:
 	friend class event_handler;
 	friend class scene;
 
+	[[nodiscard]] raw::shared_ptr<raw::shader>				get_basic_shader() const;
+	[[nodiscard]] std::vector<raw::shared_ptr<raw::shader>> get_all_shaders() const;
+
 public:
-	renderer(std::string window_name = "Mike Hawk");
+	explicit renderer(const std::string &window_name = "Mike Hawk");
+	[[nodiscard]] bool is_window_running() const {
+		return window.is_running();
+	}
+	void set_window_running(bool state) {
+		window.set_running(state);
+	}
+	[[nodiscard]] bool get_dir_light() const noexcept {
+		return dir_light;
+	}
+	void set_dir_light(bool state) noexcept {
+		dir_light = state;
+	}
 	void render();
 };
 

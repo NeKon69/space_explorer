@@ -9,6 +9,7 @@
 
 namespace raw {
 namespace predef {
+    // Oh and btw, turns out, even after 6 steps our sphere gets perfect, love it
 static const UI MAXIMUM_AMOUNT_OF_INDICES =
 	BASIC_AMOUNT_OF_TRIANGLES * static_cast<UI>(std::pow(4, MAX_STEPS)) + 2;
 // It's actually 10, but I'll try and see if my algorithm fails on ten, for now, lets keep it at 20

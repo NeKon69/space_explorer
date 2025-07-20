@@ -22,15 +22,11 @@ public:
 	bool				   mapped = false;
 	cuda_from_gl_data()			  = default;
 	cuda_from_gl_data(size_t* amount_of_bytes, UI buffer_object) {
-		CUDA_SAFE_CALL(GET_FUNC_AND_FUNC_NAME(cudaGraphicsGLRegisterBuffer), &cuda_resource,
-					   buffer_object, cudaGraphicsRegisterFlagsWriteDiscard);
-		CUDA_SAFE_CALL(GET_FUNC_AND_FUNC_NAME(cudaGraphicsMapResources), 1, &cuda_resource,
-					   nullptr);
-		cudaGraphicsResourceGetMappedPointer((void**)&data, amount_of_bytes, cuda_resource);
-		if (!data)
-			throw std::runtime_error(std::format(
-				"[Error] Could not get pointer to opengl data in file \"{}\" in function \"{}\" on line {}",
-				__FILE_NAME__, __FUNCTION__, __LINE__ - 5));
+		CUDA_SAFE_CALL(cudaGraphicsGLRegisterBuffer(&cuda_resource, buffer_object,
+													cudaGraphicsRegisterFlagsWriteDiscard));
+		CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &cuda_resource, nullptr));
+		CUDA_SAFE_CALL(
+			cudaGraphicsResourceGetMappedPointer((void**)&data, amount_of_bytes, cuda_resource));
 		mapped = true;
 	};
 	[[nodiscard]] T* get_data() const {
@@ -38,20 +34,17 @@ public:
 	}
 	void unmap() {
 		if (mapped)
-			CUDA_SAFE_CALL(GET_FUNC_AND_FUNC_NAME(cudaGraphicsUnmapResources), 1, &cuda_resource,
-						   nullptr);
+			CUDA_SAFE_CALL(cudaGraphicsUnmapResources(1, &cuda_resource, nullptr));
 		mapped = false;
 	}
 	void map() {
 		if (!mapped)
-			CUDA_SAFE_CALL(GET_FUNC_AND_FUNC_NAME(cudaGraphicsMapResources), 1, &cuda_resource,
-						   nullptr);
+			CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &cuda_resource, nullptr));
 		mapped = true;
 	}
 
 	~cuda_from_gl_data() {
-		if (mapped)
-			unmap();
+		unmap();
 		cudaGraphicsUnregisterResource(cuda_resource);
 	}
 };

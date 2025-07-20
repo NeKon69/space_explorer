@@ -19,17 +19,17 @@ using std_clock = std::chrono::high_resolution_clock;
 using UI		= unsigned int;
 template<typename T>
 using vec = std::vector<T>;
-#define GET_FUNC_AND_FUNC_NAME(x) x, #x
-template<typename Func, typename... Ts>
-void CUDA_SAFE_CALL(Func&& func, std::string func_name, Ts&&... ts) {
-	cudaError_t result = std::forward<Func>(func)(std::forward<Ts>(ts)...);
-	if (result != cudaSuccess) {
-		const char* msg = cudaGetErrorName(result);
-		throw std::runtime_error(std::format(
-			"[Error] Function {} failed with error: {} in file: {} on line {}", func_name, msg,
-			std::source_location::current().file_name(), std::source_location::current().line()));
-	}
-}
+#define CUDA_SAFE_CALL(call)                                                                    \
+	do {                                                                                        \
+		cudaError_t error = call;                                                               \
+		if (error != cudaSuccess) {                                                             \
+			const char* msg = cudaGetErrorName(error);                                          \
+			throw std::runtime_error(                                                           \
+				std::format("[Error] Function {} failed with error: {} in file: {} on line {}", \
+							#call, msg, std::source_location::current().file_name(),            \
+							std::source_location::current().line()));                           \
+		}                                                                                       \
+	} while (0)
 
 } // namespace raw
 

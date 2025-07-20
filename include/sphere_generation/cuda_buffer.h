@@ -17,50 +17,39 @@ private:
 
 public:
 	explicit cuda_buffer(size_t size) : _size(size) {
-		cudaError_t result = cudaMalloc((void**)&ptr, _size);
-		if (result != cudaSuccess) {
-			const char* msg = cudaGetErrorName(result);
-			throw std::runtime_error(
-				std::format("[Error] Function {} failed with error: {} in file: {} on line {}",
-							"cudaMalloc", msg, std::source_location::current().file_name(),
-							std::source_location::current().line()));
-		}
+		CUDA_SAFE_CALL(cudaMalloc((void**)&ptr, _size));
 	}
 	cuda_buffer(cuda_buffer& rhs) {
 		cuda_buffer(rhs._size);
-		CUDA_SAFE_CALL(GET_FUNC_AND_FUNC_NAME(cudaMemcpy), ptr, rhs.ptr, _size);
+		CUDA_SAFE_CALL(cudaMemcpy(ptr, rhs.ptr, _size));
 	}
 	cuda_buffer& operator=(const cuda_buffer& rhs) {
-		CUDA_SAFE_CALL(GET_FUNC_AND_FUNC_NAME(cudaMemcpy), ptr, rhs.ptr, _size);
+		CUDA_SAFE_CALL(cudaMemcpy(ptr, rhs.ptr, _size));
 		return *this;
 	}
 	cuda_buffer(cuda_buffer&& rhs) noexcept : ptr(rhs.ptr), _size(rhs._size) {}
-	cuda_buffer& operator=(cuda_buffer&& rhs) {
-		if (ptr)
-			CUDA_SAFE_CALL(GET_FUNC_AND_FUNC_NAME(cudaFree), ptr);
+	cuda_buffer& operator=(cuda_buffer&& rhs) noexcept {
+		if (ptr) {
+			CUDA_SAFE_CALL(cudaFree(ptr));
+		}
 		ptr	  = rhs.ptr;
 		_size = rhs._size;
 		return *this;
 	}
 	~cuda_buffer() {
-		if (ptr)
-			CUDA_SAFE_CALL(GET_FUNC_AND_FUNC_NAME(cudaFree), ptr);
+		if (ptr) {
+			CUDA_SAFE_CALL(cudaFree(ptr));
+		}
 		ptr = nullptr;
 	}
 	T* get() const {
 		return ptr;
 	}
 	void allocate(size_t size) {
-		if (ptr)
-			CUDA_SAFE_CALL(GET_FUNC_AND_FUNC_NAME(cudaFree), ptr);
-        cudaError_t result = cudaMalloc((void**)&ptr, size);
-        if (result != cudaSuccess) {
-            const char* msg = cudaGetErrorName(result);
-            throw std::runtime_error(
-                    std::format("[Error] Function {} failed with error: {} in file: {} on line {}",
-                                "cudaMalloc", msg, std::source_location::current().file_name(),
-                                std::source_location::current().line()));
-        }
+		if (ptr) {
+			CUDA_SAFE_CALL(cudaFree(ptr));
+		}
+		CUDA_SAFE_CALL(cudaMalloc((void**)&ptr, _size));
 		_size = size;
 	}
 };

@@ -66,6 +66,8 @@ public:
 	void update() const;
 
 	~gl_window();
+	bool is_running() const noexcept;
+    void set_running(bool state) noexcept;
 };
 } // namespace raw
 

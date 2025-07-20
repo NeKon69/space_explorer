@@ -64,5 +64,12 @@ void gl_window::clear() const {
 void gl_window::update() const {
 	SDL_GL_SwapWindow(window);
 }
+bool gl_window::is_running() const noexcept {
+	return running;
+}
+
+void gl_window::set_running(bool state) noexcept {
+    running = state;
+}
 
 } // namespace raw

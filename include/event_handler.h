@@ -18,7 +18,7 @@
 
 namespace raw {
 template<typename T>
-void update_uniform(raw::shared_ptr<raw::shader> &shader, std::string name, T value) {
+void update_uniform(const raw::shared_ptr<raw::shader> &shader, std::string name, T value) {
 	shader->use();
 	// since I am a lazy man, I will just spam "if constexpr" statements here
 	if constexpr (std::is_same_v<T, glm::vec3>) {
@@ -38,13 +38,14 @@ void update_uniform(raw::shared_ptr<raw::shader> &shader, std::string name, T va
 	}
 }
 
-
-
 class scene;
 
-template<typename T, typename... Shaders>
-void update_uniform_for_shaders(const std::string &name, const T &value, Shaders &...shaders) {
-	(update_uniform(shaders, name, value), ...);
+template<typename T>
+void update_uniform_for_shaders(const std::string &name, const T &value,
+								const std::vector<raw::shared_ptr<raw::shader>> &shaders) {
+	for (auto shader : shaders) {
+		update_uniform(shader, name, value);
+	}
 }
 
 class event_handler {
@@ -56,8 +57,7 @@ public:
 
 	friend class scene;
 
-public:
-	event_handler();
+	event_handler() = default;
 	void setup(raw::scene *scene);
 	void handle(const SDL_Event &event);
 
