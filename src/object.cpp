@@ -237,6 +237,11 @@ void object::move(const glm::vec3& destination) {
 void object::scale(const glm::vec3& factor) {
 	transformation = glm::scale(transformation, factor);
 }
+void object::rotate_around(const float degree, const glm::vec3& axis,
+						   const glm::vec3& distance_to_object) {
+	move(distance_to_object);
+	rotate(degree, axis);
+}
 void object::draw(decltype(drawing_method::drawing_method) drawing_method, bool should_reset) {
 	shader->use();
 	shader->set_mat4("model", glm::value_ptr(transformation));

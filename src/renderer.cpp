@@ -66,6 +66,7 @@ renderer::renderer(std::string window_name)
 
 	auto resolution = window.get_window_size();
 	raw::gl::VIEW(0, 0, resolution.x, resolution.y);
+	_clock.restart();
 }
 
 void renderer::render() {
@@ -90,7 +91,11 @@ void renderer::render() {
 
 	object_shader->use();
 	for (auto sphere_pos : sphere_positions) {
-		sphere.move(sphere_pos);
+		auto elapsed_time = _clock.get_elapsed_time();
+		elapsed_time.to_milli();
+		sphere.rotate_around(fmod(elapsed_time.val * 0.001, 360), glm::normalize(glm::vec3(5.0)),
+							 sphere_pos);
+		sphere.move(sphere_pos * glm::vec3(5.0f));
 		sphere.scale(glm::vec3(2));
 		sphere.draw();
 	}

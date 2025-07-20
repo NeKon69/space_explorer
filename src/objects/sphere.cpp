@@ -24,6 +24,10 @@ void sphere::move(const glm::vec3& destination) {
 void sphere::scale(const glm::vec3& factor) {
 	obj.scale(factor);
 }
+void sphere::rotate_around(const float degree, const glm::vec3& axis,
+						   const glm::vec3& distance_to_object) {
+	obj.rotate_around(degree, axis, distance_to_object);
+}
 void sphere::draw(decltype(drawing_method::drawing_method) drawing_method, bool should_reset) {
 	obj.draw(drawing_method, should_reset);
 }

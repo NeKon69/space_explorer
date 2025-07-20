@@ -7,6 +7,7 @@
 
 #include <raw_memory.h>
 
+#include "clock.h"
 #include "gl_window.h"
 #include "objects/cube.h"
 #include "objects/sphere.h"
@@ -21,6 +22,7 @@ private:
 	raw::shared_ptr<raw::shader>					  object_shader;
 	raw::shared_ptr<raw::shader>					  light_shader;
 	raw::shared_ptr<raw::shader>					  outline_shader;
+	raw::clock										  _clock;
 	static constexpr std::initializer_list<glm::vec3> light_pos = {
 		glm::vec3(2.5, 2.5, 5), glm::vec3(-5, -5, 10), glm::vec3(0, -5, -5), glm::vec3(-5, 5, 5)};
 	static constexpr std::initializer_list<glm::vec3> cube_positions = {

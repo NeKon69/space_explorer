@@ -67,7 +67,8 @@ public:
 
 	void	  rotate(float degree, const glm::vec3& axis);
 	void	  move(const glm::vec3& vec);
-	void	  scale(const glm::vec3& factor);
+	void	 scale(const glm::vec3& factor);
+    void rotate_around(const float degree, const glm::vec3& axis, const glm::vec3& distance_to_object);
 	glm::mat4 get_mat() const {
 		return transformation;
 	}

@@ -53,7 +53,7 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
     raw::clock timer;
 	for (UI i = 0; i < steps; ++i) {
 		cudaMemset(amount_of_triangles.get(), 0, sizeof(uint32_t));
-		cudaMemcpy(amount_of_vertices.get(), &num_triangles_cpu, sizeof(uint32_t),
+		cudaMemcpy(amount_of_vertices.get(), &num_vertices_cpu, sizeof(uint32_t),
 				   cudaMemcpyHostToDevice);
 		if (i % 2 == 0) {
 			cudaMemcpy(vertices_second.get(), vertices_handle->get_data(),
