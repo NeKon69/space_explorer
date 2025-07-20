@@ -23,7 +23,7 @@ PASSIVE_VALUE FAR_PLANE		   = 100.0f;
 PASSIVE_VALUE WINDOW_WIDTH	   = 2560.f;
 PASSIVE_VALUE WINDOW_HEIGHT	   = 1440.f;
 PASSIVE_VALUE ASPECT_RATIO	   = WINDOW_WIDTH / WINDOW_HEIGHT;
-PASSIVE_VALUE UPDATE_MOVE_TIME = 1000 / 10;
+PASSIVE_VALUE UPDATE_MOVE_TIME = 1000.f / 8.f;
 } // namespace predef
 
 namespace camera_move {
@@ -45,7 +45,7 @@ private:
 
 	float yaw = -90., f, pitch = 0.f;
 	float fov;
-	// those need to be manually set (I have the setter for it), since I don't really want to
+	// this member need to be manually set (I have the setter for it), since I don't really want to
 	// somehow make window and camera depend on each other
 	float window_aspect_ratio = predef::ASPECT_RATIO;
 

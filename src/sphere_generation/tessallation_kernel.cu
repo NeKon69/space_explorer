@@ -1,9 +1,7 @@
 //
 // Created by progamers on 7/18/25.
 //
-#include <printf.h>
-
-#include "sphere_generation/tesselation_kernel.h"
+#include "sphere_generation/tessellation_kernel.h"
 
 __global__ void subdivide(const glm::vec3* in_vertices, const unsigned int* in_indices,
 						  glm::vec3* out_vertices, unsigned int* out_indices,

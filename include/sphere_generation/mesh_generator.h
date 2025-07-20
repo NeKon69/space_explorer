@@ -9,13 +9,14 @@
 #include <array>
 #include <glm/glm.hpp>
 
-#include "cuda_from_gl_data.h"
+#include "cuda_types/cuda_from_gl_data.h"
 #include "helper_macros.h"
 namespace raw {
 
 namespace predef {
+    // Oh and btw, turns out, even after 6 steps our sphere gets perfect, love it
 PASSIVE_VALUE BASIC_RADIUS				= 1.0f;
-PASSIVE_VALUE BASIC_STEPS				= 6U;
+PASSIVE_VALUE BASIC_STEPS				= 7U;
 PASSIVE_VALUE MAX_STEPS					= 8U;
 PASSIVE_VALUE BASIC_AMOUNT_OF_TRIANGLES = 20U;
 } // namespace predef

@@ -5,13 +5,14 @@
 #include "sphere_generation/mesh_generator.h"
 
 #include <array>
+#include <numbers>
 
-#include "sphere_generation/cuda_buffer.h"
-#include "sphere_generation/kernel_launcher.h"
-#include "sphere_generation/tesselation_kernel.h"
 #include "clock.h"
+#include "cuda_types/buffer.h"
+#include "sphere_generation/kernel_launcher.h"
+#include "sphere_generation/tessellation_kernel.h"
 namespace raw {
-inline constexpr float GOLDEN_RATIO = 1.61803398874989484820;
+inline constexpr float GOLDEN_RATIO = std::numbers::phi_v<float>;
 icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI steps,
 											 float radius) {
 	generate(vbo, ebo, steps, radius);
@@ -20,13 +21,9 @@ icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI s
 void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius) {
 	// FIXME: divide this block of code into two separate parts so i can make this thing actually
 	// support LOD.
-	// Since data should end up in the final buffer, we put that here
-	//	if (steps % 2 != 0) {
-	//		throw std::runtime_error(std::format(
-	//			"[Error] Amount of steps should be multiple of two to launch properly, while was
-	// given: {}", 			steps));
-	//	}
-	if (steps > predef::MAX_STEPS) {
+	// Mother fucker doesn't like then i use same amount of memory as was allocated so here will be
+	// >= and not just >
+	if (steps >= predef::MAX_STEPS) {
 		throw std::runtime_error(std::format(
 			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
 			predef::MAX_STEPS, steps));
@@ -50,33 +47,35 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 			   num_triangles_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
 	cudaMemcpy(indices_handle->get_data(), (void*)std::data(generate_icosahedron_indices()),
 			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
-    raw::clock timer;
+	raw::clock timer;
 	for (UI i = 0; i < steps; ++i) {
+		// FIXME: add some class functions to stop using those nasty ass cudaMemset funcs
 		cudaMemset(amount_of_triangles.get(), 0, sizeof(uint32_t));
 		cudaMemcpy(amount_of_vertices.get(), &num_vertices_cpu, sizeof(uint32_t),
 				   cudaMemcpyHostToDevice);
 		if (i % 2 == 0) {
 			cudaMemcpy(vertices_second.get(), vertices_handle->get_data(),
 					   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
-			launch_tesselation(vertices_handle->get_data(), indices_handle->get_data(),
-							   vertices_second.get(), indices_second.get(),
-							   amount_of_vertices.get(), amount_of_triangles.get(),
-							   num_triangles_cpu, radius);
+			launch_tessellation(vertices_handle->get_data(), indices_handle->get_data(),
+								vertices_second.get(), indices_second.get(),
+								amount_of_vertices.get(), amount_of_triangles.get(),
+								num_triangles_cpu, radius);
 		} else {
 			cudaMemcpy(vertices_handle->get_data(), vertices_second.get(),
 					   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
-			launch_tesselation(vertices_second.get(), indices_second.get(),
-							   vertices_handle->get_data(), indices_handle->get_data(),
-							   amount_of_vertices.get(), amount_of_triangles.get(),
-							   num_triangles_cpu, radius);
+			launch_tessellation(vertices_second.get(), indices_second.get(),
+								vertices_handle->get_data(), indices_handle->get_data(),
+								amount_of_vertices.get(), amount_of_triangles.get(),
+								num_triangles_cpu, radius);
 		}
 		num_vertices_cpu += 3 * num_triangles_cpu;
 		num_triangles_cpu *= 4;
 		cudaDeviceSynchronize();
 	}
-    auto passed_time = timer.reset();
-    passed_time.to_milli();
-    std::cout << std::string("[Debug] Tesselation with amount of steps of ") << steps  << " took " << passed_time << " to complete\n";
+	auto passed_time = timer.reset();
+	passed_time.to_milli();
+	std::cout << std::string("[Debug] Tesselation with amount of steps of ") << steps << " took "
+			  << passed_time << " to complete\n";
 
 	if (steps % 2 != 0) {
 		cudaMemcpy(vertices_handle->get_data(), vertices_second.get(),
