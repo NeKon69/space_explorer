@@ -4,7 +4,6 @@ project(space_explorer VERSION 1.0 LANGUAGES C CXX CUDA)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CUDA_STANDARD 17)
 set(CMAKE_CUDA_ARCHITECTURES "all-major")
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,9 +18,11 @@ find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 
 set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/mesh.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
-        )
+        src/objects/space_object.cpp
+        src/cuda_data_types/stream.cpp
+)
 set(CUDA_SOURCES
-        src/sphere_generation/tessalation_kernel.cu src/sphere_generation/launch_tesselation.cu)
+        src/sphere_generation/tessallation_kernel.cu src/sphere_generation/launch_tessellation.cu)
 
 add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${CUDA_SOURCES})
 
