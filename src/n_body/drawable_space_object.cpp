@@ -14,5 +14,6 @@ void drawable_space_object::set_data(space_object &data) {
 void drawable_space_object::update_world_pos() {
 	cudaStreamSynchronize(nullptr);
 	move(object_data.position);
+	scale(glm::vec3(object_data.radius));
 }
 } // namespace raw

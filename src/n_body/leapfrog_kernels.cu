@@ -36,6 +36,7 @@ __global__ void compute_leapfrog(raw::space_object* objects, uint16_t count, dou
 	// Drift
 	objects[x].get().position += objects[x].get().velocity * dt;
 
+    // Works until 256 objects
 	__syncthreads();
 
 	// Kick

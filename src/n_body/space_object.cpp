@@ -15,10 +15,9 @@ space_object_data::space_object_data()
 	  mass(predef::PLANET_MASS),
 	  radius(predef::BASIC_RADIUS) {}
 space_object_data::space_object_data(glm::dvec3 _position, glm::dvec3 _velocity,
-									 glm::dvec3 _acceleration, double _mass, double _radius)
+									 double _mass, double _radius)
 	: position(_position),
 	  velocity(_velocity),
-	  acceleration(_acceleration),
 	  mass(_mass),
 	  radius(_radius) {}
 
@@ -28,12 +27,11 @@ space_object_data::space_object_data(raw::space_object* object)
 	: space_object_data(object->object_data) {}
 
 space_object::space_object() : object_data(glm::dvec3(1.0)) {}
-space_object::space_object(glm::dvec3 _position, glm::dvec3 _velocity, glm::dvec3 _acceleration,
+space_object::space_object(glm::dvec3 _position, glm::dvec3 _velocity,
 						   double _mass, double _radius)
-	: object_data(_position, _velocity, _acceleration, _mass, _radius) {}
+	: object_data(_position, _velocity, _mass, _radius) {}
 void space_object::update_position(space_object* data_first, time since_last_upd,
 								   unsigned int count) {
-	auto g = 1.0;
 	launch_leapfrog(data_first, since_last_upd, count, predef::G);
 }
 } // namespace raw

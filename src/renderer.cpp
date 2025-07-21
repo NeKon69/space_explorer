@@ -4,7 +4,7 @@
 #include "renderer.h"
 
 #include "scene.h"
-#define AM_POINT_LIGHTS 4
+#define AM_POINT_LIGHTS 5
 namespace raw {
 renderer::renderer(const std::string &window_name)
 	: window(window_name),
@@ -81,6 +81,7 @@ std::vector<raw::shared_ptr<raw::shader>> renderer::get_all_shaders() const {
 void renderer::render() {
 	system.update_sim();
 	window.clear();
+	object_shader->set_vec3("point_lights[4].position", system[0].get().position);
 	cube_object.set_shader(object_shader);
 	cube_object.move(glm::vec3(0.0f, -2.0f, 0.0f));
 	cube_object.scale(glm::vec3(15.0f, 0.2f, 15.0f));
@@ -99,16 +100,18 @@ void renderer::render() {
 		light_cube.draw();
 	}
 
-	object_shader->use();
+	sphere_obj.set_shader(light_shader);
 	while (auto obj = system.get()) {
 		sphere_obj.set_data(obj.value());
-		sphere_obj.set_shader(object_shader);
+
 		sphere_obj.update_world_pos();
 		sphere_obj.draw();
+
+		sphere_obj.set_shader(object_shader);
 	}
 	for (auto sphere_pos : sphere_positions) {
 		sphere.move(sphere_pos);
-        sphere.draw();
+		sphere.draw();
 	}
 
 	window.update();

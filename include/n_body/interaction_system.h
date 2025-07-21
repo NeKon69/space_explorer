@@ -36,13 +36,18 @@ public:
 	}
 
 	std::optional<space_object> get();
-	void						update_sim();
+	const space_object&			operator[](size_t index) const;
+	space_object&				operator[](size_t index);
+
+	void update_sim();
 };
 
 namespace predef {
 inline auto generate_data_for_sim() {
 	return interaction_system(
-		{space_object(glm::vec3(0.0f, 0.f, 0.f)), space_object(glm::vec3(25.f)), space_object(glm::vec3(-10.f)), space_object(glm::vec3(10, -10, 20))});
+		{space_object(glm::vec3(0.0f, 0.f, 0.f), predef::BASIC_VELOCITY, 2, sqrt(2)),
+		 space_object(glm::vec3(25.f)), space_object(glm::vec3(-10.f)),
+		 space_object(glm::vec3(10, -10, 20))});
 }
 
 } // namespace predef

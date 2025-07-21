@@ -25,12 +25,10 @@ class space_object;
 struct space_object_data {
 	glm::dvec3 position;
 	glm::dvec3 velocity;
-	glm::dvec3 acceleration;
 	double	   mass;
 	double	   radius;
 	space_object_data();
 	explicit space_object_data(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
-							   glm::dvec3 _acceleration = predef::BASIC_ACCELERATION,
 							   double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS);
 	explicit space_object_data(const space_object& object);
 	explicit space_object_data(space_object* object);
@@ -44,23 +42,19 @@ private:
 	space_object_data object_data;
 	friend class drawable_space_object;
 	friend struct space_object_data;
-    friend class interaction_system;
+	friend class interaction_system;
 
 public:
 	space_object();
 	explicit space_object(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
-						  glm::dvec3 _acceleration = predef::BASIC_ACCELERATION,
 						  double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS);
-	static void update_position(space_object* data_first, time since_last_upd,
-						 unsigned int count) ;
+	static void update_position(space_object* data_first, time since_last_upd, unsigned int count);
 	__device__ __host__ space_object_data& get() {
 		return object_data;
 	}
 	space_object(const space_object& object)			= default;
 	space_object& operator=(const space_object& object) = default;
 };
-
-
 
 } // namespace raw
 
