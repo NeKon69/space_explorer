@@ -99,7 +99,6 @@ void renderer::render() {
 		light_cube.draw();
 	}
 
-
 	object_shader->use();
 	while (auto obj = system.get()) {
 		sphere_obj.set_data(obj.value());
@@ -107,6 +106,11 @@ void renderer::render() {
 		sphere_obj.update_world_pos();
 		sphere_obj.draw();
 	}
+	for (auto sphere_pos : sphere_positions) {
+		sphere.move(sphere_pos);
+        sphere.draw();
+	}
+
 	window.update();
 }
 

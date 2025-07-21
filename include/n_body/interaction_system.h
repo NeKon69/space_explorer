@@ -42,7 +42,7 @@ public:
 namespace predef {
 inline auto generate_data_for_sim() {
 	return interaction_system(
-		{space_object(glm::vec3(0.0f, 0.f, 0.f))});
+		{space_object(glm::vec3(0.0f, 0.f, 0.f)), space_object(glm::vec3(25.f)), space_object(glm::vec3(-10.f)), space_object(glm::vec3(10, -10, 20))});
 }
 
 } // namespace predef

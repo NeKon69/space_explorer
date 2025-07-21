@@ -28,7 +28,7 @@ __global__ void compute_leapfrog(raw::space_object* objects, uint16_t count, dou
 		return;
 	}
 
-	const auto epsilon = 0.01;
+	const auto epsilon = 1;
 
 	// Kick
 	compute_kick(objects, count, x, g, epsilon, dt);

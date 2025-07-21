@@ -18,6 +18,7 @@ interaction_system::interaction_system(size_t number_of_planets)
 	  data_changed(true) {
 	update_threads();
 	update_data();
+    clock.restart();
 }
 interaction_system::interaction_system(const std::vector<space_object>& objects)
 	// We'll allocate only one bit, since it'll be reallocated later anyway
@@ -27,12 +28,13 @@ interaction_system::interaction_system(const std::vector<space_object>& objects)
 	  threads_to_launch(objects.size()),
 	  data_changed(true) {
 	update_data();
+    clock.restart();
 }
 interaction_system::interaction_system(const raw::interaction_system& sys)
 	: d_objects_first(sys.d_objects_first),
 	  c_objects(sys.c_objects),
 	  threads_to_launch(c_objects.size()),
-	  data_changed(false) {}
+	  data_changed(false) {clock.restart();}
 void interaction_system::update_data() {
 	if (data_changed) {
 		d_objects_first.allocate(c_objects.size() * sizeof(space_object));
@@ -45,22 +47,27 @@ void interaction_system::update_threads() {
 }
 std::optional<raw::space_object> interaction_system::get() {
 	if (num_of_obj >= c_objects.size()) {
+		num_of_obj = 0;
 		return std::nullopt;
 	}
 	return c_objects[num_of_obj++];
 }
 void interaction_system::update_sim() {
-	constexpr auto update_time		   = time(1 * 1000);
+	constexpr auto update_time		   = time(10);
 	auto		   time_since_last_upd = clock.get_elapsed_time();
 	time_since_last_upd.to_milli();
 	if (time_since_last_upd > update_time) {
-		time_since_last_upd = time {fmod(time_since_last_upd.val, update_time.val)};
 		space_object::update_position(this->get_first_ptr(), time_since_last_upd, c_objects.size());
 		number_of_sim++;
 		clock.restart();
 		cudaDeviceSynchronize();
 		cudaMemcpyAsync(c_objects.data(), d_objects_first.get(),
 						c_objects.size() * sizeof(space_object), cudaMemcpyDeviceToHost);
+		cudaStreamSynchronize(nullptr);
+		for (const auto& obj : c_objects) {
+			std::cout << "[Debug] Pos: {" << obj.object_data.position.x << ", "
+					  << obj.object_data.position.y << ", " << obj.object_data.position.z << "}\n";
+		}
 	}
 }
 

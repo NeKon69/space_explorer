@@ -7,7 +7,7 @@
 #include "helper_macros.h"
 namespace raw {
 namespace predef {
-PASSIVE_VALUE G = 1.0;
+PASSIVE_VALUE G = 0.001;
 }
 } // namespace raw
 #endif // SPACE_EXPLORER_N_BODY_PREDEF_H

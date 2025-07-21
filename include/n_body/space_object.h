@@ -11,7 +11,7 @@
 #include "objects/sphere.h"
 namespace raw {
 namespace predef {
-PASSIVE_VALUE BASIC_VELOCITY	 = glm::vec3(5.0f, 5.0f, 5.0f);
+PASSIVE_VALUE BASIC_VELOCITY	 = glm::vec3(0.0f, 0.0f, 0.0f);
 PASSIVE_VALUE BASIC_ACCELERATION = glm::vec3(0.0f);
 PASSIVE_VALUE PLANET_MASS		 = 1.0;
 PASSIVE_VALUE RADIUS			 = 1.0;
@@ -44,6 +44,7 @@ private:
 	space_object_data object_data;
 	friend class drawable_space_object;
 	friend struct space_object_data;
+    friend class interaction_system;
 
 public:
 	space_object();

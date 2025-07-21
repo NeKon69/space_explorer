@@ -5,6 +5,7 @@
 
 #include "n_body/interaction_system.h"
 #include "n_body/launch_leapfrog.h"
+#include "n_body_predef.h"
 
 namespace raw {
 
@@ -30,9 +31,9 @@ space_object::space_object() : object_data(glm::dvec3(1.0)) {}
 space_object::space_object(glm::dvec3 _position, glm::dvec3 _velocity, glm::dvec3 _acceleration,
 						   double _mass, double _radius)
 	: object_data(_position, _velocity, _acceleration, _mass, _radius) {}
-void space_object::update_position(space_object* data_first,
-								   time since_last_upd, unsigned int count) {
+void space_object::update_position(space_object* data_first, time since_last_upd,
+								   unsigned int count) {
 	auto g = 1.0;
-	launch_leapfrog(data_first, since_last_upd, count, g);
+	launch_leapfrog(data_first, since_last_upd, count, predef::G);
 }
 } // namespace raw
