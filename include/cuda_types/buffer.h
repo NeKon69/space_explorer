@@ -33,9 +33,9 @@ public:
 		: _size(size), data_stream(std::move(stream)) {
 		CUDA_SAFE_CALL(cudaMallocAsync((void**)&ptr, _size, data_stream->stream()));
 	}
-	cuda_buffer(cuda_buffer& rhs) : data_stream(rhs.data_stream) {
+	cuda_buffer(const cuda_buffer& rhs) : data_stream(rhs.data_stream) {
 		cuda_buffer(rhs._size);
-		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr, rhs.ptr, _size, data_stream->stream()));
+		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr, rhs.ptr, _size, cudaMemcpyDeviceToDevice, data_stream->stream()));
 	}
 	cuda_buffer& operator=(const cuda_buffer& rhs) {
 		if (this == rhs) {
@@ -75,6 +75,11 @@ public:
 		_size = size;
 	}
 	void set_data(void* data, size_t size) {
+        if(size > _size) {
+            CUDA_SAFE_CALL(
+                    cudaMemcpyAsync(ptr, data, _size, cudaMemcpyHostToDevice, data_stream->stream()));
+            return;
+        }
 		CUDA_SAFE_CALL(
 			cudaMemcpyAsync(ptr, data, size, cudaMemcpyHostToDevice, data_stream->stream()));
 	}

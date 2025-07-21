@@ -16,7 +16,9 @@ renderer::renderer(const std::string &window_name)
 									 "shaders/outline/color_shader.frag")),
 	  cube_object(object_shader),
 	  light_cube(light_shader),
-	  sphere(object_shader) {
+	  sphere(object_shader),
+	  sphere_obj(object_shader),
+	  system(predef::STARTING_DATA_SIM) {
 	// that's still the ugliest part of my code by far
 	object_shader->use();
 	object_shader->set_float("obj_mat.shininess", 32.0f);
@@ -73,10 +75,11 @@ raw::shared_ptr<raw::shader> renderer::get_basic_shader() const {
 	return object_shader;
 }
 std::vector<raw::shared_ptr<raw::shader>> renderer::get_all_shaders() const {
-    return {object_shader, light_shader, outline_shader};
+	return {object_shader, light_shader, outline_shader};
 }
 
 void renderer::render() {
+	system.update_sim();
 	window.clear();
 	cube_object.set_shader(object_shader);
 	cube_object.move(glm::vec3(0.0f, -2.0f, 0.0f));
@@ -97,14 +100,10 @@ void renderer::render() {
 	}
 
 	object_shader->use();
-	for (auto sphere_pos : sphere_positions) {
-		auto elapsed_time = _clock.get_elapsed_time();
-		elapsed_time.to_milli();
-		sphere.rotate_around(fmod(elapsed_time.val * 0.001, 360), glm::normalize(glm::vec3(5.0)),
-							 sphere_pos);
-		sphere.move(sphere_pos * glm::vec3(5.0f));
-		sphere.scale(glm::vec3(2));
-		sphere.draw();
+	while (auto obj = system.get()) {
+		sphere_obj.set_data(obj.value());
+		sphere_obj.update_world_pos();
+		sphere_obj.draw();
 	}
 	window.update();
 }

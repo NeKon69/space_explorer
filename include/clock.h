@@ -24,7 +24,8 @@ struct time {
 	inline void handle_conversion(time_rate target) {
 		// obtain how much to multiply in 1000^x where x is difference between types (nano, micro,
 		// etc...)
-		val	 = val / std::pow(1000, std::to_underlying(target) - std::to_underlying(curr));
+        // I use this structure for cuda kernels, so can't use std::to_underlying
+		val	 = val / std::pow(1000, int(target) - int(curr));
 		curr = target;
 	}
 

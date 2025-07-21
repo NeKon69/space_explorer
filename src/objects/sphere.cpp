@@ -13,6 +13,9 @@ sphere::sphere(const raw::shared_ptr<raw::shader>& shader, float radius)
 	  obj(vertices, predef::MAXIMUM_AMOUNT_OF_VERTICES, indices, predef::MAXIMUM_AMOUNT_OF_INDICES),
 	  gen(obj.get_vbo(), obj.get_ebo(), predef::BASIC_STEPS, radius) {
 	obj.set_shader(shader);
+    // Acted as a dummy to created obj, so they can be cleared
+    vertices.clear();
+    indices.clear();
 }
 
 void sphere::rotate(const float degree, const glm::vec3& axis) {
