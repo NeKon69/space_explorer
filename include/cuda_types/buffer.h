@@ -14,15 +14,14 @@ namespace raw {
 template<typename T>
 class cuda_buffer {
 private:
-    // Boom! Genius use of streams
-    size_t						 _size = 0;
+	// Boom! Genius use of streams
+	size_t						 _size = 0;
 	raw::shared_ptr<cuda_stream> data_stream;
 	T*							 ptr;
 
-
 public:
 	static cuda_buffer create(size_t size) {
-        // so there'll be only one stream for all buffers. nice!
+		// so there'll be only one stream for all buffers. nice!
 		static raw::shared_ptr<cuda_stream> _stream = raw::make_shared<cuda_stream>();
 		return cuda_buffer<T>(size, _stream);
 	}
@@ -35,7 +34,8 @@ public:
 	}
 	cuda_buffer(const cuda_buffer& rhs) : data_stream(rhs.data_stream) {
 		cuda_buffer(rhs._size);
-		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr, rhs.ptr, _size, cudaMemcpyDeviceToDevice, data_stream->stream()));
+		CUDA_SAFE_CALL(
+			cudaMemcpyAsync(ptr, rhs.ptr, _size, cudaMemcpyDeviceToDevice, data_stream->stream()));
 	}
 	cuda_buffer& operator=(const cuda_buffer& rhs) {
 		if (this == rhs) {
@@ -48,7 +48,7 @@ public:
 		return *this;
 	}
 	cuda_buffer(cuda_buffer&& rhs) noexcept
-		: ptr(rhs.ptr), _size(rhs._size), data_stream(std::move(rhs.data_stream)){}
+		: ptr(rhs.ptr), _size(rhs._size), data_stream(std::move(rhs.data_stream)) {}
 	cuda_buffer& operator=(cuda_buffer&& rhs) noexcept {
 		if (ptr) {
 			CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
@@ -71,20 +71,20 @@ public:
 		if (ptr) {
 			CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
 		}
-		CUDA_SAFE_CALL(cudaMallocAsync((void**)&ptr, _size, data_stream->stream()));
+		CUDA_SAFE_CALL(cudaMallocAsync(&ptr, size, data_stream->stream()));
 		_size = size;
 	}
-	void set_data(void* data, size_t size) {
-        if(size > _size) {
-            CUDA_SAFE_CALL(
-                    cudaMemcpyAsync(ptr, data, _size, cudaMemcpyHostToDevice, data_stream->stream()));
-            return;
-        }
-		CUDA_SAFE_CALL(
-			cudaMemcpyAsync(ptr, data, size, cudaMemcpyHostToDevice, data_stream->stream()));
+	void set_data(T* data, size_t size) {
+		if (size > _size) {
+			CUDA_SAFE_CALL(
+				cudaMemcpyAsync(ptr, data, _size, cudaMemcpyDefault, data_stream->stream()));
+			return;
+		}
+		data_stream->sync();
+		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr, data, size, cudaMemcpyDefault, data_stream->stream()));
 	}
 	void free() {
-		CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream));
+		CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
 		ptr = nullptr;
 	}
 };

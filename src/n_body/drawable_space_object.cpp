@@ -12,7 +12,7 @@ void drawable_space_object::set_data(space_object &data) {
 	object_data = data.get();
 }
 void drawable_space_object::update_world_pos() {
-	cudaStreamSynchronize(0);
-    move(object_data.position);
+	cudaStreamSynchronize(nullptr);
+	move(object_data.position);
 }
 } // namespace raw

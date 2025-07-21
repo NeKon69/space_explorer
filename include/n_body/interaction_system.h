@@ -13,7 +13,6 @@ namespace raw {
 class interaction_system {
 private:
 	cuda_buffer<space_object> d_objects_first;
-	cuda_buffer<space_object> d_objects_second;
 	std::vector<space_object> c_objects;
 	UI						  threads_to_launch;
 	bool					  data_changed;
@@ -35,18 +34,18 @@ public:
 		// work fine
 		return d_objects_first.get();
 	}
-	[[nodiscard]] space_object* get_second_ptr() const {
-		return d_objects_second.get();
-	}
 
 	std::optional<space_object> get();
 	void						update_sim();
 };
 
 namespace predef {
-const auto STARTING_DATA_SIM =
-	interaction_system({space_object(glm::vec3(1.0f, 15.f, 10.f)), space_object(glm::vec3(20.f))});
+inline auto generate_data_for_sim() {
+	return interaction_system(
+		{space_object(glm::vec3(0.0f, 0.f, 0.f))});
 }
+
+} // namespace predef
 
 } // namespace raw
 

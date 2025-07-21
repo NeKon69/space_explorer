@@ -18,7 +18,7 @@ renderer::renderer(const std::string &window_name)
 	  light_cube(light_shader),
 	  sphere(object_shader),
 	  sphere_obj(object_shader),
-	  system(predef::STARTING_DATA_SIM) {
+	  system(predef::generate_data_for_sim()) {
 	// that's still the ugliest part of my code by far
 	object_shader->use();
 	object_shader->set_float("obj_mat.shininess", 32.0f);
@@ -99,9 +99,11 @@ void renderer::render() {
 		light_cube.draw();
 	}
 
+
 	object_shader->use();
 	while (auto obj = system.get()) {
 		sphere_obj.set_data(obj.value());
+		sphere_obj.set_shader(object_shader);
 		sphere_obj.update_world_pos();
 		sphere_obj.draw();
 	}

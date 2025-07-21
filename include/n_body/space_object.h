@@ -50,8 +50,8 @@ public:
 	explicit space_object(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
 						  glm::dvec3 _acceleration = predef::BASIC_ACCELERATION,
 						  double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS);
-	void update_position(space_object* data_first, space_object* data_second, time since_last_upd,
-						 unsigned int count);
+	static void update_position(space_object* data_first, time since_last_upd,
+						 unsigned int count) ;
 	__device__ __host__ space_object_data& get() {
 		return object_data;
 	}
