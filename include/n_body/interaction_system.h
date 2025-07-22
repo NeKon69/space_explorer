@@ -21,7 +21,12 @@ private:
 	raw::clock					 clock;
 	friend class space_object<>;
 
-	void update_data();
+	void update_data() {
+		if (data_changed) {
+			d_objects_first.allocate(c_objects.size() * sizeof(space_object<T>));
+			d_objects_first.set_data(c_objects.data(), c_objects.size() * sizeof(space_object<T>));
+		}
+	}
 
 public:
 	interaction_system()
@@ -74,7 +79,7 @@ public:
 			// FIXME: Make some better system with streams and also, delete that memcpy, it sucks,
 			// instancing would do best
 			space_object<T>::update_position(this->get_first_ptr(), time_since_last_upd,
-										  c_objects.size());
+											 c_objects.size());
 			number_of_sim++;
 			clock.restart();
 			cudaDeviceSynchronize();
@@ -125,11 +130,14 @@ public:
 
 namespace predef {
 inline auto generate_data_for_sim() {
-	return interaction_system(
+ std::initializer_list<space_object<float>> gg= {
+		space_object<float>(glm::vec3(0.0f, 0.f, 0.f), predef::BASIC_VELOCITY, 2, sqrt(2)),
+		space_object<float>(glm::vec3(25.f)), space_object<float>(glm::vec3(-10.f)),
+		space_object<float>(glm::vec3(10, -10, 20), predef::BASIC_VELOCITY, 4, sqrt(0.25))};
+    std::vector<space_object<float>> ggg(gg.begin(), gg.end());
+	return interaction_system<float>(ggg
 		// First object is some kind of star Lol.
-		{space_object(glm::vec3(0.0f, 0.f, 0.f), predef::BASIC_VELOCITY, 2, sqrt(2)),
-		 space_object(glm::vec3(25.f)), space_object(glm::vec3(-10.f)),
-		 space_object(glm::vec3(10, -10, 20), predef::BASIC_VELOCITY, 4, sqrt(0.25))});
+	);
 }
 
 } // namespace predef

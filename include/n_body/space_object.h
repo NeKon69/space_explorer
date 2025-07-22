@@ -19,15 +19,12 @@ PASSIVE_VALUE PLANET_MASS		 = 1.0;
 PASSIVE_VALUE RADIUS			 = 1.0;
 } // namespace predef
 
-// FIXME: Since as far as I know, gpu sucks at double precision float, it would be better to make
-// all things related to simulation templated, so I cau use float more (my gpu is slower on double
-// for almost 5 times)
 template<typename T = double>
 struct space_object_data {
 	glm::vec<3, T> position;
 	glm::vec<3, T> velocity;
-	double		   mass;
-	double		   radius;
+	T			   mass;
+	T			   radius;
 	space_object_data()
 		: position(0.0),
 		  velocity(predef::BASIC_VELOCITY),
@@ -41,7 +38,7 @@ template<typename T = double>
 class interaction_system;
 template<typename T = double>
 class drawable_space_object;
-template<typename T = double>
+template<typename T>
 class space_object {
 private:
 	space_object_data<T> object_data;
@@ -61,7 +58,8 @@ public:
 						  double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
 		: object_data(_position, _velocity, _mass, _radius) {}
 	static void update_position(space_object* data_first, time since_last_upd, unsigned int count) {
-		launch_leapfrog<T>(data_first, since_last_upd, count, predef::G);
+		since_last_upd.to_milli();
+		launch_leapfrog<T>(data_first, since_last_upd.val, count, predef::G);
 	};
 };
 

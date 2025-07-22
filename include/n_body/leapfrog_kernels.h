@@ -8,15 +8,16 @@
 
 #include <glm/glm.hpp>
 
-#include "space_object.h"
-
+namespace raw {
+template<typename T = double>
+class space_object;
+}
 template<typename T = double>
 extern __device__ void compute_kick(raw::space_object<T>* objects, uint16_t count, uint16_t current,
-									double g, double epsilon, double dt);
+									T g, T epsilon, T dt);
 template<typename T = double>
-extern __global__ void compute_leapfrog(raw::space_object<T>* objects, uint16_t count, double dt,
-										double g);
-
+extern __global__ void compute_leapfrog(raw::space_object<T>* objects, uint16_t count, T dt,
+										T g);
 
 
 #endif // SPACE_EXPLORER_LEAPFROG_KERNEL_H
