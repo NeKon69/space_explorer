@@ -4,10 +4,11 @@
 
 #ifndef SPACE_EXPLORER_LAUNCH_LEAPFROG_H
 #define SPACE_EXPLORER_LAUNCH_LEAPFROG_H
+#include "leapfrog_kernels.h"
 #include "space_object.h"
 namespace raw {
-void launch_leapfrog(raw::space_object* objects_in, time since_last_upd,
-					 uint16_t count, double g);
-}
+template<typename T>
+void launch_leapfrog(space_object<T>* objects_in, T time, uint16_t count, double g);
+} // namespace raw
 
 #endif // SPACE_EXPLORER_LAUNCH_LEAPFROG_H

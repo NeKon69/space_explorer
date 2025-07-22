@@ -13,79 +13,98 @@
 #include "sphere_generation/tessellation_kernel.h"
 namespace raw {
 inline constexpr float GOLDEN_RATIO = std::numbers::phi_v<float>;
-icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI steps,
-											 float radius) {
+icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius)
+	: amount_of_triangles(cuda_buffer<uint32_t>::create(sizeof(uint32_t))),
+	  amount_of_vertices(cuda_buffer<uint32_t>::create(sizeof(uint32_t))) {
 	generate(vbo, ebo, steps, radius);
 }
 
-void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius) {
-	// FIXME: divide this block of code into two separate parts so i can make this thing actually
-	// support LOD.
-	// Mother fucker doesn't like then i use same amount of memory as was allocated so here will be
-	// >= and not just >
-	if (steps >= predef::MAX_STEPS) {
-		throw std::runtime_error(std::format(
-			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
-			predef::MAX_STEPS, steps));
-	}
-	size_t vertices_bytes = 0;
-	vertices_handle		  = raw::make_shared<cuda_from_gl_data<glm::vec3>>(&vertices_bytes, vbo);
+void icosahedron_generator::init(raw::UI vbo, raw::UI ebo, float radius) {
+	vertices_handle = raw::make_shared<cuda_from_gl_data<glm::vec3>>(&vertices_bytes, vbo);
+	indices_handle	= raw::make_shared<cuda_from_gl_data<UI>>(&indices_bytes, ebo);
 
-	size_t indices_bytes = 0;
-	indices_handle		 = raw::make_shared<cuda_from_gl_data<UI>>(&indices_bytes, ebo);
-
-	// FIXME: add those to the class members so there would be an ability to allocate/free them as
-	// needed
-	auto	 vertices_second	 = cuda_buffer<glm::vec3>::create(vertices_bytes);
-	auto	 indices_second		 = cuda_buffer<UI>::create(indices_bytes);
-	auto	 amount_of_triangles = cuda_buffer<uint32_t>::create(sizeof(uint32_t));
-	auto	 amount_of_vertices	 = cuda_buffer<uint32_t>::create(sizeof(uint32_t));
-	uint32_t num_vertices_cpu	 = 12;
-	uint32_t num_triangles_cpu	 = predef::BASIC_AMOUNT_OF_TRIANGLES;
+	vertices_second = cuda_buffer<glm::vec3>::create(vertices_bytes);
+	indices_second	= cuda_buffer<UI>::create(indices_bytes);
 
 	cudaMemcpy(vertices_handle->get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
 			   num_triangles_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
 	cudaMemcpy(indices_handle->get_data(), (void*)std::data(generate_icosahedron_indices()),
 			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
-	raw::clock timer;
+	inited = true;
+}
+
+void icosahedron_generator::prepare(raw::UI vbo, raw::UI ebo, float radius) {
+	if (!inited) {
+		init(vbo, ebo, radius);
+		return;
+	}
+	vertices_second.allocate(vertices_bytes);
+	indices_second.allocate(indices_bytes);
+	cudaMemcpy(vertices_handle->get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
+			   num_triangles_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
+	cudaMemcpy(indices_handle->get_data(), (void*)std::data(generate_icosahedron_indices()),
+			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
+}
+
+void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius) {
+	// Mother fucker doesn't like then i use same amount of memory as was allocated so here will be
+	// >= and not just > (which sucks btw)
+	if (steps >= predef::MAX_STEPS) {
+		throw std::runtime_error(std::format(
+			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
+			predef::MAX_STEPS, steps));
+	}
+
+	prepare(vbo, ebo, radius);
+
+	cuda_stream stream;
+	raw::clock	timer;
 	for (UI i = 0; i < steps; ++i) {
-		// FIXME: add some class functions to stop using those nasty ass cudaMemset funcs
-		cudaMemset(amount_of_triangles.get(), 0, sizeof(uint32_t));
-		cudaMemcpy(amount_of_vertices.get(), &num_vertices_cpu, sizeof(uint32_t),
-				   cudaMemcpyHostToDevice);
+		amount_of_triangles.zero_data(sizeof(UI) * 1);
+		amount_of_vertices.set_data(&num_vertices_cpu, sizeof(uint32_t), cudaMemcpyHostToDevice);
 		if (i % 2 == 0) {
-			cudaMemcpy(vertices_second.get(), vertices_handle->get_data(),
-					   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
+			vertices_second.set_data(vertices_handle->get_data(),
+									 num_vertices_cpu * sizeof(glm::vec3),
+									 cudaMemcpyDeviceToDevice);
 			launch_tessellation(vertices_handle->get_data(), indices_handle->get_data(),
 								vertices_second.get(), indices_second.get(),
 								amount_of_vertices.get(), amount_of_triangles.get(),
-								num_triangles_cpu, radius);
+								num_triangles_cpu, radius, stream);
 		} else {
-			cudaMemcpy(vertices_handle->get_data(), vertices_second.get(),
-					   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
+			vertices_second.set_data(vertices_handle->get_data(),
+									 num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice,
+									 cudaMemcpyOrder::cudaMemcpy1to2);
 			launch_tessellation(vertices_second.get(), indices_second.get(),
 								vertices_handle->get_data(), indices_handle->get_data(),
 								amount_of_vertices.get(), amount_of_triangles.get(),
-								num_triangles_cpu, radius);
+								num_triangles_cpu, radius, stream);
 		}
 		num_vertices_cpu += 3 * num_triangles_cpu;
 		num_triangles_cpu *= 4;
-		cudaDeviceSynchronize();
 	}
+	stream.sync();
 	auto passed_time = timer.reset();
 	passed_time.to_milli();
 	std::cout << std::string("[Debug] Tesselation with amount of steps of ") << steps << " took "
 			  << passed_time << " to complete\n";
 
 	if (steps % 2 != 0) {
-		cudaMemcpy(vertices_handle->get_data(), vertices_second.get(),
-				   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice);
+		vertices_second.set_data(vertices_handle->get_data(), num_vertices_cpu * sizeof(glm::vec3),
+								 cudaMemcpyDeviceToDevice, cudaMemcpyOrder::cudaMemcpy1to2);
 	}
-
+	cleanup();
+}
+void icosahedron_generator::cleanup() {
+	vertices_second.free();
+	indices_second.free();
 	vertices_handle->unmap();
 	indices_handle->unmap();
+	num_vertices_cpu  = 12;
+	num_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
 }
-
+// Icosahedron as most things in this project sounds horrifying, but, n-body (my algorithms), this
+// thing, and tesselation are surprisingly easy things, just for some reason someone wanted give
+// them scary names
 constexpr std::array<glm::vec3, 12> icosahedron_generator::generate_icosahedron_vertices(
 	float radius) {
 	std::array<glm::vec3, 12> vertices {};

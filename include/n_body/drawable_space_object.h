@@ -6,14 +6,23 @@
 #define SPACE_EXPLORER_DRAWABLE_SPACE_OBJECT_H
 #include "space_object.h"
 namespace raw {
-class drawable_space_object : public space_object, public sphere {
+template<typename T>
+class drawable_space_object : public space_object<T>, public sphere {
 public:
-	using space_object::space_object;
+	using space_object<T>::space_object;
 	using sphere::sphere;
 
-	drawable_space_object(const raw::shared_ptr<raw::shader>& shader, const space_object& data);
-	void set_data(space_object& data);
-    void update_world_pos();
+	drawable_space_object(const raw::shared_ptr<raw::shader> &shader,
+						  const raw::space_object<T>		 &data)
+		: space_object<T>(data), sphere(shader, static_cast<float>(data.object_data.radius)) {}
+	void set_data(space_object<T> &data) {
+		space_object<T>::object_data = data.get();
+	}
+	void update_world_pos() {
+		cudaStreamSynchronize(nullptr);
+		move(space_object<T>::object_data.position);
+		scale(glm::vec3(space_object<T>::object_data.radius));
+	}
 };
 } // namespace raw
 

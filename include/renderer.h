@@ -35,8 +35,8 @@ private:
 	raw::cube				   cube_object;
 	raw::cube				   light_cube;
 	raw::sphere				   sphere;
-	raw::drawable_space_object sphere_obj;
-	raw::interaction_system	   system;
+	raw::drawable_space_object<double> sphere_obj;
+	raw::interaction_system<double>	   system;
 	bool					   dir_light = true;
 	friend class event_handler;
 	friend class scene;

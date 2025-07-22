@@ -4,7 +4,7 @@ project(space_explorer VERSION 1.0 LANGUAGES C CXX CUDA)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CUDA_ARCHITECTURES "all-major")
+set(CMAKE_CUDA_ARCHITECTURES "120")
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
@@ -18,15 +18,13 @@ find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 
 set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/mesh.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
-        src/n_body/space_object.cpp
         src/cuda_types/stream.cpp
-        src/n_body/drawable_space_object.cpp
-        src/n_body/interaction_system.cpp
 )
 set(CUDA_SOURCES
         src/sphere_generation/tessallation_kernel.cu src/sphere_generation/launch_tessellation.cu
         src/n_body/leapfrog_kernels.cu
-        src/n_body/launch_leapfrog.cu)
+        src/n_body/launch_leapfrog.cu
+)
 
 add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${CUDA_SOURCES})
 
@@ -51,8 +49,6 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:GNU>>:-Os>
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:Clang>>:-Os>
         $<$<AND:$<CONFIG:MinSizeRel>,$<CXX_COMPILER_ID:MSVC>>:/Os>
-
-        $<$<AND:$<CONFIG:Release>,$<CUDA_COMPILER_ID:NVCC>>:-O3>
 )
 
 set(RUNTIME_OUTPUT_DIR $<TARGET_FILE_DIR:${PROJECT_NAME}>)

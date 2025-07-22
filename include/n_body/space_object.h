@@ -8,6 +8,8 @@
 
 #include "clock.h"
 #include "cuda_types/buffer.h"
+#include "n_body/launch_leapfrog.h"
+#include "n_body_predef.h"
 #include "objects/sphere.h"
 namespace raw {
 namespace predef {
@@ -17,43 +19,50 @@ PASSIVE_VALUE PLANET_MASS		 = 1.0;
 PASSIVE_VALUE RADIUS			 = 1.0;
 } // namespace predef
 
-class space_object;
-
 // FIXME: Since as far as I know, gpu sucks at double precision float, it would be better to make
 // all things related to simulation templated, so I cau use float more (my gpu is slower on double
 // for almost 5 times)
+template<typename T = double>
 struct space_object_data {
-	glm::dvec3 position;
-	glm::dvec3 velocity;
-	double	   mass;
-	double	   radius;
-	space_object_data();
+	glm::vec<3, T> position;
+	glm::vec<3, T> velocity;
+	double		   mass;
+	double		   radius;
+	space_object_data()
+		: position(0.0),
+		  velocity(predef::BASIC_VELOCITY),
+		  mass(predef::PLANET_MASS),
+		  radius(predef::BASIC_RADIUS) {}
 	explicit space_object_data(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
-							   double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS);
-	explicit space_object_data(const space_object& object);
-	explicit space_object_data(space_object* object);
-	space_object_data(const space_object_data&) = default;
+							   double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
+		: position(_position), velocity(_velocity), mass(_mass), radius(_radius) {}
 };
-
+template<typename T = double>
 class interaction_system;
+template<typename T = double>
 class drawable_space_object;
+template<typename T = double>
 class space_object {
 private:
-	space_object_data object_data;
-	friend class drawable_space_object;
-	friend struct space_object_data;
-	friend class interaction_system;
+	space_object_data<T> object_data;
+	friend class drawable_space_object<T>;
+	friend struct space_object_data<T>;
+	friend class interaction_system<T>;
 
 public:
-	space_object();
-	explicit space_object(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
-						  double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS);
-	static void update_position(space_object* data_first, time since_last_upd, unsigned int count);
-	__device__ __host__ space_object_data& get() {
+	__device__ __host__ space_object_data<T>& get() {
 		return object_data;
 	}
 	space_object(const space_object& object)			= default;
 	space_object& operator=(const space_object& object) = default;
+
+	space_object() : object_data(glm::vec<3, T>(1.0)) {}
+	explicit space_object(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
+						  double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
+		: object_data(_position, _velocity, _mass, _radius) {}
+	static void update_position(space_object* data_first, time since_last_upd, unsigned int count) {
+		launch_leapfrog<T>(data_first, since_last_upd, count, predef::G);
+	};
 };
 
 } // namespace raw

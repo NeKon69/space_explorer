@@ -10,48 +10,129 @@
 #include "clock.h"
 #include "space_object.h"
 namespace raw {
+template<typename T>
 class interaction_system {
 private:
-	cuda_buffer<space_object> d_objects_first;
-	std::vector<space_object> c_objects;
-	UI						  threads_to_launch;
-	bool					  data_changed;
-	unsigned int			  number_of_sim = 0;
-	unsigned int			  num_of_obj	= 0;
-	raw::clock				  clock;
-	friend class space_object;
+	cuda_buffer<space_object<T>> d_objects_first;
+	std::vector<space_object<T>> c_objects;
+	bool						 data_changed;
+	unsigned int				 number_of_sim = 0;
+	unsigned int				 num_of_obj	   = 0;
+	raw::clock					 clock;
+	friend class space_object<>;
 
 	void update_data();
-	void update_threads();
 
 public:
-	interaction_system();
-	explicit interaction_system(size_t number_of_planets);
-	explicit interaction_system(const std::vector<space_object>& objects);
-	interaction_system(const interaction_system& sys);
-	[[nodiscard]] space_object* get_first_ptr() const {
-		// Well, technically, since we dont store anything besides `space_object_data`, this should
-		// work fine
+	interaction_system()
+		: d_objects_first(cuda_buffer<space_object<T>>::create(1)),
+		  c_objects(0),
+		  data_changed(false) {}
+	explicit interaction_system(size_t number_of_planets)
+		// We'll allocate only one bit, since it'll be reallocated later anyway
+		: d_objects_first(cuda_buffer<space_object<T>>::create(1)),
+		  c_objects(number_of_planets),
+		  data_changed(true) {
+		update_data();
+		clock.restart();
+	}
+	explicit interaction_system(const std::vector<space_object<T>>& objects)
+		// We'll allocate only one bit, since it'll be reallocated later anyway
+		: d_objects_first(cuda_buffer<space_object<T>>::create(0)),
+		  c_objects(objects),
+
+		  data_changed(true) {
+		update_data();
+		clock.restart();
+	}
+	interaction_system(const interaction_system& sys)
+		: d_objects_first(sys.d_objects_first), c_objects(sys.c_objects), data_changed(false) {
+		clock.restart();
+	}
+	[[nodiscard]] inline space_object<T>* get_first_ptr() const {
 		return d_objects_first.get();
 	}
 
-	std::optional<space_object> get();
-	const space_object&			operator[](size_t index) const;
-	space_object&				operator[](size_t index);
-
-	void update_sim();
+	std::optional<raw::space_object<T>> get() {
+		if (num_of_obj >= c_objects.size()) {
+			num_of_obj = 0;
+			return std::nullopt;
+		}
+		return c_objects[num_of_obj++];
+	}
+	const space_object<T>& operator[](size_t index) const {
+		return c_objects[index];
+	}
+	space_object<T>& operator[](size_t index) {
+		return c_objects[index];
+	}
+	void update_sim() {
+		constexpr auto update_time		   = time(1);
+		auto		   time_since_last_upd = clock.get_elapsed_time();
+		time_since_last_upd.to_milli();
+		if (time_since_last_upd > update_time) {
+			// FIXME: Make some better system with streams and also, delete that memcpy, it sucks,
+			// instancing would do best
+			space_object<T>::update_position(this->get_first_ptr(), time_since_last_upd,
+										  c_objects.size());
+			number_of_sim++;
+			clock.restart();
+			cudaDeviceSynchronize();
+			cudaMemcpyAsync(c_objects.data(), d_objects_first.get(),
+							c_objects.size() * sizeof(space_object<T>), cudaMemcpyDeviceToHost);
+			cudaStreamSynchronize(nullptr);
+			//		for (const auto& obj : c_objects)
+			//			std::cout << "[Debug] Pos: {" << obj.object_data.position.x << ", "
+			//					  << obj.object_data.position.y << ", " <<
+			// obj.object_data.position.z <<
+			//"}\n";
+			//
+			// FIXME: add this thing to another kernel just for fun
+			static auto ke_total = 0.0;
+			auto		e_kin	 = 0.0;
+			auto		e_pot	 = 0.0;
+			for (int i = 0; i < c_objects.size(); ++i) {
+				auto curr_vel = c_objects[i].get().velocity;
+				e_kin += 0.5 * c_objects[i].get().mass * curr_vel.x * curr_vel.x +
+						 curr_vel.y * curr_vel.y + curr_vel.z * curr_vel.z;
+			}
+			for (int i = 0; i < c_objects.size(); ++i) {
+				for (auto j = i; j < c_objects.size(); ++j) {
+					if (j == i)
+						continue;
+					e_pot +=
+						-predef::G * c_objects[i].get().mass * c_objects[j].get().mass /
+						glm::distance(c_objects[i].get().position, c_objects[j].get().position);
+				}
+			}
+			static auto prev_ke_sum = 0.0;
+			static auto number		= 0;
+			++number;
+			prev_ke_sum += ke_total;
+			ke_total = e_kin + e_pot;
+			if (glm::distance(ke_total, prev_ke_sum / number) > 0.01) {
+				// Lol i am so good, almost never reached this (it's reached only when some really
+				// wierd stuff happening and epsilon gets to work a lot with a lot of planets at
+				// once (for dummies - that means the objects are too close to each other)) That
+				// means I didn't fucked up any physics, right? Oh and btw, I get new interaction of
+				// objects each time I launch the app, I think it's normal since they don't call
+				// that sim "n-body problem" a problem for nothing.
+				std::cerr << "I suck at this.\n";
+			}
+		}
+	}
 };
 
 namespace predef {
 inline auto generate_data_for_sim() {
 	return interaction_system(
+		// First object is some kind of star Lol.
 		{space_object(glm::vec3(0.0f, 0.f, 0.f), predef::BASIC_VELOCITY, 2, sqrt(2)),
 		 space_object(glm::vec3(25.f)), space_object(glm::vec3(-10.f)),
-		 space_object(glm::vec3(10, -10, 20))});
+		 space_object(glm::vec3(10, -10, 20), predef::BASIC_VELOCITY, 4, sqrt(0.25))});
 }
 
 } // namespace predef
-
 } // namespace raw
 
 #endif // SPACE_EXPLORER_INTERACTION_SYSTEM_H

@@ -5,9 +5,9 @@
 #ifndef SPACE_EXPLORER_N_BODY_PREDEF_H
 #define SPACE_EXPLORER_N_BODY_PREDEF_H
 #include "helper_macros.h"
-namespace raw {
-namespace predef {
+
+namespace raw::predef {
 PASSIVE_VALUE G = 0.001;
 }
-} // namespace raw
+
 #endif // SPACE_EXPLORER_N_BODY_PREDEF_H
