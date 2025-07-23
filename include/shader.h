@@ -16,7 +16,6 @@
 #include <vector>
 
 #include "helper_macros.h"
-
 namespace raw {
 class shader {
 private:

@@ -21,7 +21,8 @@ private:
 
 	void gen_opengl_data() const;
 	template<typename T, typename Y>
-	void setup_object(const T& vertices, const Y& indices, bool normals_from_position) {
+	void setup_object(const T& vertices = nullptr, const Y& indices = nullptr,
+					  bool normals_from_position = false) {
 		gen_opengl_data();
 		indices_size = indices.size();
 		glBindVertexArray(*vao);
@@ -34,7 +35,7 @@ private:
 					 std::data(indices), GL_STATIC_DRAW);
 
 		// positions and normals
-		constexpr GLsizei stride = 6 * sizeof(float);
+		constexpr GLsizei stride = 3 * sizeof(float);
 		// position attribute
 		glVertexAttribPointer(number_of_attr, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
 		glEnableVertexAttribArray(number_of_attr++);

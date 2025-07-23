@@ -18,6 +18,7 @@ private:
 	size_t						 amount_of_bytes = 0;
 	cuda_from_gl_data<glm::mat4> d_objects_model;
 	bool						 data_changed;
+	bool						 paused;
 	unsigned int				 number_of_sim = 0;
 	unsigned int				 num_of_obj	   = 0;
 	raw::clock					 clock;
@@ -28,6 +29,7 @@ private:
 			d_objects.allocate(c_objects.size() * sizeof(space_object<T>));
 			d_objects.set_data(c_objects.data(), c_objects.size() * sizeof(space_object<T>));
 		}
+		data_changed = false;
 	}
 
 public:
@@ -42,7 +44,8 @@ public:
 		clock.restart();
 	}
 	explicit interaction_system(const std::vector<space_object<T>>& objects)
-		// We'll allocate only one bit, since it'll be reallocated later anyway
+		// We'll allocate only one bit, since it'll be reallocated later anyway (but we do that so
+		// we can have the same stream for all data)
 		: d_objects(cuda_buffer<space_object<T>>::create(0)),
 		  c_objects(objects),
 
@@ -56,6 +59,16 @@ public:
 	}
 	[[nodiscard]] inline space_object<T>* get_first_ptr() const {
 		return d_objects.get();
+	}
+
+	void pause() {
+		paused = true;
+		clock.stop();
+	}
+
+	void start() {
+		paused = false;
+		clock.start();
 	}
 
 	void setup_model(UI model_vbo) {
@@ -80,6 +93,8 @@ public:
 		return c_objects.size();
 	}
 	void update_sim() {
+		if (paused)
+			return;
 		constexpr auto update_time		   = time(1);
 		auto		   time_since_last_upd = clock.get_elapsed_time();
 		time_since_last_upd.to_milli();

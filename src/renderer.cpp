@@ -17,11 +17,11 @@ renderer::renderer(const std::string &window_name)
 	  cube_object(object_shader),
 	  light_cube(light_shader),
 	  system(predef::generate_data_for_sim()),
-	  sphere_mesh(make_shared<mesh>(predef::MAXIMUM_AMOUNT_OF_VERTICES,
-									predef::MAXIMUM_AMOUNT_OF_INDICES)) {
+	  sphere_mesh(
+		  make_shared<mesh>(predef::MAXIMUM_AMOUNT_OF_VERTICES, predef::MAXIMUM_AMOUNT_OF_INDICES)),
+	  gen(sphere_mesh->get_vbo(), sphere_mesh->get_ebo()) {
 	inst_renderer.set_data(sphere_mesh);
 	system.setup_model(inst_renderer.get_instance_vbo());
-	gen.generate(sphere_mesh->get_vbo(), sphere_mesh->get_ebo(), predef::BASIC_STEPS, 1);
 	// that's still the ugliest part of my code by far
 	object_shader->use();
 	object_shader->set_float("obj_mat.shininess", 32.0f);
@@ -84,25 +84,6 @@ std::vector<raw::shared_ptr<raw::shader>> renderer::get_all_shaders() const {
 void renderer::render() {
 	system.update_sim();
 	window.clear();
-	object_shader->set_vec3("point_lights[4].position", system[0].get().position);
-	cube_object.set_shader(object_shader);
-	cube_object.move(glm::vec3(0.0f, -2.0f, 0.0f));
-	cube_object.scale(glm::vec3(15.0f, 0.2f, 15.0f));
-	cube_object.draw();
-
-	cube_object.set_shader(object_shader);
-	for (auto cube_position : cube_positions) {
-		cube_object.move(cube_position);
-		cube_object.draw();
-	}
-
-	light_shader->use();
-	for (auto light_cube_pos : light_pos) {
-		light_cube.move(light_cube_pos);
-		light_cube.scale(glm::vec3(0.2f));
-		light_cube.draw();
-	}
-
 	inst_renderer.draw(object_shader, system.amount());
 
 	window.update();

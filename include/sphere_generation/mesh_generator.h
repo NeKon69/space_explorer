@@ -29,6 +29,10 @@ class icosahedron_generator {
 private:
 	raw::shared_ptr<cuda_from_gl_data<glm::vec3>> vertices_handle;
 	raw::shared_ptr<cuda_from_gl_data<UI>>		  indices_handle;
+	raw::shared_ptr<cuda_stream>				  stream;
+
+	UI _vbo;
+	UI _ebo;
 
 	cuda_buffer<glm::vec3> vertices_second;
 	cuda_buffer<UI>		   indices_second;
@@ -47,7 +51,7 @@ private:
 	void cleanup();
 	// Called once when the object is created (or generate function called first time)
 	void init(UI vbo, UI ebo, float radius);
-	// Called every time (not including first time) before `generate` function
+	// Called every time `generate` function
 	void prepare(UI vbo, UI ebo, float radius);
 
 public:

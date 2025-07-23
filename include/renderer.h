@@ -10,7 +10,6 @@
 #include "clock.h"
 #include "gl_window.h"
 #include "instanced_renderer.h"
-#include "n_body/drawable_space_object.h"
 #include "n_body/interaction_system.h"
 #include "objects/cube.h"
 #include "objects/sphere.h"
@@ -35,10 +34,10 @@ private:
 
 	raw::cube							   cube_object;
 	raw::cube							   light_cube;
-    raw::icosahedron_generator gen;
 	raw::interaction_system<float>		   system;
 	raw::shared_ptr<mesh>				   sphere_mesh;
 	raw::instanced_renderer<instance_data> inst_renderer;
+	raw::icosahedron_generator			   gen;
 	bool								   dir_light = true;
 	friend class event_handler;
 	friend class scene;

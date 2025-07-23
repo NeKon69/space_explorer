@@ -64,8 +64,20 @@ void event_handler::_setup_keys(raw::scene* scene) {
 		scene->renderer.set_window_running(false);
 	};
 
+	auto O_CALLBACK = [scene]() {
+		static bool paused = false;
+		if (paused) {
+			scene->renderer.system.start();
+			paused = false;
+		} else {
+			scene->renderer.system.pause();
+			paused = true;
+		}
+	};
+
 	buttons[SDL_SCANCODE_T]		 = raw::button(raw::func_type::PRESSED, T_CALLBACK);
 	buttons[SDL_SCANCODE_ESCAPE] = raw::button(raw::func_type::PRESSED, ESCAPE_CALLBACK);
+	buttons[SDL_SCANCODE_O]		 = raw::button(raw::func_type::PRESSED, O_CALLBACK);
 }
 
 void event_handler::setup(raw::scene* scene) {

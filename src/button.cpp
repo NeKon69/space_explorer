@@ -22,6 +22,7 @@ button::button(raw::func_type type, std::function<void()> function) {
 	}
 }
 
+
 button::button(std::function<void()> pressed, std::function<void()> held)
 	: pressed_callback(std::move(pressed)), held_callback(std::move(held)) {}
 button::button(std::function<void()> pressed, std::function<void()> released,
