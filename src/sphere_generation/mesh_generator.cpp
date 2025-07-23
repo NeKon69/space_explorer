@@ -58,7 +58,7 @@ void icosahedron_generator::prepare(raw::UI vbo, raw::UI ebo, float radius) {
 void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius) {
 	// Motherfucker doesn't like then i use same amount of memory as was allocated so here will be
 	// >= and not just > (which sucks btw)
-	if (steps >= predef::MAX_STEPS) {
+	if (steps > predef::MAX_STEPS) {
 		throw std::runtime_error(std::format(
 			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
 			predef::MAX_STEPS, steps));
@@ -75,6 +75,7 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 	for (UI i = 0; i < steps; ++i) {
 		amount_of_triangles.zero_data(sizeof(UI) * 1);
 		amount_of_vertices.set_data(&num_vertices_cpu, sizeof(uint32_t), cudaMemcpyHostToDevice);
+		//		amount_of_vertices.zero_data(sizeof(uint32_t));
 		if (i % 2 == 0) {
 			vertices_second.set_data(vertices_handle->get_data(),
 									 num_vertices_cpu * sizeof(glm::vec3),
@@ -92,10 +93,10 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 								amount_of_vertices.get(), amount_of_triangles.get(),
 								num_triangles_cpu, radius, *stream);
 		}
+        stream->sync();
 		num_vertices_cpu += 3 * num_triangles_cpu;
 		num_triangles_cpu *= 4;
 	}
-	stream->sync();
 	auto passed_time = timer.reset();
 	passed_time.to_milli();
 	std::cout << std::string("[Debug] Tesselation with amount of steps of ") << steps << " took "
@@ -108,6 +109,7 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 	cleanup();
 }
 void icosahedron_generator::cleanup() {
+    stream->sync();
 	vertices_second.free();
 	indices_second.free();
 	vertices_handle->unmap();

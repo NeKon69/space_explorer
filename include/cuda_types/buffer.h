@@ -107,7 +107,7 @@ public:
 		return ptr != nullptr;
 	}
 	void zero_data(size_t amount) {
-		cudaMemset(ptr, 0, amount);
+		cudaMemsetAsync(ptr, 0, amount, data_stream->stream());
 	}
 };
 } // namespace raw

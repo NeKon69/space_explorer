@@ -18,7 +18,7 @@ renderer::renderer(const std::string &window_name)
 	  light_cube(light_shader),
 	  system(predef::generate_data_for_sim()),
 	  sphere_mesh(
-		  make_shared<mesh>(predef::MAXIMUM_AMOUNT_OF_VERTICES, predef::MAXIMUM_AMOUNT_OF_INDICES)),
+		  make_shared<mesh>(predef::MAXIMUM_AMOUNT_OF_VERTICES, predef::MAXIMUM_AMOUNT_OF_INDICES, true)),
 	  gen(sphere_mesh->get_vbo(), sphere_mesh->get_ebo()) {
 	inst_renderer.set_data(sphere_mesh);
 	system.setup_model(inst_renderer.get_instance_vbo());

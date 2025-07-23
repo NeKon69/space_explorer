@@ -8,7 +8,6 @@ namespace raw {
 inline long double ticks_now() {
 	return ((std_clock::now()).time_since_epoch()).count();
 }
-
 clock::clock() : clock_stop(0) {
 	start();
 }

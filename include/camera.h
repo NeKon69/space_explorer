@@ -43,7 +43,7 @@ private:
 	glm::vec3 camera_front;
 	glm::vec3 camera_up;
 
-	float yaw = -90., f, pitch = 0.f;
+	float yaw = -90.f, pitch = 0.f;
 	float fov;
 	// this member need to be manually set (I have the setter for it), since I don't really want to
 	// somehow make window and camera depend on each other
