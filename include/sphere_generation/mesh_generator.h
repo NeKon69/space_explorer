@@ -51,7 +51,7 @@ private:
 	void prepare(UI vbo, UI ebo, float radius);
 
 public:
-	icosahedron_generator() = default;
+	icosahedron_generator();
 	icosahedron_generator(UI vbo, UI ebo, UI steps = predef::BASIC_STEPS,
 						  float radius = predef::BASIC_RADIUS);
 	void generate(UI vbo, UI ebo, UI steps, float radius);

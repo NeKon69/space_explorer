@@ -8,17 +8,20 @@
 namespace raw {
 renderer::renderer(const std::string &window_name)
 	: window(window_name),
-	  object_shader(new raw::shader("shaders/objects/vertex_shader.glsl",
-									"shaders/objects/color_shader.frag")),
-	  light_shader(
-		  new raw::shader("shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag")),
-	  outline_shader(new raw::shader("shaders/outline/vertex_shader.glsl",
-									 "shaders/outline/color_shader.frag")),
+	  object_shader(make_shared<raw::shader>("shaders/objects/vertex_shader.glsl",
+											 "shaders/objects/color_shader.frag")),
+	  light_shader(make_shared<shader>("shaders/light/vertex_shader.glsl",
+									   "shaders/light/color_shader.frag")),
+	  outline_shader(make_shared<raw::shader>("shaders/outline/vertex_shader.glsl",
+											  "shaders/outline/color_shader.frag")),
 	  cube_object(object_shader),
 	  light_cube(light_shader),
-	  sphere(object_shader),
-	  sphere_obj(object_shader),
-	  system(predef::generate_data_for_sim()) {
+	  system(predef::generate_data_for_sim()),
+	  sphere_mesh(make_shared<mesh>(predef::MAXIMUM_AMOUNT_OF_VERTICES,
+									predef::MAXIMUM_AMOUNT_OF_INDICES)) {
+	inst_renderer.set_data(sphere_mesh);
+	system.setup_model(inst_renderer.get_instance_vbo());
+	gen.generate(sphere_mesh->get_vbo(), sphere_mesh->get_ebo(), predef::BASIC_STEPS, 1);
 	// that's still the ugliest part of my code by far
 	object_shader->use();
 	object_shader->set_float("obj_mat.shininess", 32.0f);
@@ -100,19 +103,7 @@ void renderer::render() {
 		light_cube.draw();
 	}
 
-	sphere_obj.set_shader(light_shader);
-	while (auto obj = system.get()) {
-		sphere_obj.set_data(obj.value());
-
-		sphere_obj.update_world_pos();
-		sphere_obj.draw();
-
-		sphere_obj.set_shader(object_shader);
-	}
-	for (auto sphere_pos : sphere_positions) {
-		sphere.move(sphere_pos);
-		sphere.draw();
-	}
+	inst_renderer.draw(object_shader, system.amount());
 
 	window.update();
 }

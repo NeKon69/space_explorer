@@ -18,7 +18,7 @@ private:
 	// Boom! Genius use of streams
 	size_t						 _size = 0;
 	raw::shared_ptr<cuda_stream> data_stream;
-	T*							 ptr;
+	T*							 ptr = nullptr;
 
 	void _memcpy(T* dst, T* src, size_t size, cudaMemcpyKind kind) {
 		CUDA_SAFE_CALL(cudaMemcpyAsync(dst, src, size, kind, data_stream->stream()));

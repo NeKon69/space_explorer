@@ -17,16 +17,16 @@ private:
 	void generate() {
 		if (generated)
 			return;
-		glGenBuffers(1, *instance_vbo);
-        glBindBuffer(GL_ARRAY_BUFFER, *instance_vbo);
+		glGenBuffers(1, instance_vbo.get());
+		glBindBuffer(GL_ARRAY_BUFFER, *instance_vbo);
 		_mesh->bind();
-		T::setup_instance_arttr(_mesh->attr_num());
+		T::setup_instance_attr(_mesh->attr_num());
 		_mesh->unbind();
 		generated = true;
 	}
 
 public:
-	instanced_renderer() = default;
+	instanced_renderer() : instance_vbo(new UI(0)) {};
 	explicit instanced_renderer(const shared_ptr<mesh>& mesh) : _mesh(mesh) {
 		generate();
 	}
@@ -34,11 +34,15 @@ public:
 		_mesh = mesh;
 		generate();
 	}
-	void draw(UI amount) const {
+	void draw(const shared_ptr<shader>& shader, UI amount) const {
 		_mesh->bind();
+		shader->use();
 		glDrawElementsInstanced(GL_TRIANGLES, _mesh->get_index_count(), GL_UNSIGNED_INT, nullptr,
 								static_cast<int>(amount));
 		_mesh->unbind();
+	}
+	[[nodiscard]] UI get_instance_vbo() const {
+		return *instance_vbo;
 	}
 };
 } // namespace raw

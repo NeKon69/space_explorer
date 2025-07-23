@@ -13,8 +13,10 @@ namespace raw {
 template<typename T>
 class interaction_system {
 private:
-	cuda_buffer<space_object<T>> d_objects_first;
+	cuda_buffer<space_object<T>> d_objects;
 	std::vector<space_object<T>> c_objects;
+	size_t						 amount_of_bytes = 0;
+	cuda_from_gl_data<glm::mat4> d_objects_model;
 	bool						 data_changed;
 	unsigned int				 number_of_sim = 0;
 	unsigned int				 num_of_obj	   = 0;
@@ -23,19 +25,17 @@ private:
 
 	void update_data() {
 		if (data_changed) {
-			d_objects_first.allocate(c_objects.size() * sizeof(space_object<T>));
-			d_objects_first.set_data(c_objects.data(), c_objects.size() * sizeof(space_object<T>));
+			d_objects.allocate(c_objects.size() * sizeof(space_object<T>));
+			d_objects.set_data(c_objects.data(), c_objects.size() * sizeof(space_object<T>));
 		}
 	}
 
 public:
 	interaction_system()
-		: d_objects_first(cuda_buffer<space_object<T>>::create(1)),
-		  c_objects(0),
-		  data_changed(false) {}
+		: d_objects(cuda_buffer<space_object<T>>::create(1)), c_objects(0), data_changed(false) {}
 	explicit interaction_system(size_t number_of_planets)
 		// We'll allocate only one bit, since it'll be reallocated later anyway
-		: d_objects_first(cuda_buffer<space_object<T>>::create(1)),
+		: d_objects(cuda_buffer<space_object<T>>::create(1)),
 		  c_objects(number_of_planets),
 		  data_changed(true) {
 		update_data();
@@ -43,7 +43,7 @@ public:
 	}
 	explicit interaction_system(const std::vector<space_object<T>>& objects)
 		// We'll allocate only one bit, since it'll be reallocated later anyway
-		: d_objects_first(cuda_buffer<space_object<T>>::create(0)),
+		: d_objects(cuda_buffer<space_object<T>>::create(0)),
 		  c_objects(objects),
 
 		  data_changed(true) {
@@ -51,11 +51,16 @@ public:
 		clock.restart();
 	}
 	interaction_system(const interaction_system& sys)
-		: d_objects_first(sys.d_objects_first), c_objects(sys.c_objects), data_changed(false) {
+		: d_objects(sys.d_objects), c_objects(sys.c_objects), data_changed(false) {
 		clock.restart();
 	}
 	[[nodiscard]] inline space_object<T>* get_first_ptr() const {
-		return d_objects_first.get();
+		return d_objects.get();
+	}
+
+	void setup_model(UI model_vbo) {
+		d_objects_model = cuda_from_gl_data<glm::mat4>(&amount_of_bytes, model_vbo);
+		d_objects_model.unmap();
 	}
 
 	std::optional<raw::space_object<T>> get() {
@@ -71,21 +76,20 @@ public:
 	space_object<T>& operator[](size_t index) {
 		return c_objects[index];
 	}
+	[[nodiscard]] inline UI amount() {
+		return c_objects.size();
+	}
 	void update_sim() {
 		constexpr auto update_time		   = time(1);
 		auto		   time_since_last_upd = clock.get_elapsed_time();
 		time_since_last_upd.to_milli();
 		if (time_since_last_upd > update_time) {
-			// FIXME: Make some better system with streams and also, delete that memcpy, it sucks,
-			// instancing would do best
-			space_object<T>::update_position(this->get_first_ptr(), time_since_last_upd,
-											 c_objects.size());
+			d_objects_model.map();
+			space_object<T>::update_position(this->get_first_ptr(), d_objects_model.get_data(),
+											 time_since_last_upd, c_objects.size());
 			number_of_sim++;
 			clock.restart();
 			cudaDeviceSynchronize();
-			cudaMemcpyAsync(c_objects.data(), d_objects_first.get(),
-							c_objects.size() * sizeof(space_object<T>), cudaMemcpyDeviceToHost);
-			cudaStreamSynchronize(nullptr);
 			//		for (const auto& obj : c_objects)
 			//			std::cout << "[Debug] Pos: {" << obj.object_data.position.x << ", "
 			//					  << obj.object_data.position.y << ", " <<
@@ -115,7 +119,7 @@ public:
 			++number;
 			prev_ke_sum += ke_total;
 			ke_total = e_kin + e_pot;
-			if (glm::distance(ke_total, prev_ke_sum / number) > 0.01) {
+			if (glm::distance(ke_total, prev_ke_sum / number) > 0.1) {
 				// Lol i am so good, almost never reached this (it's reached only when some really
 				// wierd stuff happening and epsilon gets to work a lot with a lot of planets at
 				// once (for dummies - that means the objects are too close to each other)) That
@@ -124,19 +128,20 @@ public:
 				// that sim "n-body problem" a problem for nothing.
 				std::cerr << "I suck at this.\n";
 			}
+			d_objects_model.unmap();
 		}
 	}
 };
 
 namespace predef {
 inline auto generate_data_for_sim() {
- std::initializer_list<space_object<float>> gg= {
+	std::initializer_list<space_object<float>> gg = {
 		space_object<float>(glm::vec3(0.0f, 0.f, 0.f), predef::BASIC_VELOCITY, 2, sqrt(2)),
 		space_object<float>(glm::vec3(25.f)), space_object<float>(glm::vec3(-10.f)),
 		space_object<float>(glm::vec3(10, -10, 20), predef::BASIC_VELOCITY, 4, sqrt(0.25))};
-    std::vector<space_object<float>> ggg(gg.begin(), gg.end());
+	std::vector<space_object<float>> ggg(gg.begin(), gg.end());
 	return interaction_system<float>(ggg
-		// First object is some kind of star Lol.
+									 // First object is some kind of star Lol.
 	);
 }
 

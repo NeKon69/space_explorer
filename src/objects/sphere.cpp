@@ -43,4 +43,5 @@ void sphere::set_shader(const raw::shared_ptr<raw::shader>& sh) {
 void sphere::reset() {
 	obj.reset();
 }
+
 } // namespace raw

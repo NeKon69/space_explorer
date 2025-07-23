@@ -9,7 +9,7 @@ namespace raw {
 template<typename T>
 class space_object;
 template<typename T>
-void launch_leapfrog(space_object<T>* objects_in, T time, uint16_t count, double g);
+void launch_leapfrog(space_object<T>* objects, glm::mat4* objects_model, T time, uint16_t count, double g);
 } // namespace raw
 
 #endif // SPACE_EXPLORER_LAUNCH_LEAPFROG_H

@@ -99,7 +99,7 @@ private:
 			// I have genius setup here
 			glBindBuffer(GL_ARRAY_BUFFER, *instanced_vbo[i]);
 			switch (data_type) {
-				using enum data_type;
+				using enum raw::data_type;
 			case MODEL: {
 				auto ptr		   = sizes_of_buffers.begin();
 				num_of_obj_to_draw = static_cast<int>(*ptr + number_of_attr);

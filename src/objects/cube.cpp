@@ -8,5 +8,4 @@ namespace raw {
 cube::cube(const raw::shared_ptr<raw::shader>& sh) : object(cube_pos, indices) {
 	this->shader = sh;
 }
-
 } // namespace raw

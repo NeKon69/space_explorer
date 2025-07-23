@@ -45,6 +45,7 @@ struct spot_light {
 in vec3 FragPos;
 in vec3 Normal;
 
+
 #define AM_POINT_LIGHTS 5
 
 uniform point_light point_lights[AM_POINT_LIGHTS];

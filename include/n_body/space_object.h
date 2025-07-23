@@ -42,6 +42,8 @@ template<typename T>
 class space_object {
 private:
 	space_object_data<T> object_data;
+	// We don't make this templated since float is fine for positions
+
 	friend class drawable_space_object<T>;
 	friend struct space_object_data<T>;
 	friend class interaction_system<T>;
@@ -57,9 +59,10 @@ public:
 	explicit space_object(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
 						  double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
 		: object_data(_position, _velocity, _mass, _radius) {}
-	static void update_position(space_object* data_first, time since_last_upd, unsigned int count) {
+	static void update_position(space_object* data, glm::mat4* data_model, time since_last_upd,
+								unsigned int count) {
 		since_last_upd.to_milli();
-		launch_leapfrog<T>(data_first, since_last_upd.val, count, predef::G);
+		launch_leapfrog<T>(data, data_model, since_last_upd.val, count, predef::G);
 	};
 };
 

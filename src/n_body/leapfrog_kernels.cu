@@ -1,6 +1,8 @@
 //
 // Created by progamers on 7/21/25.
 //
+#include <glm/gtc/matrix_transform.hpp>
+
 #include "n_body/leapfrog_kernels.h"
 #include "n_body/space_object.h"
 template<typename T>
@@ -23,7 +25,8 @@ __device__ void compute_kick(raw::space_object<T>* objects, uint16_t count, uint
 	objects[current].get().velocity += a_total * dt;
 }
 template<typename T>
-__global__ void compute_leapfrog(raw::space_object<T>* objects, uint16_t count, T dt, T g) {
+__global__ void compute_leapfrog(raw::space_object<T>* objects, glm::mat4* objects_model,
+								 uint16_t count, T dt, T g) {
 	const uint16_t x = blockIdx.x * blockDim.x + threadIdx.x;
 	if (x >= count) {
 		return;
@@ -42,9 +45,13 @@ __global__ void compute_leapfrog(raw::space_object<T>* objects, uint16_t count, 
 
 	// Kick
 	compute_kick<T>(objects, count, x, g, epsilon, dt);
+	objects_model[x] = glm::mat4(1.0f);
+	objects_model[x] = glm::scale(
+		glm::translate(objects_model[x], static_cast<glm::vec3>(objects->get().position)),
+		glm::vec3(objects->get().radius));
 }
 
-template __global__ void compute_leapfrog<float>(raw::space_object<float>* objects, uint16_t count,
-												 float dt, float g);
-template __global__ void compute_leapfrog<double>(raw::space_object<double>*, unsigned short,
-												  double, double);
+template __global__ void compute_leapfrog<float>(raw::space_object<float>* objects, glm::mat4*,
+												 uint16_t count, float dt, float g);
+template __global__ void compute_leapfrog<double>(raw::space_object<double>*, glm::mat4*,
+												  unsigned short, double, double);

@@ -13,7 +13,10 @@
 #include "sphere_generation/tessellation_kernel.h"
 namespace raw {
 inline constexpr float GOLDEN_RATIO = std::numbers::phi_v<float>;
-icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius)
+icosahedron_generator::icosahedron_generator()
+	: amount_of_triangles(cuda_buffer<uint32_t>::create(sizeof(uint32_t))), amount_of_vertices(cuda_buffer<uint32_t>::create(sizeof(uint32_t))) {}
+		  icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI steps,
+													   float radius)
 	: amount_of_triangles(cuda_buffer<uint32_t>::create(sizeof(uint32_t))),
 	  amount_of_vertices(cuda_buffer<uint32_t>::create(sizeof(uint32_t))) {
 	generate(vbo, ebo, steps, radius);

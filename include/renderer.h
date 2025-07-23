@@ -9,6 +9,7 @@
 
 #include "clock.h"
 #include "gl_window.h"
+#include "instanced_renderer.h"
 #include "n_body/drawable_space_object.h"
 #include "n_body/interaction_system.h"
 #include "objects/cube.h"
@@ -32,12 +33,13 @@ private:
 
 	static constexpr std::initializer_list<glm::vec3> sphere_positions = {{2.f, 0.5, 0.5}};
 
-	raw::cube				   cube_object;
-	raw::cube				   light_cube;
-	raw::sphere				   sphere;
-	raw::drawable_space_object<float> sphere_obj;
-	raw::interaction_system<float>	   system;
-	bool					   dir_light = true;
+	raw::cube							   cube_object;
+	raw::cube							   light_cube;
+    raw::icosahedron_generator gen;
+	raw::interaction_system<float>		   system;
+	raw::shared_ptr<mesh>				   sphere_mesh;
+	raw::instanced_renderer<instance_data> inst_renderer;
+	bool								   dir_light = true;
 	friend class event_handler;
 	friend class scene;
 
@@ -49,13 +51,13 @@ public:
 	[[nodiscard]] bool is_window_running() const {
 		return window.is_running();
 	}
-	void set_window_running(bool state) {
+	inline void set_window_running(bool state) {
 		window.set_running(state);
 	}
-	[[nodiscard]] bool get_dir_light() const noexcept {
+	[[nodiscard]] inline bool get_dir_light() const noexcept {
 		return dir_light;
 	}
-	void set_dir_light(bool state) noexcept {
+	inline void set_dir_light(bool state) noexcept {
 		dir_light = state;
 	}
 	void render();

@@ -11,6 +11,8 @@
 #include <format>
 #include <source_location>
 
+#include "custom_deleters.h"
+
 namespace raw {
 template<typename T>
 class cuda_from_gl_data {
@@ -18,9 +20,9 @@ class cuda_from_gl_data {
 
 public:
 	cudaGraphicsResource_t cuda_resource = nullptr;
-	T*					   data;
-	bool				   mapped = false;
-	cuda_from_gl_data()			  = default;
+	T*					   data			 = nullptr;
+	bool				   mapped		 = false;
+	cuda_from_gl_data()					 = default;
 	cuda_from_gl_data(size_t* amount_of_bytes, UI buffer_object) {
 		CUDA_SAFE_CALL(cudaGraphicsGLRegisterBuffer(&cuda_resource, buffer_object,
 													cudaGraphicsRegisterFlagsWriteDiscard));
@@ -29,6 +31,15 @@ public:
 			cudaGraphicsResourceGetMappedPointer((void**)&data, amount_of_bytes, cuda_resource));
 		mapped = true;
 	};
+	cuda_from_gl_data& operator=(cuda_from_gl_data&& rhs) noexcept {
+		mapped			  = rhs.mapped;
+		rhs.mapped		  = false;
+		cuda_resource	  = rhs.cuda_resource;
+		data			  = rhs.data;
+		rhs.cuda_resource = nullptr;
+		rhs.data		  = nullptr;
+        return *this;
+	}
 	[[nodiscard]] T* get_data() const {
 		return data;
 	}
