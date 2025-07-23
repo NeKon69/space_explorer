@@ -57,11 +57,10 @@ private:
 	// 1) wooooow instanced rendering soo cool and funny
 	// 2) Amount of time and memory that would be consumed otherwise would leave me with no choice
 	std::array<raw::unique_ptr<UI, gl_data_deleter_buffer>, predef::AMOUNT_OF_INSTANCED_DATA>
-							instanced_vbo;
-	bool					created			   = false;
-	int						num_of_obj_to_draw = 0;
-	int						indices_size	   = 0;
-	shared_ptr<raw::shader> shader;
+		 instanced_vbo;
+	bool created			= false;
+	int	 num_of_obj_to_draw = 0;
+	int	 indices_size		= 0;
 #ifdef SPACE_EXPLORER_DEBUG
 	void check_data_stability(size_t data_size) const;
 #endif
@@ -159,8 +158,8 @@ public:
 		setup_object(vertices, indices, sizes_of_buffers, normals_from_position);
 	}
 	renderable(const std::initializer_list<UI>& sizes_of_buffers);
-	void set_shader(const shared_ptr<raw::shader>& sh);
-	void draw() const;
+	void draw(const raw::shared_ptr<raw::shader>& shader) const;
 };
 } // namespace raw
 #endif // SPACE_EXPLORER_RENDERABLE_H
+

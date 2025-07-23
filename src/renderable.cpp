@@ -42,11 +42,8 @@ renderable::renderable(const std::initializer_list<UI>& sizes_of_buffers)
 #endif
 	setup_object(sizes_of_buffers);
 }
-void renderable::set_shader(const shared_ptr<raw::shader>& sh) {
-	shader = sh;
-}
-void renderable::draw() const {
-	shader->use();
+void renderable::draw(const shared_ptr<shader>& shader) const {
+    shader->use();
 	glBindVertexArray(*vao);
 	glDrawElementsInstanced(GL_TRIANGLES, indices_size, GL_UNSIGNED_INT, nullptr,
 							num_of_obj_to_draw);

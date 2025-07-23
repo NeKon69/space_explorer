@@ -1,0 +1,17 @@
+//
+// Created by progamers on 7/23/25.
+//
+#include "custom_deleters.h"
+
+#include <glad/glad.h>
+
+namespace raw::deleter {
+gl_array::gl_array(const raw::UI *data) {
+	glDeleteVertexArrays(1, data);
+	delete data;
+}
+gl_buffer::gl_buffer(const raw::UI *data) {
+    glDeleteBuffers(1, data);
+    delete data;
+}
+} // namespace raw::deleter

@@ -10,15 +10,15 @@
 #include "camera.h"
 #include "event_handler.h"
 #include "renderer.h"
+#include "instanced_renderer.h"
 
 namespace raw {
 class scene {
 private:
 	raw::event_handler event_handler;
 	raw::renderer	   renderer;
-	raw::camera		   camera;
-	glm::mat4		   view_matrix;
-	glm::mat4		   projection_matrix;
+
+	raw::camera camera;
 	friend class event_handler;
 	friend class renderer;
 

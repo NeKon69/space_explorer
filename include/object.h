@@ -14,22 +14,10 @@
 
 #include <glm/vec3.hpp>
 
+#include "custom_deleters.h"
 #include "helper_macros.h"
 #include "shader.h"
 namespace raw {
-struct gl_data_deleter_buffer {
-	explicit gl_data_deleter_buffer(UI const* data) {
-		glDeleteBuffers(1, data);
-		delete data;
-	}
-};
-
-struct gl_data_deleter_array {
-	explicit gl_data_deleter_array(UI const* data) {
-		glDeleteBuffers(1, data);
-		delete data;
-	}
-};
 
 namespace drawing_method {
 void				  basic(UI* vao, UI indices_size);
@@ -50,10 +38,10 @@ class object {
 private:
 	// my own kiddie, it's ugly but i SOOO like it)))
 	// look how clean it looks!!!
-	raw::unique_ptr<UI, gl_data_deleter_array>	vao;
-	raw::unique_ptr<UI, gl_data_deleter_buffer> vbo;
-	raw::unique_ptr<UI, gl_data_deleter_buffer> ebo;
-	size_t										indices_size;
+	raw::unique_ptr<UI, deleter::gl_array>	vao;
+	raw::unique_ptr<UI, deleter::gl_buffer> vbo;
+	raw::unique_ptr<UI, deleter::gl_buffer> ebo;
+	size_t									indices_size;
 
 	void gen_opengl_data() const;
 
@@ -67,8 +55,9 @@ public:
 
 	void	  rotate(float degree, const glm::vec3& axis);
 	void	  move(const glm::vec3& vec);
-	void	 scale(const glm::vec3& factor);
-    void rotate_around(const float degree, const glm::vec3& axis, const glm::vec3& distance_to_object);
+	void	  scale(const glm::vec3& factor);
+	void	  rotate_around(const float degree, const glm::vec3& axis,
+							const glm::vec3& distance_to_object);
 	glm::mat4 get_mat() const {
 		return transformation;
 	}
@@ -162,7 +151,7 @@ public:
 		glEnableVertexAttribArray(0);
 
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
-			glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(1);
 		glBindVertexArray(0);
 	}
 

@@ -17,12 +17,15 @@ find_package(Freetype REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 
-set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/mesh.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
+set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
         src/cuda_types/stream.cpp
         src/renderable.cpp
+        src/mesh.cpp
+        src/instance_data.cpp
+        src/custom_deleters.cpp
 )
 set(CUDA_SOURCES
-        src/sphere_generation/tessallation_kernel.cu src/sphere_generation/launch_tessellation.cu
+        src/sphere_generation/tessellation_kernel.cu src/sphere_generation/launch_tessellation.cu
         src/n_body/leapfrog_kernels.cu
         src/n_body/launch_leapfrog.cu
 )
@@ -55,18 +58,18 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 set(RUNTIME_OUTPUT_DIR $<TARGET_FILE_DIR:${PROJECT_NAME}>)
 
 set(ASSETS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/assets)
-if(EXISTS "${ASSETS_DIR}")
+if (EXISTS "${ASSETS_DIR}")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
             "${ASSETS_DIR}" "${RUNTIME_OUTPUT_DIR}/assets" VERBATIM)
-else()
+else ()
     message(WARNING "assets directory not found: ${ASSETS_DIR}")
-endif()
+endif ()
 
 set(SHADERS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/shaders)
-if(EXISTS "${SHADERS_DIR}")
+if (EXISTS "${SHADERS_DIR}")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory_if_different
             "${SHADERS_DIR}" "${RUNTIME_OUTPUT_DIR}/shaders" VERBATIM)
-else()
+else ()
     message(WARNING "shaders directory not found: ${SHADERS_DIR}")
-endif()
+endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 glad::glad freetype assimp::assimp CUDA::cudart)
