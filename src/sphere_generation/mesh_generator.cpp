@@ -15,23 +15,25 @@ namespace raw {
 inline constexpr float GOLDEN_RATIO = std::numbers::phi_v<float>;
 icosahedron_generator::icosahedron_generator()
 	: stream(make_shared<cuda_stream>()),
-	  amount_of_triangles(sizeof(uint32_t), stream),
-	  amount_of_vertices(sizeof(uint32_t), stream) {}
+	  amount_of_triangles(sizeof(uint32_t), stream, true),
+	  amount_of_vertices(sizeof(uint32_t), stream, true) {}
 icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius)
 	: stream(make_shared<cuda_stream>()),
-	  amount_of_triangles(sizeof(uint32_t), stream),
-	  amount_of_vertices(sizeof(uint32_t), stream) {
+	  amount_of_triangles(sizeof(uint32_t), stream, true),
+	  amount_of_vertices(sizeof(uint32_t), stream, true) {
 	_vbo = vbo;
 	_ebo = ebo;
 	generate(vbo, ebo, steps, radius);
 }
 
 void icosahedron_generator::init(raw::UI vbo, raw::UI ebo, float radius) {
+	_vbo			= vbo;
+	_ebo			= ebo;
 	vertices_handle = raw::make_shared<cuda_from_gl_data<glm::vec3>>(&vertices_bytes, vbo);
 	indices_handle	= raw::make_shared<cuda_from_gl_data<UI>>(&indices_bytes, ebo);
 
-	vertices_second = cuda_buffer<glm::vec3>(vertices_bytes, stream);
-	indices_second	= cuda_buffer<UI>(indices_bytes, stream);
+	vertices_second = cuda_buffer<glm::vec3>(vertices_bytes, stream, true);
+	indices_second	= cuda_buffer<UI>(indices_bytes, stream, true);
 
 	cudaMemcpy(vertices_handle->get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
 			   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
@@ -58,14 +60,16 @@ void icosahedron_generator::prepare(raw::UI vbo, raw::UI ebo, float radius) {
 void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius) {
 	// Motherfucker doesn't like then i use same amount of memory as was allocated so here will be
 	// >= and not just > (which sucks btw)
-	if (steps > predef::MAX_STEPS) {
+	// One day i will find that sick piece of shit that doesn't let me use all allocated memory, and
+	// i promise, if he even then will say cudaErrorIllegalAddress, i will kill myself
+	if (steps >= predef::MAX_STEPS) {
 		throw std::runtime_error(std::format(
 			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
 			predef::MAX_STEPS, steps));
 	}
 	if (vbo != _vbo || ebo != _ebo) {
 		throw std::runtime_error(std::format(
-			"Function for LOD was not yet created, don't call that. VBO given was {} while stored VBO was {}, EBO given was {} while stored was {}",
+			"Function for LOD on different VBO's was not yet created, don't call that. VBO given was {} while stored VBO was {}, EBO given was {} while stored was {}",
 			vbo, _vbo, ebo, _ebo));
 	}
 
@@ -75,7 +79,6 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 	for (UI i = 0; i < steps; ++i) {
 		amount_of_triangles.zero_data(sizeof(UI) * 1);
 		amount_of_vertices.set_data(&num_vertices_cpu, sizeof(uint32_t), cudaMemcpyHostToDevice);
-		//		amount_of_vertices.zero_data(sizeof(uint32_t));
 		if (i % 2 == 0) {
 			vertices_second.set_data(vertices_handle->get_data(),
 									 num_vertices_cpu * sizeof(glm::vec3),
@@ -93,7 +96,6 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 								amount_of_vertices.get(), amount_of_triangles.get(),
 								num_triangles_cpu, radius, *stream);
 		}
-        stream->sync();
 		num_vertices_cpu += 3 * num_triangles_cpu;
 		num_triangles_cpu *= 4;
 	}
@@ -109,7 +111,7 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 	cleanup();
 }
 void icosahedron_generator::cleanup() {
-    stream->sync();
+	stream->sync();
 	vertices_second.free();
 	indices_second.free();
 	vertices_handle->unmap();

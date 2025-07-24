@@ -18,7 +18,8 @@ private:
 	// Boom! Genius use of streams
 	size_t						 _size = 0;
 	raw::shared_ptr<cuda_stream> data_stream;
-	T*							 ptr = nullptr;
+	T*							 ptr		   = nullptr;
+	bool						 manual_stream = false;
 
 	void _memcpy(T* dst, T* src, size_t size, cudaMemcpyKind kind) {
 		CUDA_SAFE_CALL(cudaMemcpyAsync(dst, src, size, kind, data_stream->stream()));
@@ -34,9 +35,10 @@ public:
 	explicit cuda_buffer(size_t size) : _size(size), data_stream(raw::make_shared<cuda_stream>()) {
 		CUDA_SAFE_CALL(cudaMallocAsync((void**)&ptr, _size, data_stream->stream()));
 	}
-	cuda_buffer(size_t size, raw::shared_ptr<cuda_stream> stream)
+	cuda_buffer(size_t size, raw::shared_ptr<cuda_stream> stream, bool manual = false)
 		: _size(size), data_stream(std::move(stream)) {
 		CUDA_SAFE_CALL(cudaMallocAsync((void**)&ptr, _size, data_stream->stream()));
+		manual_stream = manual;
 	}
 	cuda_buffer(const cuda_buffer& rhs) : data_stream(rhs.data_stream) {
 		cuda_buffer(rhs._size);
@@ -74,7 +76,8 @@ public:
 		data_stream = nullptr;
 	}
 	T* get() const {
-		data_stream->sync();
+		if (!manual_stream)
+			data_stream->sync();
 		return ptr;
 	}
 	void allocate(size_t size) {

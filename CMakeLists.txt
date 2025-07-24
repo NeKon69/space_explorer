@@ -16,13 +16,12 @@ find_package(glad REQUIRED CONFIG)
 find_package(Freetype REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
-
-set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/object_info.cpp src/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
+file(GLOB_RECURSE CPP_COMMAND_SOURCES src/commands/*.cpp)
+set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/object_info.cpp src/rendering/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
         src/cuda_types/stream.cpp
-        src/renderable.cpp
         src/mesh.cpp
-        src/instance_data.cpp
         src/custom_deleters.cpp
+        src/input_manager.cpp
 )
 set(CUDA_SOURCES
         src/sphere_generation/tessellation_kernel.cu src/sphere_generation/launch_tessellation.cu
@@ -30,7 +29,7 @@ set(CUDA_SOURCES
         src/n_body/launch_leapfrog.cu
 )
 
-add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${CUDA_SOURCES})
+add_executable(${PROJECT_NAME} ${CPP_COMMAND_SOURCES} ${CPP_SOURCES} ${CUDA_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE include include/smartPointers)
 

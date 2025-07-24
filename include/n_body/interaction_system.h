@@ -22,6 +22,7 @@ private:
 	unsigned int				 number_of_sim = 0;
 	unsigned int				 num_of_obj	   = 0;
 	raw::clock					 clock;
+    raw::UI vbo;
 	friend class space_object<>;
 
 	void update_data() {
@@ -74,7 +75,12 @@ public:
 	void setup_model(UI model_vbo) {
 		d_objects_model = cuda_from_gl_data<glm::mat4>(&amount_of_bytes, model_vbo);
 		d_objects_model.unmap();
+        vbo = model_vbo;
 	}
+
+    UI get_vbo() const {
+        return vbo;
+    }
 
 	std::optional<raw::space_object<T>> get() {
 		if (num_of_obj >= c_objects.size()) {
@@ -89,7 +95,7 @@ public:
 	space_object<T>& operator[](size_t index) {
 		return c_objects[index];
 	}
-	[[nodiscard]] inline UI amount() {
+	[[nodiscard]] inline UI amount() const {
 		return c_objects.size();
 	}
 	void update_sim() {

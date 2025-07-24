@@ -11,7 +11,7 @@ namespace raw {
 namespace predef {
 
 static const UI MAXIMUM_AMOUNT_OF_INDICES =
-	BASIC_AMOUNT_OF_TRIANGLES * static_cast<UI>(std::pow(4, MAX_STEPS)) + 2;
+	BASIC_AMOUNT_OF_TRIANGLES  * static_cast<UI>(std::pow(4, MAX_STEPS)) + 2;
 static const UI MAXIMUM_AMOUNT_OF_VERTICES = 10 * static_cast<UI>(std::pow(4, MAX_STEPS));
 } // namespace predef
 class sphere {
