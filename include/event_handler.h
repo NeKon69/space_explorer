@@ -38,7 +38,7 @@ void update_uniform(const raw::shared_ptr<raw::shader> &shader, std::string name
 	}
 }
 
-class scene;
+class playing_state;
 
 template<typename T>
 void update_uniform_for_shaders(const std::string &name, const T &value,
@@ -55,14 +55,14 @@ public:
 	std::unordered_map<SDL_Scancode, raw::button>			   buttons;
 	raw::clock												   clock_callback;
 
-	friend class scene;
+	friend class playing_state;
 
 	event_handler() = default;
-	void setup(raw::scene *scene);
+	void setup(raw::playing_state *scene);
 	void handle(const SDL_Event &event);
 
 private:
-	void _setup_keys(raw::scene *scene);
+	void _setup_keys(raw::playing_state *scene);
 	void _update();
 };
 } // namespace raw

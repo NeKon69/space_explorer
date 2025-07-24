@@ -82,10 +82,6 @@ public:
 		front.y		 = sinf(glm::radians(pitch));
 		front.z		 = sinf(glm::radians(yaw)) * cosf(glm::radians(pitch));
 		camera_front = glm::normalize(front);
-		// That's just a check for me, so I don't forget to update shader uniforms
-		static_assert(sizeof...(Func) != 0,
-					  "You must provide at least one function to update shader uniforms");
-		(update_shader_uniforms(), ...);
 	}
 
 	// again I come up with some stupid and at the same time genius ideas
@@ -98,11 +94,9 @@ public:
 	template<typename... Func>
 	void move(decltype(camera_move::MOVE_FUNCTION) func, Func&&... update_shader_uniforms) {
 		func(camera_pos, camera_front, camera_up);
-		// That's just a check for me, so I don't forget to update shader uniforms
-		static_assert(sizeof...(Func) != 0,
-					  "You must provide at least one function to update shader uniforms");
-		(update_shader_uniforms(), ...);
 	}
+
+    void move(const glm::vec3& offset);
 
 	template<typename... Func>
 	void adjust_fov(float delta, Func&&... update_shader_uniforms) {
@@ -113,10 +107,6 @@ public:
 		if (fov > 180.0f) {
 			fov = 180.0f;
 		}
-		// That's just a check for me, so I don't forget to update shader uniforms
-		static_assert(sizeof...(Func) != 0,
-					  "You must provide at least one function to update shader uniforms");
-		(update_shader_uniforms(), ...);
 	}
 
 	[[nodiscard]] inline glm::vec3 pos() const {
@@ -128,6 +118,9 @@ public:
 	[[nodiscard]] inline glm::vec3 up() const {
 		return camera_up;
 	}
+	[[nodiscard]] inline glm::vec3 right() const {
+        return glm::cross(camera_front, camera_up);
+    }
 
 	void inline set_window_resolution(int x, int y) {
 		window_aspect_ratio = static_cast<float>(x) / static_cast<float>(y);

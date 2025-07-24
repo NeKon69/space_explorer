@@ -6,13 +6,13 @@
 #define SPACE_EXPLORER_COMMAND_H
 
 namespace raw {
-class scene;
+class playing_state;
 
 namespace command {
 class command {
 public:
-	virtual ~command()						= default;
-	virtual void execute(raw::scene& scene) = 0;
+	virtual ~command()								= default;
+	virtual void execute(raw::playing_state& scene) = 0;
 };
 } // namespace command
 

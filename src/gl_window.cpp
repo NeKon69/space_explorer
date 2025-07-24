@@ -36,6 +36,8 @@ gl_window::gl_window(const std::string& window_name) {
 			" in " + std::string(__FILE__) + " on " + std::to_string(__LINE__) + " line");
 	}
 	init_glad();
+    grab_mouse();
+    raw::gl::VIEW(0, 0, 2560, 1440);
 }
 
 gl_window::~gl_window() noexcept {
@@ -61,6 +63,11 @@ void gl_window::clear() const {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
+void gl_window::grab_mouse() {
+	gl::RELATIVE_MOUSE_MODE(window, true);
+	gl::MOUSE_GRAB(window, true);
+}
+
 void gl_window::update() const {
 	SDL_GL_SwapWindow(window);
 }
@@ -69,7 +76,7 @@ bool gl_window::is_running() const noexcept {
 }
 
 void gl_window::set_running(bool state) noexcept {
-    running = state;
+	running = state;
 }
 
 } // namespace raw

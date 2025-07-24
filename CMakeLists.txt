@@ -16,12 +16,15 @@ find_package(glad REQUIRED CONFIG)
 find_package(Freetype REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
-file(GLOB_RECURSE CPP_COMMAND_SOURCES src/commands/*.cpp)
-set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/object_info.cpp src/rendering/renderer.cpp src/scene.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
+#file(GLOB_RECURSE CPP_COMMAND_SOURCES src/commands/*.cpp)
+set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/object_info.cpp src/rendering/renderer.cpp src/game_states/playing_state.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
         src/cuda_types/stream.cpp
         src/mesh.cpp
         src/custom_deleters.cpp
         src/input_manager.cpp
+        src/simulation_state.cpp
+        src/player_controller.cpp
+        src/game.cpp
 )
 set(CUDA_SOURCES
         src/sphere_generation/tessellation_kernel.cu src/sphere_generation/launch_tessellation.cu

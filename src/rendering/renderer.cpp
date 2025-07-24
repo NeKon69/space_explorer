@@ -3,14 +3,16 @@
 //
 #include "rendering/renderer.h"
 
+#include "game_states/playing_state.h"
 #include "rendering/render_command.h"
-#include "scene.h"
-#define AM_POINT_LIGHTS 5
 namespace raw::rendering {
 renderer::renderer(const std::string& window_name) : window(window_name) {}
 
-bool renderer::window_running() const noexcept{
-    return window.is_running();
+bool renderer::window_running() const noexcept {
+	return window.is_running();
+}
+raw::gl_window* renderer::operator->() {
+	return &window;
 }
 void renderer::render(raw::rendering::queue& command_queue, const raw::camera& camera) const {
 	window.clear();

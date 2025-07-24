@@ -14,7 +14,7 @@
 
 namespace raw {
 class event_handler;
-class scene;
+class playing_state;
 namespace gl {
 // add more if you need
 inline PASSIVE_VALUE& ATTR				  = SDL_GL_SetAttribute;
@@ -37,7 +37,7 @@ private:
 	SDL_Window*		 window = nullptr;
 	static sdl_video video_context;
 	friend class event_handler;
-	friend class scene;
+	friend class playing_state;
 
 public:
 	explicit gl_window(const std::string& window_name);
@@ -65,9 +65,12 @@ public:
 
 	void update() const;
 
+    void grab_mouse();
+    void ungrab_mouse();
+
 	~gl_window();
 	bool is_running() const noexcept;
-    void set_running(bool state) noexcept;
+	void set_running(bool state) noexcept;
 };
 } // namespace raw
 

@@ -10,19 +10,20 @@
 #include "clock.h"
 #include "space_object.h"
 namespace raw {
+// BEFORE CONSTRUCTING ANYTHING REMEMBER TO BIND VAO
 template<typename T>
 class interaction_system {
 private:
-	cuda_buffer<space_object<T>> d_objects;
-	std::vector<space_object<T>> c_objects;
-	size_t						 amount_of_bytes = 0;
-	cuda_from_gl_data<glm::mat4> d_objects_model;
-	bool						 data_changed;
-	bool						 paused;
-	unsigned int				 number_of_sim = 0;
-	unsigned int				 num_of_obj	   = 0;
-	raw::clock					 clock;
-    raw::UI vbo;
+	cuda_buffer<space_object<T>>				 d_objects;
+	std::vector<space_object<T>>				 c_objects;
+	size_t										 amount_of_bytes = 0;
+	cuda_from_gl_data<glm::mat4>				 d_objects_model;
+	bool										 data_changed;
+	bool										 paused;
+	unsigned int								 number_of_sim = 0;
+	unsigned int								 num_of_obj	   = 0;
+	raw::clock									 clock;
+	raw::unique_ptr<raw::UI, deleter::gl_buffer> vbo;
 	friend class space_object<>;
 
 	void update_data() {
@@ -33,29 +34,68 @@ private:
 		data_changed = false;
 	}
 
+	void setup(UI number_of_attr) {
+		glGenBuffers(1, vbo.get());
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *vbo);
+
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * 1000, nullptr, GL_DYNAMIC_DRAW);
+
+		int obj_size = sizeof(glm::mat4);
+
+		glVertexAttribPointer(number_of_attr, 4, GL_FLOAT, GL_FALSE, obj_size, nullptr);
+		glEnableVertexAttribArray(number_of_attr);
+		glVertexAttribDivisor(number_of_attr++, 1);
+
+		glVertexAttribPointer(number_of_attr, 4, GL_FLOAT, GL_FALSE, obj_size,
+							  (void*)(obj_size / 4));
+		glEnableVertexAttribArray(number_of_attr);
+		glVertexAttribDivisor(number_of_attr++, 1);
+
+		glVertexAttribPointer(number_of_attr, 4, GL_FLOAT, GL_FALSE, obj_size,
+							  (void*)(obj_size / 2));
+		glEnableVertexAttribArray(number_of_attr);
+		glVertexAttribDivisor(number_of_attr++, 1);
+
+		glVertexAttribPointer(number_of_attr, 4, GL_FLOAT, GL_FALSE, obj_size,
+							  (void*)(obj_size / 4 * 3));
+		glEnableVertexAttribArray(number_of_attr);
+		glVertexAttribDivisor(number_of_attr++, 1);
+	}
+
 public:
-	interaction_system()
-		: d_objects(cuda_buffer<space_object<T>>::create(1)), c_objects(0), data_changed(false) {}
-	explicit interaction_system(size_t number_of_planets)
+	explicit interaction_system(UI number_of_attr = 2)
+		: d_objects(cuda_buffer<space_object<T>>::create(1)),
+		  c_objects(0),
+		  data_changed(false),
+		  vbo(new UI(0)) {
+		setup(number_of_attr);
+	}
+	explicit interaction_system(size_t number_of_planets, UI number_of_attr = 2)
 		// We'll allocate only one bit, since it'll be reallocated later anyway
 		: d_objects(cuda_buffer<space_object<T>>::create(1)),
 		  c_objects(number_of_planets),
-		  data_changed(true) {
+		  data_changed(true),
+		  vbo(new UI(0)) {
 		update_data();
 		clock.restart();
 	}
-	explicit interaction_system(const std::vector<space_object<T>>& objects)
+	explicit interaction_system(const std::vector<space_object<T>>& objects, UI number_of_attr = 2)
 		// We'll allocate only one bit, since it'll be reallocated later anyway (but we do that so
 		// we can have the same stream for all data)
 		: d_objects(cuda_buffer<space_object<T>>::create(0)),
 		  c_objects(objects),
 
-		  data_changed(true) {
+		  data_changed(true),
+		  vbo(new UI(0)) {
+		setup(number_of_attr);
 		update_data();
 		clock.restart();
 	}
-	interaction_system(const interaction_system& sys)
-		: d_objects(sys.d_objects), c_objects(sys.c_objects), data_changed(false) {
+	interaction_system(interaction_system&& sys, UI number_of_attr = 2) noexcept
+		: d_objects(std::move(sys.d_objects)),
+		  c_objects(std::move(sys.c_objects)),
+		  data_changed(false),
+		  vbo(std::move(sys.vbo)) {
 		clock.restart();
 	}
 	[[nodiscard]] inline space_object<T>* get_first_ptr() const {
@@ -75,12 +115,11 @@ public:
 	void setup_model(UI model_vbo) {
 		d_objects_model = cuda_from_gl_data<glm::mat4>(&amount_of_bytes, model_vbo);
 		d_objects_model.unmap();
-        vbo = model_vbo;
 	}
 
-    UI get_vbo() const {
-        return vbo;
-    }
+	UI get_vbo() const {
+		return *vbo;
+	}
 
 	std::optional<raw::space_object<T>> get() {
 		if (num_of_obj >= c_objects.size()) {

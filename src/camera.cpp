@@ -44,6 +44,9 @@ glm::mat4 camera::view_projection() const {
 glm::mat4 camera::projection() const {
 	return glm::perspective(fov, window_aspect_ratio, predef::NEAR_PLANE, predef::FAR_PLANE);
 }
+void camera::move(const glm::vec3& offset) {
+	camera_pos += offset;
+}
 glm::mat4 camera::view() const {
 	return glm::lookAt(camera_pos, camera_front + camera_pos, camera_up);
 }

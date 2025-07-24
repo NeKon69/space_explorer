@@ -1,11 +1,11 @@
 //
 // Created by progamers on 6/2/25.
 //
-#include "scene.h"
+#include "game.h"
 
 int main(int argc, char* argv[]) {
-	raw::scene scene("Mike Hawk");
-	scene.run();
+	raw::game game("Mike Hawk");
+	game.run();
 
 	return 0;
 }
