@@ -41,7 +41,6 @@ class drawable_space_object;
 template<typename T>
 class space_object {
 private:
-	space_object_data<T> object_data;
 	// We don't make this templated since float is fine for positions
 
 	friend class drawable_space_object<T>;
@@ -49,6 +48,7 @@ private:
 	friend class interaction_system<T>;
 
 public:
+	space_object_data<T> object_data;
 	__device__ __host__ space_object_data<T>& get() {
 		return object_data;
 	}
@@ -62,7 +62,8 @@ public:
 	static void update_position(space_object* data, glm::mat4* data_model, time since_last_upd,
 								unsigned int count, const shared_ptr<cuda_stream>& stream) {
 		since_last_upd.to_milli();
-		launch_leapfrog<T>(data, data_model, since_last_upd.val, count, predef::G, stream->stream());
+		launch_leapfrog<T>(data, data_model, since_last_upd.val, count, predef::G,
+						   stream->stream());
 	};
 };
 

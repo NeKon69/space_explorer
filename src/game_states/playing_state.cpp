@@ -72,6 +72,7 @@ playing_state::playing_state(glm::uvec2 window_size)
 	init();
 }
 
+
 raw::rendering::queue playing_state::build_rendering_queue() const {
 	raw::rendering::queue queue;
 	{
@@ -86,7 +87,7 @@ raw::rendering::queue playing_state::build_rendering_queue() const {
 }
 
 void playing_state::update(const raw::time& delta_time) {
-	system.update_sim();
+//	system.update_sim();
 	controller.update(move_state, delta_time.val);
 }
 

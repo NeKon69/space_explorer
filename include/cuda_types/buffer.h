@@ -64,6 +64,7 @@ public:
 		data_stream		= std::move(rhs.data_stream);
 		rhs.ptr			= nullptr;
 		rhs._size		= 0;
+		rhs.data_stream = nullptr;
 		return *this;
 	}
 	~cuda_buffer() {

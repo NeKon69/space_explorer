@@ -11,7 +11,7 @@
 #include "space_object.h"
 namespace raw {
 inline void print_mat_ptr(raw::unique_ptr<glm::mat4[]> gg) {
-	for (int i = 0; i < 1; ++i) {
+	for (int i = 0; i < 4; ++i) {
 		std::cout << "\t\tBEGINNING OF MATRIX " << i;
 		std::cout << "\n\t\t";
 		for (int i_mat = 0; i_mat < 4; ++i_mat) {
@@ -32,7 +32,7 @@ inline void print_vec(glm::vec<3, T> vec) {
 
 template<typename T>
 inline void print_space_data(raw::unique_ptr<space_object<T>[]> gg) {
-	for (int i = 0; i < 5; ++i) {
+	for (int i = 0; i < 4; ++i) {
 		std::cout << "\t\t BEGINNING OF OBJECT DATA\n";
 		auto gamers = gg[i].get();
 		std::cout << "\t\tPOSITION - ";
@@ -75,28 +75,35 @@ private:
 		glGenBuffers(1, vbo.get());
 		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
 
-		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * 1000, nullptr, GL_DYNAMIC_DRAW);
+		std::vector<glm::mat4> vec(1000);
+		vec[0] = glm::mat4(2.0);
+		vec[1] = glm::translate(glm::mat4(3.0), glm::vec3(2.0, 2.0, 2.0));
 
-		int obj_size = sizeof(glm::mat4);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * 1000, vec.data(), GL_DYNAMIC_DRAW);
+
+		int obj_size		= sizeof(glm::mat4);
+		int single_obj_size = sizeof(glm::vec4);
 
 		glVertexAttribPointer(number_of_attr, 4, GL_FLOAT, GL_FALSE, obj_size, nullptr);
 		glEnableVertexAttribArray(number_of_attr);
 		glVertexAttribDivisor(number_of_attr++, 1);
 
 		glVertexAttribPointer(number_of_attr, 4, GL_FLOAT, GL_FALSE, obj_size,
-							  (void*)(obj_size / 4));
+							  (void*)(single_obj_size));
 		glEnableVertexAttribArray(number_of_attr);
 		glVertexAttribDivisor(number_of_attr++, 1);
 
 		glVertexAttribPointer(number_of_attr, 4, GL_FLOAT, GL_FALSE, obj_size,
-							  (void*)(obj_size / 2));
+							  (void*)(single_obj_size * 2));
 		glEnableVertexAttribArray(number_of_attr);
 		glVertexAttribDivisor(number_of_attr++, 1);
 
 		glVertexAttribPointer(number_of_attr, 4, GL_FLOAT, GL_FALSE, obj_size,
-							  (void*)(obj_size / 4 * 3));
+							  (void*)(single_obj_size * 3));
 		glEnableVertexAttribArray(number_of_attr);
 		glVertexAttribDivisor(number_of_attr++, 1);
+
+		glBindVertexArray(0);
 
 		{
 			auto err = glGetError();
@@ -204,7 +211,7 @@ public:
 											 time_since_last_upd, c_objects.size(), stream);
 			number_of_sim++;
 			clock.restart();
-			cudaDeviceSynchronize();
+			stream->sync();
 
 			raw::unique_ptr<glm::mat4[]> ptr(make_unique<glm::mat4[]>(5));
 			cudaMemcpy(ptr.get(), d_objects_model.get_data(), 5 * sizeof(glm::mat4),

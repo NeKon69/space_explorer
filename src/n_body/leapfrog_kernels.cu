@@ -15,14 +15,14 @@ __device__ void compute_kick(raw::space_object<T>* objects, uint16_t count, uint
 		if (current == i) {
 			continue;
 		}
-		auto dist			= objects[i].get().position - objects[current].get().position;
-		T	 dist_sq		= dist.x * dist.x + dist.y * dist.y + dist.z * dist.z;
-		T	 inv_dist		= rsqrt(dist_sq + epsilon * epsilon);
+		auto dist	  = objects[i].object_data.position - objects[current].object_data.position;
+		T	 dist_sq  = dist.x * dist.x + dist.y * dist.y + dist.z * dist.z;
+		T	 inv_dist = rsqrt(dist_sq + epsilon * epsilon);
 		T	 inv_dist_cubed = inv_dist * inv_dist * inv_dist;
-		a_total += (g * objects[i].get().mass * inv_dist_cubed) * dist;
+		a_total += (g * objects[i].object_data.mass * inv_dist_cubed) * dist;
 	}
 
-	objects[current].get().velocity += a_total * dt;
+	objects[current].object_data.velocity += a_total * dt;
 }
 template<typename T>
 __global__ void compute_leapfrog(raw::space_object<T>* objects, glm::mat4* objects_model,
@@ -34,24 +34,30 @@ __global__ void compute_leapfrog(raw::space_object<T>* objects, glm::mat4* objec
 
 	const auto epsilon = 1;
 
-    objects[x].get().velocity = glm::vec3(5.0f);
-    objects_model[x] = glm::mat4(4.0f);
-//	// Kick
-//	compute_kick<T>(objects, count, x, g, epsilon, dt / 2);
-//
-//	// Drift
-//	objects[x].get().position += objects[x].get().velocity * dt;
-//
-//	// Works until 256 objects
-//	__syncthreads();
-//
-//	// Kick
-//	compute_kick<T>(objects, count, x, g, epsilon, dt / 2);
-//    objects_model[x] = glm::mat4(1.0f);
+//	objects[x].object_data.velocity.x = 2;
+//	if (objects[x].object_data.velocity.x == 2) {
+//		objects_model[x][1][2] = 1;
+//	} else {
+//		objects_model[x][2][2] = 1;
+//	}
+//	objects_model[x][1][1] = 1;
+		// Kick
+		compute_kick<T>(objects, count, x, g, epsilon, dt / 2);
 
-//	objects_model[x] = glm::scale(
-//		glm::translate(glm::mat4(1.0f), static_cast<glm::vec3>(objects[x].get().position)),
-//		glm::vec3(objects[x].get().radius));
+		// Drift
+		objects[x].object_data.position += objects[x].object_data.velocity * dt;
+
+		// Works until 256 objects
+		__syncthreads();
+
+		// Kick
+		compute_kick<T>(objects, count, x, g, epsilon, dt / 2);
+		objects_model[x] = glm::mat4(1.0f);
+
+		objects_model[x] = glm::scale(
+			glm::translate(glm::mat4(1.0f),
+	 static_cast<glm::vec3>(objects[x].object_data.position)),
+			glm::vec3(objects[x].object_data.radius));
 }
 
 template __global__ void compute_leapfrog<float>(raw::space_object<float>* objects, glm::mat4*,
