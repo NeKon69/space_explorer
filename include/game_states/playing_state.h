@@ -49,7 +49,7 @@ private:
 
 	bool is_active = true;
 
-	void init();
+	void init() const;
 
 public:
 	explicit playing_state(glm::uvec2 window_size = {2560, 1440});

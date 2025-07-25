@@ -18,8 +18,9 @@ namespace predef {
 // Oh and btw, turns out, even after 4 steps our sphere gets nearly perfect (even on 2k monitor,
 // well maybe on 4k it would be nice to have 6, but 4 is pretty much enough)
 PASSIVE_VALUE BASIC_RADIUS				= 1.0f;
-PASSIVE_VALUE BASIC_STEPS				= 5U;
-PASSIVE_VALUE MAX_STEPS					= 6U;
+PASSIVE_VALUE BASIC_STEPS				= 7U;
+PASSIVE_VALUE MAX_STEPS					= 8U;
+// That you can't change, all things above you can
 PASSIVE_VALUE BASIC_AMOUNT_OF_TRIANGLES = 20U;
 } // namespace predef
 
@@ -27,8 +28,8 @@ PASSIVE_VALUE BASIC_AMOUNT_OF_TRIANGLES = 20U;
 // icosahedron
 class icosahedron_generator {
 private:
-	raw::shared_ptr<cuda_from_gl_data<glm::vec3>> vertices_handle;
-	raw::shared_ptr<cuda_from_gl_data<UI>>		  indices_handle;
+	cuda_from_gl_data<glm::vec3> vertices_handle;
+	cuda_from_gl_data<UI>		  indices_handle;
 	raw::shared_ptr<cuda_stream>				  stream;
 
 	UI _vbo;
@@ -47,7 +48,7 @@ private:
 
 	bool inited = false;
 
-	// Caller every time after `generate` function
+	// Called every time after `generate` function
 	void cleanup();
 	// Called once when the object is created (or generate function called first time)
 	void init(UI vbo, UI ebo, float radius);

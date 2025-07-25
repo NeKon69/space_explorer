@@ -19,12 +19,16 @@ void mesh::bind() const {
 	glBindVertexArray(*vao);
 }
 void mesh::unbind() const {
-    glBindVertexArray(0);
+	glBindVertexArray(0);
 }
 
 UI mesh::get_index_count() const {
 	return indices_size;
 }
+UI mesh::get_vao() const {
+	return *vao;
+}
+
 UI mesh::get_vbo() const {
 	return *vbo;
 }

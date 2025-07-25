@@ -29,15 +29,15 @@ icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI s
 void icosahedron_generator::init(raw::UI vbo, raw::UI ebo, float radius) {
 	_vbo			= vbo;
 	_ebo			= ebo;
-	vertices_handle = raw::make_shared<cuda_from_gl_data<glm::vec3>>(&vertices_bytes, vbo);
-	indices_handle	= raw::make_shared<cuda_from_gl_data<UI>>(&indices_bytes, ebo);
+	vertices_handle = cuda_from_gl_data<glm::vec3>(&vertices_bytes, vbo);
+	indices_handle	= cuda_from_gl_data<UI>(&indices_bytes, ebo);
 
 	vertices_second = cuda_buffer<glm::vec3>(vertices_bytes, stream, true);
 	indices_second	= cuda_buffer<UI>(indices_bytes, stream, true);
 
-	cudaMemcpy(vertices_handle->get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
+	cudaMemcpy(vertices_handle.get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
 			   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
-	cudaMemcpy(indices_handle->get_data(), (void*)std::data(generate_icosahedron_indices()),
+	cudaMemcpy(indices_handle.get_data(), (void*)std::data(generate_icosahedron_indices()),
 			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
 	inited = true;
 }
@@ -47,13 +47,13 @@ void icosahedron_generator::prepare(raw::UI vbo, raw::UI ebo, float radius) {
 		init(vbo, ebo, radius);
 		return;
 	}
-	vertices_handle->map();
-	indices_handle->map();
+	vertices_handle.map();
+	indices_handle.map();
 	vertices_second.allocate(vertices_bytes);
 	indices_second.allocate(indices_bytes);
-	cudaMemcpy(vertices_handle->get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
+	cudaMemcpy(vertices_handle.get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
 			   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
-	cudaMemcpy(indices_handle->get_data(), (void*)std::data(generate_icosahedron_indices()),
+	cudaMemcpy(indices_handle.get_data(), (void*)std::data(generate_icosahedron_indices()),
 			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
 }
 
@@ -69,7 +69,7 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 	}
 	if (vbo != _vbo || ebo != _ebo) {
 		throw std::runtime_error(std::format(
-			"Function for LOD on different VBO's was not yet created, don't call that. VBO given was {} while stored VBO was {}, EBO given was {} while stored was {}",
+			"Function for LOD on different BO's was not yet created, don't call that. VBO given was {} while stored VBO was {}, EBO given was {} while stored was {}",
 			vbo, _vbo, ebo, _ebo));
 	}
 
@@ -80,43 +80,43 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 		amount_of_triangles.zero_data(sizeof(UI) * 1);
 		amount_of_vertices.set_data(&num_vertices_cpu, sizeof(uint32_t), cudaMemcpyHostToDevice);
 		if (i % 2 == 0) {
-			vertices_second.set_data(vertices_handle->get_data(),
+			vertices_second.set_data(vertices_handle.get_data(),
 									 num_vertices_cpu * sizeof(glm::vec3),
 									 cudaMemcpyDeviceToDevice);
-			launch_tessellation(vertices_handle->get_data(), indices_handle->get_data(),
+			launch_tessellation(vertices_handle.get_data(), indices_handle.get_data(),
 								vertices_second.get(), indices_second.get(),
 								amount_of_vertices.get(), amount_of_triangles.get(),
 								num_triangles_cpu, radius, *stream);
 		} else {
-			vertices_second.set_data(vertices_handle->get_data(),
+			vertices_second.set_data(vertices_handle.get_data(),
 									 num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice,
 									 cudaMemcpyOrder::cudaMemcpy1to2);
 			launch_tessellation(vertices_second.get(), indices_second.get(),
-								vertices_handle->get_data(), indices_handle->get_data(),
+								vertices_handle.get_data(), indices_handle.get_data(),
 								amount_of_vertices.get(), amount_of_triangles.get(),
 								num_triangles_cpu, radius, *stream);
 		}
 		num_vertices_cpu += 3 * num_triangles_cpu;
 		num_triangles_cpu *= 4;
 	}
-    stream->sync();
+	stream->sync();
 	auto passed_time = timer.restart();
 	passed_time.to_milli();
 	std::cout << std::string("[Debug] Tesselation with amount of steps of ") << steps << " took "
 			  << passed_time << " to complete\n";
 
 	if (steps % 2 != 0) {
-		vertices_second.set_data(vertices_handle->get_data(), num_vertices_cpu * sizeof(glm::vec3),
+		vertices_second.set_data(vertices_handle.get_data(), num_vertices_cpu * sizeof(glm::vec3),
 								 cudaMemcpyDeviceToDevice, cudaMemcpyOrder::cudaMemcpy1to2);
 	}
 	cleanup();
 }
 void icosahedron_generator::cleanup() {
-    stream->sync();
+	stream->sync();
 	vertices_second.free();
 	indices_second.free();
-	vertices_handle->unmap();
-	indices_handle->unmap();
+	vertices_handle.unmap();
+	indices_handle.unmap();
 	num_vertices_cpu  = 12;
 	num_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
 }

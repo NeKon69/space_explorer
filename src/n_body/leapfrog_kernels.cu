@@ -34,21 +34,24 @@ __global__ void compute_leapfrog(raw::space_object<T>* objects, glm::mat4* objec
 
 	const auto epsilon = 1;
 
-	// Kick
-	compute_kick<T>(objects, count, x, g, epsilon, dt);
+    objects[x].get().velocity = glm::vec3(5.0f);
+    objects_model[x] = glm::mat4(4.0f);
+//	// Kick
+//	compute_kick<T>(objects, count, x, g, epsilon, dt / 2);
+//
+//	// Drift
+//	objects[x].get().position += objects[x].get().velocity * dt;
+//
+//	// Works until 256 objects
+//	__syncthreads();
+//
+//	// Kick
+//	compute_kick<T>(objects, count, x, g, epsilon, dt / 2);
+//    objects_model[x] = glm::mat4(1.0f);
 
-	// Drift
-	objects[x].get().position += objects[x].get().velocity * dt;
-
-	// Works until 256 objects
-	__syncthreads();
-
-	// Kick
-	compute_kick<T>(objects, count, x, g, epsilon, dt);
-    objects_model[x] = glm::mat4(1.0f);
-	objects_model[x] = glm::scale(
-		glm::translate(glm::mat4(1.0f), static_cast<glm::vec3>(objects[x].get().position)),
-		glm::vec3(objects[x].get().radius));
+//	objects_model[x] = glm::scale(
+//		glm::translate(glm::mat4(1.0f), static_cast<glm::vec3>(objects[x].get().position)),
+//		glm::vec3(objects[x].get().radius));
 }
 
 template __global__ void compute_leapfrog<float>(raw::space_object<float>* objects, glm::mat4*,

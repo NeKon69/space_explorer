@@ -60,9 +60,9 @@ public:
 						  double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
 		: object_data(_position, _velocity, _mass, _radius) {}
 	static void update_position(space_object* data, glm::mat4* data_model, time since_last_upd,
-								unsigned int count) {
+								unsigned int count, const shared_ptr<cuda_stream>& stream) {
 		since_last_upd.to_milli();
-		launch_leapfrog<T>(data, data_model, since_last_upd.val, count, predef::G);
+		launch_leapfrog<T>(data, data_model, since_last_upd.val, count, predef::G, stream->stream());
 	};
 };
 

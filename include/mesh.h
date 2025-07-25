@@ -43,6 +43,7 @@ private:
 		glVertexAttribPointer(number_of_attr, 3, GL_FLOAT, GL_FALSE, stride,
 							  normals_from_position ? nullptr : (void*)(3 * sizeof(float)));
 		glEnableVertexAttribArray(number_of_attr++);
+		glBindVertexArray(0);
 	}
 
 public:
@@ -56,6 +57,7 @@ public:
 	void			 bind() const;
 	void			 unbind() const;
 	[[nodiscard]] UI get_index_count() const;
+	[[nodiscard]] UI get_vao() const;
 	[[nodiscard]] UI get_vbo() const;
 	[[nodiscard]] UI get_ebo() const;
 	[[nodiscard]] UI attr_num() const;

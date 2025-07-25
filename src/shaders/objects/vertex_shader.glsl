@@ -15,7 +15,6 @@ void main() {
     //    if (aModel != mat4(0.0)) {
     //        mod = model;
     //    }
-    mod = mat4(1.0f);
 
     gl_Position = projection * view * mod * vec4(aPos, 1.0);
     FragPos = vec3(mod * vec4(aPos, 1.0));

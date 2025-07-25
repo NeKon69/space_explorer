@@ -134,5 +134,5 @@ void main() {
     }
 
     result += calc_spot_light(sp_light, Normal, FragPos, viewDir);
-    FragColor = vec4(Normal, 1.0);
+    FragColor = vec4(result, 1.0);
 }

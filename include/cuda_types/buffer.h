@@ -61,10 +61,9 @@ public:
 		}
 		ptr				= rhs.ptr;
 		_size			= rhs._size;
-		data_stream		= rhs.data_stream;
+		data_stream		= std::move(rhs.data_stream);
 		rhs.ptr			= nullptr;
 		rhs._size		= 0;
-		rhs.data_stream = nullptr;
 		return *this;
 	}
 	~cuda_buffer() {

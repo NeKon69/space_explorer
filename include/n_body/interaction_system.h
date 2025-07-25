@@ -32,15 +32,15 @@ inline void print_vec(glm::vec<3, T> vec) {
 
 template<typename T>
 inline void print_space_data(raw::unique_ptr<space_object<T>[]> gg) {
-	for (int i = 0; i < 1; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		std::cout << "\t\t BEGINNING OF OBJECT DATA\n";
 		auto gamers = gg[i].get();
 		std::cout << "\t\tPOSITION - ";
 		print_vec(gamers.position);
-        std::cout << "\n\n";
+		std::cout << "\n\n";
 		std::cout << "\t\tVELOCITY - ";
 		print_vec(gamers.velocity);
-        std::cout << "\n\n";
+		std::cout << "\n\n";
 		std::cout << "\t";
 		std::cout << "END OF OBJECT DATA\n\n";
 	}
@@ -50,6 +50,7 @@ inline void print_space_data(raw::unique_ptr<space_object<T>[]> gg) {
 template<typename T>
 class interaction_system {
 private:
+	raw::shared_ptr<cuda_stream>				 stream = raw::make_shared<cuda_stream>();
 	cuda_buffer<space_object<T>>				 d_objects;
 	std::vector<space_object<T>>				 c_objects;
 	size_t										 amount_of_bytes = 0;
@@ -109,30 +110,32 @@ private:
 	}
 
 public:
-	explicit interaction_system(UI number_of_attr = 2)
-		: d_objects(cuda_buffer<space_object<T>>::create(sizeof(space_object<T>))),
+	explicit interaction_system(UI vao, UI number_of_attr = 2)
+		: d_objects(sizeof(space_object<T>), stream, true),
 		  c_objects(1),
 		  data_changed(false),
 		  vbo(new UI(0)) {
+		glBindVertexArray(vao);
 		setup(number_of_attr);
 	}
 	explicit interaction_system(size_t number_of_planets, UI number_of_attr = 2)
 		// We'll allocate only one bit, since it'll be reallocated later anyway
-		: d_objects(cuda_buffer<space_object<T>>::create(1)),
+		: d_objects(sizeof(space_object<T>), stream, true),
 		  c_objects(number_of_planets),
 		  data_changed(true),
 		  vbo(new UI(0)) {
 		update_data();
 		clock.restart();
 	}
-	explicit interaction_system(const std::vector<space_object<T>>& objects, UI number_of_attr = 2)
+	interaction_system(const std::vector<space_object<T>>& objects, UI vao, UI number_of_attr = 2)
 		// We'll allocate only one bit, since it'll be reallocated later anyway (but we do that so
 		// we can have the same stream for all data)
-		: d_objects(cuda_buffer<space_object<T>>::create(0)),
+		: d_objects(sizeof(space_object<T>), stream, true),
 		  c_objects(objects),
 
 		  data_changed(true),
 		  vbo(new UI(0)) {
+		glBindVertexArray(vao);
 		setup(number_of_attr);
 		update_data();
 		clock.restart();
@@ -198,15 +201,20 @@ public:
 		if (time_since_last_upd > update_time) {
 			d_objects_model.map();
 			space_object<T>::update_position(this->get_first_ptr(), d_objects_model.get_data(),
-											 time_since_last_upd, c_objects.size());
+											 time_since_last_upd, c_objects.size(), stream);
 			number_of_sim++;
 			clock.restart();
 			cudaDeviceSynchronize();
 
+			raw::unique_ptr<glm::mat4[]> ptr(make_unique<glm::mat4[]>(5));
+			cudaMemcpy(ptr.get(), d_objects_model.get_data(), 5 * sizeof(glm::mat4),
+					   cudaMemcpyDeviceToHost);
+			print_mat_ptr(std::move(ptr));
+
 			raw::unique_ptr<space_object<T>[]> ptr_data(make_unique<space_object<T>[]>(5));
 			cudaMemcpy(ptr_data.get(), d_objects.get(), 5 * sizeof(space_object<T>),
 					   cudaMemcpyDeviceToHost);
-            print_space_data(std::move(ptr_data));
+			print_space_data(std::move(ptr_data));
 
 			// FIXME: add this thing to another kernel just for fun cause rn it's not really
 			// working as i switched to instancing
