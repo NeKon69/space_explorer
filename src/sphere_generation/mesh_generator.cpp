@@ -99,7 +99,8 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 		num_vertices_cpu += 3 * num_triangles_cpu;
 		num_triangles_cpu *= 4;
 	}
-	auto passed_time = timer.reset();
+    stream->sync();
+	auto passed_time = timer.restart();
 	passed_time.to_milli();
 	std::cout << std::string("[Debug] Tesselation with amount of steps of ") << steps << " took "
 			  << passed_time << " to complete\n";
@@ -111,7 +112,7 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 	cleanup();
 }
 void icosahedron_generator::cleanup() {
-	stream->sync();
+    stream->sync();
 	vertices_second.free();
 	indices_second.free();
 	vertices_handle->unmap();

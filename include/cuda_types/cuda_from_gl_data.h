@@ -38,7 +38,7 @@ public:
 		data			  = rhs.data;
 		rhs.cuda_resource = nullptr;
 		rhs.data		  = nullptr;
-        return *this;
+		return *this;
 	}
 	[[nodiscard]] T* get_data() const {
 		return data;
@@ -56,7 +56,8 @@ public:
 
 	~cuda_from_gl_data() {
 		unmap();
-		cudaGraphicsUnregisterResource(cuda_resource);
+		if (cuda_resource)
+			cudaGraphicsUnregisterResource(cuda_resource);
 	}
 };
 } // namespace raw

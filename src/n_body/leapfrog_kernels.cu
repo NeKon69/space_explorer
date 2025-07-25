@@ -45,6 +45,7 @@ __global__ void compute_leapfrog(raw::space_object<T>* objects, glm::mat4* objec
 
 	// Kick
 	compute_kick<T>(objects, count, x, g, epsilon, dt);
+    objects_model[x] = glm::mat4(1.0f);
 	objects_model[x] = glm::scale(
 		glm::translate(glm::mat4(1.0f), static_cast<glm::vec3>(objects[x].get().position)),
 		glm::vec3(objects[x].get().radius));

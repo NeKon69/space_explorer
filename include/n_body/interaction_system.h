@@ -10,6 +10,42 @@
 #include "clock.h"
 #include "space_object.h"
 namespace raw {
+inline void print_mat_ptr(raw::unique_ptr<glm::mat4[]> gg) {
+	for (int i = 0; i < 1; ++i) {
+		std::cout << "\t\tBEGINNING OF MATRIX " << i;
+		std::cout << "\n\t\t";
+		for (int i_mat = 0; i_mat < 4; ++i_mat) {
+			for (int j_mat = 0; j_mat < 4; ++j_mat) {
+				std::cout << gg[i][i_mat][j_mat] << "\t";
+			}
+			std::cout << "\n\t\t";
+		}
+		std::cout << "END OF MATRIX\n\n";
+	}
+}
+template<typename T>
+inline void print_vec(glm::vec<3, T> vec) {
+	for (int i = 0; i < 3; ++i) {
+		std::cout << vec[i] << "\t";
+	}
+}
+
+template<typename T>
+inline void print_space_data(raw::unique_ptr<space_object<T>[]> gg) {
+	for (int i = 0; i < 1; ++i) {
+		std::cout << "\t\t BEGINNING OF OBJECT DATA\n";
+		auto gamers = gg[i].get();
+		std::cout << "\t\tPOSITION - ";
+		print_vec(gamers.position);
+        std::cout << "\n\n";
+		std::cout << "\t\tVELOCITY - ";
+		print_vec(gamers.velocity);
+        std::cout << "\n\n";
+		std::cout << "\t";
+		std::cout << "END OF OBJECT DATA\n\n";
+	}
+}
+
 // BEFORE CONSTRUCTING ANYTHING REMEMBER TO BIND VAO
 template<typename T>
 class interaction_system {
@@ -19,7 +55,7 @@ private:
 	size_t										 amount_of_bytes = 0;
 	cuda_from_gl_data<glm::mat4>				 d_objects_model;
 	bool										 data_changed;
-	bool										 paused;
+	bool										 paused		   = false;
 	unsigned int								 number_of_sim = 0;
 	unsigned int								 num_of_obj	   = 0;
 	raw::clock									 clock;
@@ -36,7 +72,7 @@ private:
 
 	void setup(UI number_of_attr) {
 		glGenBuffers(1, vbo.get());
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * 1000, nullptr, GL_DYNAMIC_DRAW);
 
@@ -60,12 +96,22 @@ private:
 							  (void*)(obj_size / 4 * 3));
 		glEnableVertexAttribArray(number_of_attr);
 		glVertexAttribDivisor(number_of_attr++, 1);
+
+		{
+			auto err = glGetError();
+			std::cout << err << "\n";
+		}
+
+		cuda_from_gl_data<glm::mat4> gg(&amount_of_bytes, *vbo);
+
+		d_objects_model = std::move(gg);
+		d_objects_model.unmap();
 	}
 
 public:
 	explicit interaction_system(UI number_of_attr = 2)
-		: d_objects(cuda_buffer<space_object<T>>::create(1)),
-		  c_objects(0),
+		: d_objects(cuda_buffer<space_object<T>>::create(sizeof(space_object<T>))),
+		  c_objects(1),
 		  data_changed(false),
 		  vbo(new UI(0)) {
 		setup(number_of_attr);
@@ -112,6 +158,12 @@ public:
 		clock.start();
 	}
 
+	void add(const space_object<T>& object) {
+		c_objects.push_back(object);
+		data_changed = true;
+		update_data();
+	}
+
 	void setup_model(UI model_vbo) {
 		d_objects_model = cuda_from_gl_data<glm::mat4>(&amount_of_bytes, model_vbo);
 		d_objects_model.unmap();
@@ -150,44 +202,56 @@ public:
 			number_of_sim++;
 			clock.restart();
 			cudaDeviceSynchronize();
-			//		for (const auto& obj : c_objects)
-			//			std::cout << "[Debug] Pos: {" << obj.object_data.position.x << ", "
-			//					  << obj.object_data.position.y << ", " <<
-			// obj.object_data.position.z <<
-			//"}\n";
-			//
-			// FIXME: add this thing to another kernel just for fun
-			static auto ke_total = 0.0;
-			auto		e_kin	 = 0.0;
-			auto		e_pot	 = 0.0;
-			for (int i = 0; i < c_objects.size(); ++i) {
-				auto curr_vel = c_objects[i].get().velocity;
-				e_kin += 0.5 * c_objects[i].get().mass * curr_vel.x * curr_vel.x +
-						 curr_vel.y * curr_vel.y + curr_vel.z * curr_vel.z;
-			}
-			for (int i = 0; i < c_objects.size(); ++i) {
-				for (auto j = i; j < c_objects.size(); ++j) {
-					if (j == i)
-						continue;
-					e_pot +=
-						-predef::G * c_objects[i].get().mass * c_objects[j].get().mass /
-						glm::distance(c_objects[i].get().position, c_objects[j].get().position);
-				}
-			}
-			static auto prev_ke_sum = 0.0;
-			static auto number		= 0;
-			++number;
-			prev_ke_sum += ke_total;
-			ke_total = e_kin + e_pot;
-			if (glm::distance(ke_total, prev_ke_sum / number) > 0.1) {
-				// Lol i am so good, almost never reached this (it's reached only when some really
-				// wierd stuff happening and epsilon gets to work a lot with a lot of planets at
-				// once (for dummies - that means the objects are too close to each other)) That
-				// means I didn't fucked up any physics, right? Oh and btw, I get new interaction of
-				// objects each time I launch the app, I think it's normal since they don't call
-				// that sim "n-body problem" a problem for nothing.
-				std::cerr << "I suck at this.\n";
-			}
+
+			raw::unique_ptr<space_object<T>[]> ptr_data(make_unique<space_object<T>[]>(5));
+			cudaMemcpy(ptr_data.get(), d_objects.get(), 5 * sizeof(space_object<T>),
+					   cudaMemcpyDeviceToHost);
+            print_space_data(std::move(ptr_data));
+
+			// FIXME: add this thing to another kernel just for fun cause rn it's not really
+			// working as i switched to instancing
+			//			static auto ke_total = 0.0;
+			//			auto		e_kin	 = 0.0;
+			//			auto		e_pot	 = 0.0;
+			//			for (int i = 0; i < c_objects.size(); ++i) {
+			//				auto curr_vel = c_objects[i].get().velocity;
+			//				e_kin += 0.5 * c_objects[i].get().mass * curr_vel.x * curr_vel.x +
+			//						 curr_vel.y * curr_vel.y + curr_vel.z * curr_vel.z;
+			//			}
+			//			for (int i = 0; i < c_objects.size(); ++i) {
+			//				for (auto j = i; j < c_objects.size(); ++j) {
+			//					if (j == i)
+			//						continue;
+			//					e_pot +=
+			//						-predef::G * c_objects[i].get().mass *
+			// c_objects[j].get().mass /
+			// glm::distance(c_objects[i].get().position,
+			// c_objects[j].get().position);
+			//				}
+			//			}
+			//			static auto prev_ke_sum = 0.0;
+			//			static auto number		= 0;
+			//			++number;
+			//			prev_ke_sum += ke_total;
+			//			ke_total = e_kin + e_pot;
+			//			if (glm::distance(ke_total, prev_ke_sum / number) > 0.1) {
+			//				// Lol i am so good, almost never reached this (it's reached only
+			// when
+			// some really
+			//				// wierd stuff happening and epsilon gets to work a lot with a lot
+			// of
+			// planets at
+			//				// once (for dummies - that means the objects are too close to each
+			// other)) That
+			//				// means I didn't fucked up any physics, right? Oh and btw, I get
+			// new
+			// interaction of
+			//				// objects each time I launch the app, I think it's normal since
+			// they
+			// don't call
+			//				// that sim "n-body problem" a problem for nothing.
+			//				std::cerr << "I suck at this.\n";
+			//			}
 			d_objects_model.unmap();
 		}
 	}
@@ -200,9 +264,7 @@ inline auto generate_data_for_sim() {
 		space_object<float>(glm::vec3(25.f)), space_object<float>(glm::vec3(-10.f)),
 		space_object<float>(glm::vec3(10, -10, 20), predef::BASIC_VELOCITY, 4, sqrt(0.25))};
 	std::vector<space_object<float>> ggg(gg.begin(), gg.end());
-	return interaction_system<float>(ggg
-									 // First object is some kind of star Lol.
-	);
+	return gg;
 }
 
 } // namespace predef

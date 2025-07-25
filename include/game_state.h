@@ -12,13 +12,13 @@ namespace rendering {
 class renderer;
 }
 class game_state {
-    public:
+public:
 	virtual ~game_state() = default;
 
-    // It has bool return type so we can easily indicate if game was required to close
+	// It has bool return type so we can easily indicate if game was required to close
 	virtual bool handle_input()							  = 0;
-    virtual bool active() = 0;
-	virtual void update(const raw::time& delta_time)			  = 0;
+	virtual bool active()								  = 0;
+	virtual void update(const raw::time& delta_time)	  = 0;
 	virtual void draw(raw::rendering::renderer& renderer) = 0;
 };
 } // namespace raw

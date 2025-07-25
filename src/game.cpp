@@ -12,6 +12,7 @@ void game::run() {
 	raw::clock clock;
 	while (is_running) {
 		auto delta_time = clock.restart();
+        delta_time.to_milli();
 		if (states.empty()) {
 			is_running = false;
 			continue;

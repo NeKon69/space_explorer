@@ -44,7 +44,7 @@ private:
 	glm::vec3 camera_up;
 
 	float yaw = -90.f, pitch = 0.f;
-	float fov;
+	float fov = 0.f;
 	// this member need to be manually set (I have the setter for it), since I don't really want to
 	// somehow make window and camera depend on each other
 	float window_aspect_ratio = predef::ASPECT_RATIO;
@@ -107,6 +107,7 @@ public:
 		if (fov > 180.0f) {
 			fov = 180.0f;
 		}
+        std::cout << "[Debug] New FOV value: " << fov << "\n";
 	}
 
 	[[nodiscard]] inline glm::vec3 pos() const {

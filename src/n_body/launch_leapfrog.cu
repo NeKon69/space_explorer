@@ -18,8 +18,8 @@ void launch_leapfrog(raw::space_object<T>* objects, glm::mat4* objects_model, T 
 	if (count < 512) {
 		threads_per_block = count % 32 == 0 ? count : (count / 32 + 1) * 32;
 	}
-	compute_leapfrog<T><<<blocks, threads_per_block>>>(objects, objects_model, count, time, static_cast<T>(g));
+	compute_leapfrog<T>
+		<<<blocks, threads_per_block>>>(objects, objects_model, count, time, static_cast<T>(g));
 }
-
 
 } // namespace raw

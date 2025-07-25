@@ -6,10 +6,9 @@
 namespace raw {
 player_controller::player_controller(raw::camera &cam) : camera(cam), velocity(1.0f) {}
 void player_controller::update(const raw::movement_state &state, float delta_time) {
+    delta_time /= 1000;
 	glm::vec3 forward = camera.front();
 	glm::vec3 right	  = camera.right();
-	forward.y		  = 0;
-	right.y			  = 0;
 	if (glm::length(forward) > 0)
 		forward = glm::normalize(forward);
 	if (glm::length(right) > 0)
@@ -34,7 +33,7 @@ void player_controller::update(const raw::movement_state &state, float delta_tim
 		velocity += desired_direction * predef::ACCELERATION * delta_time;
 	} else {
 		float speed = glm::length(velocity);
-		if (speed > 0.01f) {
+		if (speed > 0.0001f) {
 			glm::vec3 friction_force = -glm::normalize(velocity) * predef::FRICTION * delta_time;
 			if (glm::length(friction_force) > speed) {
 				velocity = glm::vec3(0.0f);

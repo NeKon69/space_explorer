@@ -11,9 +11,9 @@
 namespace raw {
 
 namespace predef {
-PASSIVE_VALUE ACCELERATION = 30.0f;
-PASSIVE_VALUE MAX_SPEED	   = 20.0f;
-PASSIVE_VALUE FRICTION	   = 8.0f;
+PASSIVE_VALUE ACCELERATION = 20.0f;
+PASSIVE_VALUE MAX_SPEED	   = 10.0f;
+PASSIVE_VALUE FRICTION	   = 30.0f;
 } // namespace predef
 
 class player_controller {

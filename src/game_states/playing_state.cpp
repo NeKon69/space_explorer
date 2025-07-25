@@ -66,9 +66,15 @@ playing_state::playing_state(glm::uvec2 window_size)
 										 predef::MAXIMUM_AMOUNT_OF_INDICES)),
 	  gen(sphere_mesh->get_vbo(), sphere_mesh->get_ebo()),
 	  sim_state {true, system.amount()},
-	  system(sphere_mesh->attr_num()), camera(),
+	  system(sphere_mesh->attr_num()),
+	  camera(),
 	  controller(camera) {
-    sphere_mesh->unbind();
+	sphere_mesh->unbind();
+
+	auto data = predef::generate_data_for_sim();
+	for (const auto& elem : data) {
+		system.add(elem);
+	}
 	camera.set_window_resolution(window_size.x, window_size.y);
 	init();
 }
@@ -170,8 +176,8 @@ bool playing_state::handle_input() {
 		} else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
 			camera.adjust_fov(event.wheel.y);
 		} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-			auto x = event.motion.xrel;
-			auto y = event.motion.yrel;
+			auto x = event.motion.xrel * predef::SENSITIVITY;
+			auto y = event.motion.yrel * predef::SENSITIVITY;
 			camera.set_rotation(x, y);
 		}
 	}
