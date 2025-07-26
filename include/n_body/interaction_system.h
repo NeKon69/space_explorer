@@ -76,9 +76,9 @@ private:
 		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
 
 		std::vector<glm::mat4> vec(1000);
-		vec[0] = glm::mat4(2.0);
-		vec[1] = glm::translate(glm::mat4(3.0), glm::vec3(2.0, 2.0, 2.0));
-
+		//		vec[0] = glm::mat4(2.0);
+		//		vec[1] = glm::translate(glm::mat4(3.0), glm::vec3(2.0, 2.0, 2.0));
+		//
 		glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * 1000, vec.data(), GL_DYNAMIC_DRAW);
 
 		int obj_size		= sizeof(glm::mat4);
@@ -213,16 +213,6 @@ public:
 			clock.restart();
 			stream->sync();
 
-			raw::unique_ptr<glm::mat4[]> ptr(make_unique<glm::mat4[]>(5));
-			cudaMemcpy(ptr.get(), d_objects_model.get_data(), 5 * sizeof(glm::mat4),
-					   cudaMemcpyDeviceToHost);
-			print_mat_ptr(std::move(ptr));
-
-			raw::unique_ptr<space_object<T>[]> ptr_data(make_unique<space_object<T>[]>(5));
-			cudaMemcpy(ptr_data.get(), d_objects.get(), 5 * sizeof(space_object<T>),
-					   cudaMemcpyDeviceToHost);
-			print_space_data(std::move(ptr_data));
-
 			// FIXME: add this thing to another kernel just for fun cause rn it's not really
 			// working as i switched to instancing
 			//			static auto ke_total = 0.0;
@@ -279,7 +269,7 @@ inline auto generate_data_for_sim() {
 		space_object<float>(glm::vec3(25.f)), space_object<float>(glm::vec3(-10.f)),
 		space_object<float>(glm::vec3(10, -10, 20), predef::BASIC_VELOCITY, 4, sqrt(0.25))};
 	std::vector<space_object<float>> ggg(gg.begin(), gg.end());
-	return gg;
+	return ggg;
 }
 
 } // namespace predef

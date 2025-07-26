@@ -10,29 +10,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CUDA_STANDARD 20)
-
 find_package(SDL3 REQUIRED CONFIG)
 find_package(glad REQUIRED CONFIG)
 find_package(Freetype REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
-#file(GLOB_RECURSE CPP_COMMAND_SOURCES src/commands/*.cpp)
-set(CPP_SOURCES src/button.cpp src/camera.cpp src/clock.cpp src/event_handler.cpp src/gl_window.cpp src/main.cpp src/object_info.cpp src/rendering/renderer.cpp src/game_states/playing_state.cpp src/sdl_video.cpp src/shader.cpp src/objects/cube.cpp src/object.cpp src/objects/sphere.cpp src/sphere_generation/mesh_generator.cpp
-        src/cuda_types/stream.cpp
-        src/mesh.cpp
-        src/custom_deleters.cpp
-        src/input_manager.cpp
-        src/simulation_state.cpp
-        src/player_controller.cpp
-        src/game.cpp
-)
-set(CUDA_SOURCES
-        src/sphere_generation/tessellation_kernel.cu src/sphere_generation/launch_tessellation.cu
-        src/n_body/leapfrog_kernels.cu
-        src/n_body/launch_leapfrog.cu
-)
+# I so unbelievably dont care, I dont wanna add each file my own, vim sucks for that
+file(GLOB_RECURSE CPP_SOURCES src/*.cpp)
+file(GLOB_RECURSE CUDA_SOURCES src/*.cu)
 
-add_executable(${PROJECT_NAME} ${CPP_COMMAND_SOURCES} ${CPP_SOURCES} ${CUDA_SOURCES})
+add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${CUDA_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE include include/smartPointers)
 
@@ -43,6 +30,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<CONFIG:Debug>:-g>
         $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:MSVC>>:/Zi>
         $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:GNU>>:-O0>
+
         $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-O0>
 
         $<$<CONFIG:Release>:-O3>
