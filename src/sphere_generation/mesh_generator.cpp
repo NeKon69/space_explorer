@@ -17,47 +17,53 @@ icosahedron_generator::icosahedron_generator()
 	: stream(make_shared<cuda_stream>()),
 	  amount_of_triangles(sizeof(uint32_t), stream, true),
 	  amount_of_vertices(sizeof(uint32_t), stream, true) {}
-icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius)
+icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI tex_coord_vbo, raw::UI ebo,
+											 raw::UI steps)
 	: stream(make_shared<cuda_stream>()),
 	  amount_of_triangles(sizeof(uint32_t), stream, true),
 	  amount_of_vertices(sizeof(uint32_t), stream, true) {
-	_vbo = vbo;
-	_ebo = ebo;
-	generate(vbo, ebo, steps, radius);
+	_vbo		   = vbo;
+	_tex_coord_vbo = tex_coord_vbo;
+	_ebo		   = ebo;
+	generate(vbo, tex_coord_vbo, ebo, steps);
 }
 
-void icosahedron_generator::init(raw::UI vbo, raw::UI ebo, float radius) {
-	_vbo			= vbo;
-	_ebo			= ebo;
-	vertices_handle = cuda_from_gl_data<glm::vec3>(&vertices_bytes, vbo);
-	indices_handle	= cuda_from_gl_data<UI>(&indices_bytes, ebo);
+void icosahedron_generator::init(raw::UI vbo, raw::UI tex_coord_vbo, raw::UI ebo) {
+	_vbo			 = vbo;
+	_tex_coord_vbo	 = tex_coord_vbo;
+	_ebo			 = ebo;
+	vertices_handle	 = cuda_from_gl_data<glm::vec3>(&vertices_bytes, vbo);
+	tex_coord_handle = cuda_from_gl_data<glm::vec2>(&tex_coords_bytes, tex_coord_vbo);
+	indices_handle	 = cuda_from_gl_data<UI>(&indices_bytes, ebo);
 
 	vertices_second = cuda_buffer<glm::vec3>(vertices_bytes, stream, true);
 	indices_second	= cuda_buffer<UI>(indices_bytes, stream, true);
 
-	cudaMemcpy(vertices_handle.get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
+	cudaMemcpy(vertices_handle.get_data(), (void*)std::data(generate_icosahedron_vertices()),
 			   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
 	cudaMemcpy(indices_handle.get_data(), (void*)std::data(generate_icosahedron_indices()),
 			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
 	inited = true;
 }
 
-void icosahedron_generator::prepare(raw::UI vbo, raw::UI ebo, float radius) {
+void icosahedron_generator::prepare(raw::UI vbo, raw::UI tex_coord_vbo, raw::UI ebo) {
 	if (!inited) {
-		init(vbo, ebo, radius);
+		init(vbo, tex_coord_vbo, ebo);
 		return;
 	}
 	vertices_handle.map();
+	tex_coord_handle.map();
 	indices_handle.map();
 	vertices_second.allocate(vertices_bytes);
 	indices_second.allocate(indices_bytes);
-	cudaMemcpy(vertices_handle.get_data(), (void*)std::data(generate_icosahedron_vertices(radius)),
+	cudaMemcpy(vertices_handle.get_data(), (void*)std::data(generate_icosahedron_vertices()),
 			   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
 	cudaMemcpy(indices_handle.get_data(), (void*)std::data(generate_icosahedron_indices()),
 			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
 }
 
-void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, float radius) {
+void icosahedron_generator::generate(raw::UI vbo, raw::UI tex_coord_vbo, raw::UI ebo,
+									 raw::UI steps) {
 	// Motherfucker doesn't like then i use same amount of memory as was allocated so here will be
 	// >= and not just > (which sucks btw)
 	// One day i will find that sick piece of shit that doesn't let me use all allocated memory, and
@@ -67,13 +73,13 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
 			predef::MAX_STEPS, steps));
 	}
-	if (vbo != _vbo || ebo != _ebo) {
+	if (vbo != _vbo || ebo != _ebo || _tex_coord_vbo != tex_coord_vbo) {
 		throw std::runtime_error(std::format(
-			"Function for LOD on different BO's was not yet created, don't call that. VBO given was {} while stored VBO was {}, EBO given was {} while stored was {}",
-			vbo, _vbo, ebo, _ebo));
+			"Function for LOD on different BO's was not yet created, don't call that. VBO given was {} while stored VBO was {}, EBO given was {} while stored was {}, tex_coord_VBO was given {} while was stored {}",
+			vbo, _vbo, ebo, _ebo, tex_coord_vbo, _tex_coord_vbo));
 	}
 
-	prepare(vbo, ebo, radius);
+	prepare(vbo, tex_coord_vbo, ebo);
 
 	raw::clock timer;
 	for (UI i = 0; i < steps; ++i) {
@@ -84,17 +90,17 @@ void icosahedron_generator::generate(raw::UI vbo, raw::UI ebo, raw::UI steps, fl
 									 num_vertices_cpu * sizeof(glm::vec3),
 									 cudaMemcpyDeviceToDevice);
 			launch_tessellation(vertices_handle.get_data(), indices_handle.get_data(),
-								vertices_second.get(), indices_second.get(),
-								amount_of_vertices.get(), amount_of_triangles.get(),
-								num_triangles_cpu, radius, *stream);
+								vertices_second.get(), tex_coord_handle.get_data(),
+								indices_second.get(), amount_of_vertices.get(),
+								amount_of_triangles.get(), num_triangles_cpu, *stream);
 		} else {
 			vertices_second.set_data(vertices_handle.get_data(),
 									 num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice,
 									 cudaMemcpyOrder::cudaMemcpy1to2);
 			launch_tessellation(vertices_second.get(), indices_second.get(),
-								vertices_handle.get_data(), indices_handle.get_data(),
-								amount_of_vertices.get(), amount_of_triangles.get(),
-								num_triangles_cpu, radius, *stream);
+								vertices_handle.get_data(), tex_coord_handle.get_data(),
+								indices_handle.get_data(), amount_of_vertices.get(),
+								amount_of_triangles.get(), num_triangles_cpu, *stream);
 		}
 		num_vertices_cpu += 3 * num_triangles_cpu;
 		num_triangles_cpu *= 4;
@@ -116,20 +122,21 @@ void icosahedron_generator::cleanup() {
 	vertices_second.free();
 	indices_second.free();
 	vertices_handle.unmap();
+	tex_coord_handle.unmap();
 	indices_handle.unmap();
-	num_vertices_cpu  = 12;
-	num_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
+	num_vertices_cpu   = 12;
+	num_tex_coords_cpu = 12;
+	num_triangles_cpu  = predef::BASIC_AMOUNT_OF_TRIANGLES;
 }
 // Icosahedron as most things in this project sounds horrifying, but, n-body (my algorithms), this
 // thing, and tesselation are surprisingly easy things, just for some reason someone wanted give
 // them scary names
-constexpr std::array<glm::vec3, 12> icosahedron_generator::generate_icosahedron_vertices(
-	float radius) {
+constexpr std::array<glm::vec3, 12> icosahedron_generator::generate_icosahedron_vertices() {
 	std::array<glm::vec3, 12> vertices {};
 	int						  vertex_index = 0;
 
 	const float unscaled_dist = std::sqrt(1.0f + GOLDEN_RATIO * GOLDEN_RATIO);
-	const float scale		  = radius / unscaled_dist;
+	const float scale		  = 1 / unscaled_dist;
 	const float a			  = 1.0f * scale;
 	const float b			  = GOLDEN_RATIO * scale;
 
@@ -159,8 +166,8 @@ constexpr std::array<UI, 60> icosahedron_generator::generate_icosahedron_indices
 }
 
 constexpr std::pair<std::array<glm::vec3, 12>, std::array<UI, 60>>
-icosahedron_generator::generate_icosahedron_data(float radius) {
-	return std::pair {generate_icosahedron_vertices(radius), generate_icosahedron_indices()};
+icosahedron_generator::generate_icosahedron_data() {
+	return std::pair {generate_icosahedron_vertices(), generate_icosahedron_indices()};
 }
 
 } // namespace raw

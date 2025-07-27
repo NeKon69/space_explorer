@@ -61,7 +61,7 @@ playing_state::playing_state(glm::uvec2 window_size)
 
 	  sphere_mesh(make_shared<raw::mesh>(predef::MAXIMUM_AMOUNT_OF_VERTICES,
 										 predef::MAXIMUM_AMOUNT_OF_INDICES, true)),
-	  gen(sphere_mesh->get_vbo(), sphere_mesh->get_ebo()),
+	  gen(sphere_mesh->get_vbo(), sphere_mesh->get_tex_coords_vbo(), sphere_mesh->get_ebo()),
 	  sim_state {true, 5},
 	  system(predef::generate_data_for_sim(), sphere_mesh->get_vao(), sphere_mesh->attr_num()),
 	  camera(),

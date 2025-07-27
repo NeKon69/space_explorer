@@ -15,13 +15,13 @@ class game {
 private:
 	raw::rendering::renderer					 renderer;
 	std::stack<std::unique_ptr<raw::game_state>> states;
-    bool is_running = true;
+	bool										 is_running = true;
 
 public:
 	explicit game(const std::string& name);
-    void run();
+	void run();
 
-    void push_state(std::unique_ptr<raw::game_state> state);
+	void push_state(std::unique_ptr<raw::game_state> state);
     void pop_state();
 };
 } // namespace raw
