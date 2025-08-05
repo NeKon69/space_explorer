@@ -10,8 +10,6 @@ namespace raw {
 
 // first function to call in graphics application
 sdl_video::sdl_video() {
-	gl::ATTR(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	gl::ATTR(SDL_GL_CONTEXT_MINOR_VERSION, 4);
 	gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 2);
 	gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 4);
 	gl::ATTR(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);

@@ -54,7 +54,7 @@ public:
 		return *this;
 	}
 	cuda_buffer(cuda_buffer&& rhs) noexcept
-		: ptr(rhs.ptr), _size(rhs._size), func data_stream(std::move(rhs.data_stream)) {}
+		: ptr(rhs.ptr), _size(rhs._size), data_stream(std::move(rhs.data_stream)) {}
 	cuda_buffer& operator=(cuda_buffer&& rhs) noexcept {
 		if (ptr) {
 			CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));

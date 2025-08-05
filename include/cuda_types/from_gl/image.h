@@ -13,7 +13,11 @@ private:
 	cudaArray_t array;
 
 public:
-	image(raw::UI vbo);
+	using raw::cuda::resource;
+	// If used default constructor and didn't set the data manually you are screwed (let it be UB)
+	image() = default;
+	image(raw::UI texture_id);
+	void		set_data(raw::UI texture_id);
 	cudaArray_t get();
 };
 } // namespace raw::cuda::gl

@@ -12,6 +12,9 @@ struct gl_array {
 struct gl_buffer {
 	explicit gl_buffer(UI const* data);
 };
+struct gl_texture {
+	explicit gl_texture(UI const* data);
+};
 struct cuda_gl_data {
 	explicit cuda_gl_data(cudaGraphicsResource_t* data) {
 		if (data) {

@@ -1,0 +1,69 @@
+//
+// Created by progamers on 8/5/25.
+//
+
+#ifndef SPACE_EXPLORER_STREAMING_H
+#define SPACE_EXPLORER_STREAMING_H
+#include "cuda_types/from_gl/image.h"
+#include "cuda_types/surface.h"
+#include "custom_deleters.h"
+#include "textures/data_type/compressed_cpu_texture.h"
+#include "textures/data_type/opengl_texture.h"
+#include "textures/fwd.h"
+#include "textures/lru_cache.h"
+#include "textures/manager.h"
+
+namespace raw::texture {
+struct texture_slot {
+	// am is simplified from albedo_metallic
+	raw::cuda::gl::image albedo_metallic;
+	raw::cuda::gl::image normal_rough_ao;
+
+	raw::unique_ptr<unsigned int, raw::deleter::gl_texture> am_id;
+	raw::unique_ptr<unsigned int, raw::deleter::gl_texture> nrao_id;
+	bool													is_in_use		   = false;
+	planet_id												assigned_planet_id = 0;
+
+	texture_slot() : am_id(new UI(0)), nrao_id(new UI(0)) {};
+
+	void create() {
+		glGenTextures(1, am_id.get());
+		glGenTextures(1, nrao_id.get());
+		albedo_metallic.set_data(*am_id);
+		normal_rough_ao.set_data(*nrao_id);
+		is_in_use = true;
+	}
+
+	texture_slot(int alb_met, int norm_rough_ao, planet_id id)
+		: albedo_metallic(alb_met),
+		  normal_rough_ao(norm_rough_ao),
+		  am_id(new UI(0)),
+		  nrao_id(new UI(0)),
+		  is_in_use(true),
+		  assigned_planet_id(id) {}
+};
+/**
+ * @class streaming_manger - provides nice interface to handle all the hard things with texture
+ * streaming
+ * @brief everything besides recreating it should work asynchronously in the app to not stop the
+ * main rendering thread
+ */
+class streaming_manager {
+private:
+	std::vector<texture_slot> texture_pool;
+	// Technically storing this should be fine since we only change vector capacity once
+	// And even if we want to recreate some textures we would need to either completely destroy
+	// instance of an object Or create out own function member that can be called when we want to
+	// recreate
+	raw::texture::lru_cache<planet_id, typename decltype(texture_pool)::iterator> gpu_cache;
+	raw::texture::lru_cache<planet_id, compressed_cpu_texture>					  cpu_cache;
+	raw::texture::manager														  mgr;
+
+	void create(uint32_t gpu_cache_size, uint32_t cpu_cache_size);
+
+public:
+	streaming_manager(uint32_t gpu_cache_size, uint32_t cpu_cache_size);
+};
+} // namespace raw::texture
+
+#endif // SPACE_EXPLORER_STREAMING_H

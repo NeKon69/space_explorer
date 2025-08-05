@@ -26,14 +26,20 @@ private:
 	static raw::shared_ptr<raw::cuda_stream> stream;
 
 protected:
+	// I heard somewhere that this down here is better than directly accessing the protected member
 	cudaGraphicsResource_t& get_resource();
 
 public:
+	resource() = default;
 	template<typename F, typename... Args>
 	// TODO: i dont remember how "is_callable" is called and where it is, need to add it here
 		requires std::is_function_v<F>
 	resource(const F&& func, Args&&... args) {
-		CUDA_SAFE_CALL(func(&m_resource, std::forward<Args>(args)...));
+		create(func, std::forward<Args&&>(args)...);
+	}
+	template<typename F, typename... Args>
+	void create(const F&& func, Args&&... args) {
+		CUDA_SAFE_CALL(func(&m_resource, std::forward<Args&&>(args)...));
 		CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &m_resource, 0));
 		mapped = true;
 	}

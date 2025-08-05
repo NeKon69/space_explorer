@@ -3,9 +3,14 @@
 //
 #include "cuda_types/from_gl/image.h"
 namespace raw::cuda::gl {
-image::image(raw::UI vbo)
-	: raw::cuda::resource(cudaGraphicsGLRegisterImage, vbo, GL_TEXTURE_2D,
+image::image(raw::UI texture_id)
+	: raw::cuda::resource(cudaGraphicsGLRegisterImage, texture_id, GL_TEXTURE_2D,
 						  cudaGraphicsRegisterFlagsSurfaceLoadStore) {
+	CUDA_SAFE_CALL(cudaGraphicsSubResourceGetMappedArray(&array, get_resource(), 0, 0));
+}
+void image::set_data(raw::UI texture_id) {
+	create(cudaGraphicsGLRegisterImage, texture_id, GL_TEXTURE_2D,
+		   cudaGraphicsRegisterFlagsSurfaceLoadStore);
 	CUDA_SAFE_CALL(cudaGraphicsSubResourceGetMappedArray(&array, get_resource(), 0, 0));
 }
 cudaArray_t image::get() {

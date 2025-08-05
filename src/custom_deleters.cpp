@@ -11,7 +11,11 @@ gl_array::gl_array(const raw::UI *data) {
 	delete data;
 }
 gl_buffer::gl_buffer(const raw::UI *data) {
-    glDeleteBuffers(1, data);
-    delete data;
+	glDeleteBuffers(1, data);
+	delete data;
+}
+gl_texture::gl_texture(const raw::UI *data) {
+	glDeleteTextures(1, data);
+	delete data;
 }
 } // namespace raw::deleter

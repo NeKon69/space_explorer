@@ -9,8 +9,6 @@
 
 namespace raw {
 gl_window::gl_window(const std::string& window_name) {
-	gl::ATTR(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	gl::ATTR(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 	gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 1024);
 	gl::ATTR(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -36,8 +34,8 @@ gl_window::gl_window(const std::string& window_name) {
 			" in " + std::string(__FILE__) + " on " + std::to_string(__LINE__) + " line");
 	}
 	init_glad();
-    grab_mouse();
-    raw::gl::VIEW(0, 0, 2560, 1440);
+	grab_mouse();
+	raw::gl::VIEW(0, 0, 2560, 1440);
 }
 
 gl_window::~gl_window() noexcept {

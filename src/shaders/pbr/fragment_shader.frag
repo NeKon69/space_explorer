@@ -1,4 +1,4 @@
-#version 330
+#version 460 core
 struct pbr_data {
     // I will pack the values into 4 floats as following -> albedo + metallic, normal + roughness, clouds + ao (for texture generation)
     sampler2D albedo_metallic;

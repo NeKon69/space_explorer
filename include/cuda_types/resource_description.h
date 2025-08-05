@@ -1,0 +1,34 @@
+//
+// Created by progamers on 8/5/25.
+//
+
+#ifndef SPACE_EXPLORER_RESOURCE_DESCRIPTION_H
+#define SPACE_EXPLORER_RESOURCE_DESCRIPTION_H
+#include <cuda_runtime.h>
+
+#include <cstring>
+
+namespace raw::cuda {
+namespace resource_types {
+struct array {
+	cudaResourceType res_type = cudaResourceTypeArray;
+};
+} // namespace resource_types
+
+template<typename T>
+class resource_description {
+private:
+	cudaResourceDesc description;
+
+public:
+	resource_description() {
+		std::memset(&description, 0, sizeof(description));
+		description.resType = T::res_type;
+	}
+	std::enable_if_t<std::is_same_v<T, resource_types::array>, void> set_array(cudaArray_t& array) {
+		description.res.array.array = array;
+	}
+};
+} // namespace raw::cuda
+
+#endif // SPACE_EXPLORER_RESOURCE_DESCRIPTION_H
