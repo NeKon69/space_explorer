@@ -1,18 +1,15 @@
 #version 330
+struct pbr_data {
+    // I will pack the values into 4 floats as following -> albedo + metallic, normal + roughness, clouds + ao (for texture generation)
+    sampler2D albedo_metallic;
+    sampler2D normal_roughness;
+    sampler2D clouds_ao;
+};
 in vec3 v_world_pos;
 in vec3 v_normal;
 in vec2 v_tex_coord;
 in mat4 v_tbn;
-
-// Bla bla bla you should use textures
-// Shut your ass i am on the base of implementing this shit
-// btw i am thinking, if i need to manually set all those maps later on my own, it will suck, so i think all these crappy things needa go to instance_vbo
-uniform float albedo;
-// For now we will have just smooth pic
-uniform float normal;
-uniform float metallic;
-uniform float roughness;
-uniform float ao;
+in pbr_data v_textures;
 
 //uniform samplerCube irradiance;
 //uniform samplerCube prefilter;
@@ -66,13 +63,17 @@ vec3 fresnel_schlick(float cos_theta, vec3 f_0) {
 
 void main() {
     // Later will replace with textures;
-    vec3 albedo_val = vec3(albedo);
-    vec3 normal_tangent_space = vec3(normal * 2.0f - 1.0f);
+    vec4 alb_met = texture(v_textures.albedo_metallic, v_tex_coord);
+    vec4 norm_rough = texture(v_textures.normal_roughness, v_tex_coord);
+    vec4 clouds_ao = texture(v_textures.clouds_ao, v_tex_coord);
+    vec3 albedo_val = alb_met.rgb;
+
+    vec3 normal_tangent_space = vec3(norm_rough.rgb * 2.0f - 1.0f);
     vec3 N = normalize(v_tbn * normal_tangent_space);
 
-    float metallic_val = metallic;
-    float roughness_val = roughness;
-    float ao_val = ao;
+    float metallic_val = alb_met.a;
+    float roughness_val = norm_rough.a;
+    float ao_val = clouds_ao.a;
 
     vec3 V = normalize(camera_pos - v_world_pos);
 
@@ -89,7 +90,7 @@ void main() {
         vec3 radiance = lights[i].color * attenuation;
 
         float NDF = distribution_ggx(N, H, roughness_val);
-        float G = geometry_smith(N, V, L, roughness);
+        float G = geometry_smith(N, V, L, roughness_val);
         vec3 F = fresnel_schlick(max(dot(H, V), 0.0f), f_0);
 
         vec3 numerator = NDF * G * F;
@@ -98,13 +99,13 @@ void main() {
 
         vec3 ks = F;
         vec3 kd = vec3(1.0f) - ks;
-        kd += 1.0f - metallic;
+        kd += 1.0f - metallic_val;
 
         float n_dot_l = max(dot(N, L), 0.0f);
         lo += (kd * albedo_val / PI + specular) * radiance * n_dot_l;
     }
 
-    // I'll add BG later I plan to just stick some hdr/mp4 there will galaxy
+    // I'll add BG later I plan to just stick some hdr/mp4 there with galaxy
     //    vec3 f_ibl = fresnel_shlick(max(dot(N, V), 0.0f), f_0);
     //    vec3 ks_ibl = f_ibl;
     //    vec3 kd_ibl = f_ibl;

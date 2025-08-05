@@ -61,10 +61,9 @@ private:
 
 public:
 	template<typename T, typename Y, typename U>
-	mesh(const T& vertices, const Y& indices, const U& tex_coords,
-		 bool normals_from_position = false)
+	mesh(const T& vertices, const Y& indices, bool normals_from_position = false)
 		: vao(new UI(0)), vbo(new UI(0)), ebo(new UI(0)) {
-		setup_object(vertices, indices, tex_coords, normals_from_position);
+		setup_object(vertices, indices, normals_from_position);
 	}
 	mesh(UI vertices_size, UI indices_size);
 

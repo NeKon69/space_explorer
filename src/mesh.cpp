@@ -11,8 +11,8 @@ void mesh::gen_opengl_data() const {
 }
 mesh::mesh(const raw::UI vertices_size, const raw::UI indices_size)
 	: vao(new UI(0)), vbo(new UI(0)), ebo(new UI(0)) {
-	std::vector<glm::vec3> vertices(vertices_size);
-	std::vector<UI>		   indices(indices_size);
+	std::vector<raw::vertex> vertices(vertices_size);
+	std::vector<UI>			 indices(indices_size);
 	setup_object(vertices, indices);
 }
 void mesh::bind() const {
