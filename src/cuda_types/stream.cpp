@@ -2,8 +2,8 @@
 // Created by progamers on 7/20/25.
 //
 #include "cuda_types/stream.h"
-
-#include "../../include/cuda_types/error.h"
+#include <raw_memory.h>
+#include "cuda_types/error.h"
 
 namespace raw {
     cuda_stream::cuda_stream() : created(make_shared<bool>(false)) {

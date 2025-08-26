@@ -6,7 +6,7 @@
 #define SPACE_EXPLORER_CUBE_H
 #include <glm/glm.hpp>
 
-#include "../unused/object.h"
+#include "../z_unused/object.h"
 
 namespace raw {
     namespace axis {

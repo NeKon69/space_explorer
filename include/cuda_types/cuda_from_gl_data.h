@@ -9,8 +9,8 @@
 #include "cuda_types/fwd.h"
 #include "common/fwd.h"
 
-namespace raw {
-// TODO: Make this thing inherit from base class "resource" and put it into "from_gl" folder
+namespace raw::cuda_types {
+	// TODO: Make this thing inherit from base class "resource" and put it into "from_gl" folder
 template<typename T>
 class cuda_from_gl_data {
 	// Meant to be used with ```new``` (or shared-ptr) and deleted when cleanup starts

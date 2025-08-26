@@ -5,9 +5,10 @@
 #ifndef SPACE_EXPLORER_RENDER_COMMAND_H
 #define SPACE_EXPLORER_RENDER_COMMAND_H
 #include <raw_memory.h>
+
+#include "../graphics/mesh.h"
 #include "rendering/fwd.h"
-#include "../common/mesh.h"
-#include "core/shader/shader.h"
+#include "rendering/shader/shader.h"
 
 namespace raw::rendering {
     struct instance_data {

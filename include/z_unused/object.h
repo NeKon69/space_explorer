@@ -14,9 +14,8 @@
 
 #include <glm/vec3.hpp>
 
-#include "../deleters/custom_deleters.h"
-#include "../cuda_types/error.h"
-#include "../core/camera/shader/shader.h"
+#include "deleters/custom_deleters.h"
+#include "rendering/shader/shader.h"
 
 namespace raw {
     namespace drawing_method {
@@ -49,9 +48,9 @@ namespace raw {
     private:
         // my own kiddie, it's ugly but i SOOO like it)))
         // look how clean it looks!!!
-        raw::unique_ptr<UI, deleter::gl_array> vao;
-        raw::unique_ptr<UI, deleter::gl_buffer> vbo;
-        raw::unique_ptr<UI, deleter::gl_buffer> ebo;
+        raw::unique_ptr<UI, deleters::gl_array> vao;
+        raw::unique_ptr<UI, deleters::gl_buffer> vbo;
+        raw::unique_ptr<UI, deleters::gl_buffer> ebo;
         size_t indices_size;
 
         void gen_opengl_data() const;

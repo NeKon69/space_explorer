@@ -4,7 +4,7 @@
 
 #ifndef SPACE_EXPLORER_SPHERE_H
 #define SPACE_EXPLORER_SPHERE_H
-#include "../unused/object.h"
+#include "../z_unused/object.h"
 #include "sphere_generation/mesh_generator.h"
 
 namespace raw {

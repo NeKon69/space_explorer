@@ -8,7 +8,8 @@
 #include <glm/glm.hpp>
 #include <unordered_map>
 
-#include "../../cuda_types/error.h"
+#include "common/fwd.h"
+#include "cuda_types/error.h"
 
 namespace raw {
     class shader {

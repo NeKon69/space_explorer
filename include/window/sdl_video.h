@@ -7,7 +7,7 @@
 
 #include "window/fwd.h"
 
-namespace raw {
+namespace raw::window {
     class sdl_video {
     public:
         sdl_video();
@@ -18,6 +18,6 @@ namespace raw {
 
         sdl_video &operator=(const sdl_video &) = delete;
     };
-} // namespace raw
+} // namespace raw::window
 
 #endif // SPACE_EXPLORER_SDL_VIDEO_H

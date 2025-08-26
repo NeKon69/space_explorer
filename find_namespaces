@@ -1,0 +1,102 @@
+#!/bin/bash
+
+# The directory to search within
+search_dir="include"
+
+# The final report file
+output_file="namespace_scope_report.txt"
+
+# This is the core logic, written as an AWK script.
+# It tracks brace levels to determine when a namespace scope ends.
+read -r -d '' awk_script <<'AWK_SCRIPT'
+BEGIN {
+    # Initialize variables before processing a file
+    brace_level = 0
+    stack_ptr = 0 # This will be our stack pointer
+    header_printed = 0 # Used to print the filename only if a namespace is found
+}
+
+# Rule 1: Match lines that declare a namespace
+# This is checked on every line before we count braces.
+/^\s*namespace\s+[a-zA-Z0-9_:]+/ {
+    # If this is the first namespace we've found in the file, print the file header.
+    if (header_printed == 0) {
+        print "File: " FILENAME
+        print "------------------------------------------"
+        header_printed = 1
+    }
+
+    # Extract the namespace name (it's the second field)
+    name = $2
+
+    # --- Push onto the stack ---
+    stack_ptr++
+    ns_name_stack[stack_ptr] = name
+    # Record the brace level at which this namespace was opened
+    ns_level_stack[stack_ptr] = brace_level
+
+    # Print the "Opened" event to the report
+    printf "  -> [Line %-4s] Opened: namespace %s\n", NR, name
+}
+
+# Rule 2: Process every single line to count braces
+{
+    # Loop through each character on the line to correctly handle multiple braces
+    for (i=1; i<=length($0); i++) {
+        char = substr($0, i, 1)
+        if (char == "{") {
+            brace_level++
+        } else if (char == "}") {
+            brace_level--
+            # --- Check the stack ---
+            # If the new brace level matches the level of the namespace on top
+            # of our stack, it means that namespace has just closed.
+            if (stack_ptr > 0 && brace_level == ns_level_stack[stack_ptr]) {
+                # Print the "Closed" event
+                printf "  <- [Line %-4s] Closed: namespace %s\n", NR, ns_name_stack[stack_ptr]
+                # Pop from the stack by decrementing the pointer
+                stack_ptr--
+            }
+        }
+    }
+}
+
+# Rule 3: This runs after the entire file has been processed
+END {
+    # If the report header was printed, add a final newline for spacing.
+    if (header_printed == 1) {
+        # Also, check if any namespaces were left unclosed (a sign of a syntax error)
+        if (stack_ptr > 0) {
+            print "  !! Warning: Reached end of file with unclosed namespaces:"
+            for (i=stack_ptr; i>=1; i--) {
+                printf "     - %s\n", ns_name_stack[i]
+            }
+        }
+        print "" # Add a blank line for readability between files
+    }
+}
+AWK_SCRIPT
+
+# --- Main Script Execution ---
+
+# Check if the 'include' directory exists
+if [ ! -d "$search_dir" ]; then
+  echo "Error: Directory '$search_dir' not found."
+  echo "Please run this script from your project's root directory."
+  exit 1
+fi
+
+# Clear the old report and write a new header
+echo "Namespace Scope Report" >"$output_file"
+echo "Generated on: $(date)" >>"$output_file"
+echo "==========================================" >>"$output_file"
+echo "" >>"$output_file"
+
+# Find all relevant files and pipe them to the awk script for processing
+find "$search_dir" -type f \( -name "*.h" -o -name "*.hpp" -o -name "*.cpp" \) -print0 | while IFS= read -r -d $'\0' file; do
+  # Execute the awk script for each file found, appending output to the report
+  awk -v FILENAME="$file" "$awk_script" "$file" >>"$output_file"
+done
+
+echo "Report generation complete."
+echo "Results saved to: $output_file"

@@ -8,7 +8,7 @@
 #include "core/fwd.h"
 #include "common/fwd.h"
 
-namespace raw {
+namespace raw::core {
     struct time {
         long double val;
         time_rate curr = time_rate::NANO;

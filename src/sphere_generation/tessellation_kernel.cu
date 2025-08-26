@@ -1,7 +1,7 @@
 //
 // Created by progamers on 7/18/25.
 //
-#include "../../include/common/vertex.h"
+#include "../../include/graphics/vertex.h"
 #include "sphere_generation/tessellation_kernel.h"
 #ifndef CUDART_PI_F
 #define CUDART_PI_F 3.141592654f

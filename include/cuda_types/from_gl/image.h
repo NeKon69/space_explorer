@@ -6,27 +6,27 @@
 #define SPACE_EXPLORER_IMAGE_H
 #include <cuda_gl_interop.h>
 
+#include "../error.h"
 #include "cuda_types/fwd.h"
 #include "cuda_types/resource.h"
-#include "../error.h"
 
-namespace raw::cuda::gl {
-    class image : raw::cuda::resource {
-    private:
-        cudaArray_t array;
+namespace raw::cuda_types::from_gl {
+	class image : raw::cuda_types::resource {
+	private:
+		cudaArray_t array;
 
-    public:
-        using raw::cuda::resource::resource;
+	public:
+		using raw::cuda_types::resource::resource;
 
-        // If used default constructor and didn't set the data manually you are screwed (let it be UB)
-        image() = default;
+		// If used default constructor and didn't set the data manually you are screwed (let it be UB)
+		image() = default;
 
-        image(raw::UI texture_id);
+		image(raw::UI texture_id);
 
-        void set_data(raw::UI texture_id);
+		void set_data(raw::UI texture_id);
 
-        cudaArray_t get();
-    };
-} // namespace raw::cuda::gl
+		cudaArray_t get();
+	};
+} // namespace raw::cuda_types::from_gl
 
 #endif // SPACE_EXPLORER_IMAGE_H

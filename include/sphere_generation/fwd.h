@@ -6,7 +6,7 @@
 #define SPACE_EXPLORER_SPHERE_GENERATION_FWD_H
 #include "common/fwd.h"
 
-namespace raw {
+namespace raw::sphere_generation {
     namespace predef {
         // Oh and btw, turns out, even after 4 steps our sphere gets nearly perfect (even on 2k monitor,
         // well maybe on 4k it would be nice to have 6, but 4 is pretty much enough)
@@ -23,5 +23,5 @@ namespace raw {
     } // namespace predef
 
     class icosahedron_generator;
-} // namespace raw
+} // namespace raw::sphere_generation
 #endif // SPACE_EXPLORER_SPHERE_GENERATION_FWD_H

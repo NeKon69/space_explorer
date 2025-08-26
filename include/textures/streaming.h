@@ -12,14 +12,14 @@
 #include "textures/lru_cache.h"
 #include "textures/manager.h"
 
-namespace raw::texture {
+namespace raw::textures {
     struct texture_slot {
         // am is simplified from albedo_metallic
-        raw::cuda::gl::image albedo_metallic;
-        raw::cuda::gl::image normal_rough_ao;
+        raw::cuda_types::from_gl::image albedo_metallic;
+        raw::cuda_types::from_gl::image normal_rough_ao;
 
-        raw::unique_ptr<unsigned int, raw::deleter::gl_texture> am_id;
-        raw::unique_ptr<unsigned int, raw::deleter::gl_texture> nrao_id;
+        raw::unique_ptr<unsigned int, raw::deleters::gl_texture> am_id;
+        raw::unique_ptr<unsigned int, raw::deleters::gl_texture> nrao_id;
         bool is_in_use = false;
         planet_id assigned_planet_id = 0;
 
@@ -58,9 +58,9 @@ namespace raw::texture {
         // And even if we want to recreate some textures we would need to either completely destroy
         // instance of an object Or create out own function member that can be called when we want to
         // recreate
-        raw::texture::lru_cache<planet_id, typename decltype(texture_pool)::iterator> gpu_cache;
-        raw::texture::lru_cache<planet_id, compressed_cpu_texture> cpu_cache;
-        raw::texture::manager mgr;
+        raw::textures::lru_cache<planet_id, typename decltype(texture_pool)::iterator> gpu_cache;
+        raw::textures::lru_cache<planet_id, data_type::compressed_cpu_texture> cpu_cache;
+        raw::textures::manager mgr;
 
         void create(uint32_t gpu_cache_size, uint32_t cpu_cache_size);
 

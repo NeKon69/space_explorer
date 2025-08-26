@@ -6,20 +6,21 @@
 #define SPACE_EXPLORER_CORE_FWD_H
 
 namespace raw::core {
-    class camera;
-    class game;
+class game;
 
-    namespace camera_move {
-        struct movement_state;
-    }
+namespace camera {
+    struct movement_state;
+    class camera;
+    class player_controller;
+} // namespace camera
 } // namespace raw::core
-namespace raw {
+
+namespace raw::core {
     class game_state;
-    class shader;
 
     enum class time_rate { NANO, MICRO, MILLI, ORD };
 
     struct time;
     class clock;
-} // namespace raw
+} // namespace raw::core
 #endif // SPACE_EXPLORER_CORE_FWD_H

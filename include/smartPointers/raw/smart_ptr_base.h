@@ -10,119 +10,125 @@
 #include "fwd.h"
 
 namespace raw {
-template<typename T>
-class smart_ptr_base {
-protected:
-	T* ptr = nullptr;
-	friend class unique_ptr<T>;
-	friend class shared_ptr<T>;
+    template<typename T>
+    class smart_ptr_base {
+    protected:
+        T *ptr = nullptr;
+        friend class unique_ptr<T>;
+        friend class shared_ptr<T>;
 
-public:
-	constexpr smart_ptr_base() = default;
-	explicit smart_ptr_base(std::nullptr_t) noexcept : ptr(nullptr) {}
+        static_assert(sizeof(T) != 0, "Provide full type or fuck yourself!");
 
-	explicit smart_ptr_base(T* p) noexcept {
-		ptr = p;
-	}
+    public:
+        constexpr smart_ptr_base() = default;
 
-	inline explicit operator bool() const noexcept {
-		return ptr != nullptr;
-	}
+        explicit smart_ptr_base(std::nullptr_t) noexcept : ptr(nullptr) {
+        }
 
-	inline T* get() const noexcept {
-		return ptr;
-	}
+        explicit smart_ptr_base(T *p) noexcept {
+            ptr = p;
+        }
 
-	inline T& operator*() const noexcept {
-		return *ptr;
-	}
+        inline explicit operator bool() const noexcept {
+            return ptr != nullptr;
+        }
 
-	inline T* operator->() const noexcept {
-		return ptr;
-	}
+        inline T *get() const noexcept {
+            return ptr;
+        }
 
-	inline bool operator==(const smart_ptr_base& other) const noexcept {
-		return ptr == other.ptr;
-	}
+        inline T &operator*() const noexcept {
+            return *ptr;
+        }
 
-	inline bool operator!=(const smart_ptr_base& other) const noexcept {
-		return ptr != other.ptr;
-	}
+        inline T *operator->() const noexcept {
+            return ptr;
+        }
 
-	inline bool operator>(const smart_ptr_base& other) const noexcept {
-		return ptr > other.ptr;
-	}
+        inline bool operator==(const smart_ptr_base &other) const noexcept {
+            return ptr == other.ptr;
+        }
 
-	inline bool operator<(const smart_ptr_base& other) const noexcept {
-		return ptr < other.ptr;
-	}
+        inline bool operator!=(const smart_ptr_base &other) const noexcept {
+            return ptr != other.ptr;
+        }
 
-	inline bool operator>=(const smart_ptr_base& other) const noexcept {
-		return ptr >= other.ptr;
-	}
+        inline bool operator>(const smart_ptr_base &other) const noexcept {
+            return ptr > other.ptr;
+        }
 
-	inline bool operator<=(const smart_ptr_base& other) const noexcept {
-		return ptr <= other.ptr;
-	}
+        inline bool operator<(const smart_ptr_base &other) const noexcept {
+            return ptr < other.ptr;
+        }
 
-	std::ostream& operator<<(std::ostream& os) const {
-		os << (ptr ? "Address=" + std::to_string(reinterpret_cast<uintptr_t>(ptr)) : "Null pointer")
-		   << ": " << (!ptr ? "null" : *ptr);
-		return os;
-	}
-};
+        inline bool operator>=(const smart_ptr_base &other) const noexcept {
+            return ptr >= other.ptr;
+        }
 
-template<typename T>
-class smart_ptr_base<T[]> {
-protected:
-	T* ptr = nullptr;
-	friend class unique_ptr<T[]>;
-	friend class shared_ptr<T[]>;
+        inline bool operator<=(const smart_ptr_base &other) const noexcept {
+            return ptr <= other.ptr;
+        }
 
-public:
-	constexpr smart_ptr_base() = default;
-	explicit smart_ptr_base(std::nullptr_t) noexcept : ptr(nullptr) {}
+        std::ostream &operator<<(std::ostream &os) const {
+            os << (ptr ? "Address=" + std::to_string(reinterpret_cast<uintptr_t>(ptr)) : "Null pointer")
+                    << ": " << (!ptr ? "null" : *ptr);
+            return os;
+        }
+    };
 
-	explicit smart_ptr_base(T* p) noexcept {
-		ptr = p;
-	}
+    template<typename T>
+    class smart_ptr_base<T[]> {
+    protected:
+        T *ptr = nullptr;
+        friend class unique_ptr<T[]>;
+        friend class shared_ptr<T[]>;
 
-	inline explicit operator bool() const noexcept {
-		return ptr != nullptr;
-	}
+    public:
+        constexpr smart_ptr_base() = default;
 
-	inline T* get() const noexcept {
-		return ptr;
-	}
+        explicit smart_ptr_base(std::nullptr_t) noexcept : ptr(nullptr) {
+        }
 
-	inline T& operator[](size_t index) const noexcept {
-		return ptr[index];
-	}
+        explicit smart_ptr_base(T *p) noexcept {
+            ptr = p;
+        }
 
-	inline bool operator==(const smart_ptr_base& other) const noexcept {
-		return ptr == other.ptr;
-	}
+        inline explicit operator bool() const noexcept {
+            return ptr != nullptr;
+        }
 
-	inline bool operator!=(const smart_ptr_base& other) const noexcept {
-		return ptr != other.ptr;
-	}
+        inline T *get() const noexcept {
+            return ptr;
+        }
 
-	inline bool operator>(const smart_ptr_base& other) const noexcept {
-		return ptr > other.ptr;
-	}
+        inline T &operator[](size_t index) const noexcept {
+            return ptr[index];
+        }
 
-	inline bool operator<(const smart_ptr_base& other) const noexcept {
-		return ptr < other.ptr;
-	}
+        inline bool operator==(const smart_ptr_base &other) const noexcept {
+            return ptr == other.ptr;
+        }
 
-	inline bool operator>=(const smart_ptr_base& other) const noexcept {
-		return ptr >= other.ptr;
-	}
+        inline bool operator!=(const smart_ptr_base &other) const noexcept {
+            return ptr != other.ptr;
+        }
 
-	inline bool operator<=(const smart_ptr_base& other) const noexcept {
-		return ptr <= other.ptr;
-	}
-};
+        inline bool operator>(const smart_ptr_base &other) const noexcept {
+            return ptr > other.ptr;
+        }
+
+        inline bool operator<(const smart_ptr_base &other) const noexcept {
+            return ptr < other.ptr;
+        }
+
+        inline bool operator>=(const smart_ptr_base &other) const noexcept {
+            return ptr >= other.ptr;
+        }
+
+        inline bool operator<=(const smart_ptr_base &other) const noexcept {
+            return ptr <= other.ptr;
+        }
+    };
 } // namespace raw
 
 #endif // SMARTPOINTERS_SMART_PTR_BASE_H

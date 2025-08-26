@@ -8,9 +8,9 @@
 
 #include "textures/fwd.h"
 
-namespace raw::texture {
-struct compressed_cpu_texture {
-	std::vector<unsigned char> texture_data;
-};
+namespace raw::textures::data_type {
+    struct compressed_cpu_texture {
+        std::vector<unsigned char> texture_data;
+    };
 } // namespace raw::texture
 #endif // SPACE_EXPLORER_COMPRESSED_CPU_TEXTURE_H

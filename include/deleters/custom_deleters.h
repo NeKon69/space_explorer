@@ -7,8 +7,8 @@
 #include <cuda_runtime.h>
 #include "common/fwd.h"
 
-namespace raw::deleter {
-struct gl_array {
+namespace raw::deleters {
+	struct gl_array {
 	explicit gl_array(UI const* data);
 };
 struct gl_buffer {

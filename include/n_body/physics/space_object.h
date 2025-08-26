@@ -13,12 +13,12 @@
 #include "launch_leapfrog.h"
 #include "n_body/n_body_predef.h"
 
-namespace raw {
-namespace predef {
-	static constexpr auto BASIC_VELOCITY = glm::vec3(0.0f, 0.0f, 0.0f);
-	static constexpr auto BASIC_ACCELERATION = glm::vec3(0.0f);
-	static constexpr auto PLANET_MASS = 1.0;
-	static constexpr auto RADIUS = 1.0;
+namespace raw::n_body::physics {
+	namespace predef {
+		static constexpr auto BASIC_VELOCITY = glm::vec3(0.0f, 0.0f, 0.0f);
+		static constexpr auto BASIC_ACCELERATION = glm::vec3(0.0f);
+		static constexpr auto PLANET_MASS = 1.0;
+		static constexpr auto RADIUS = 1.0;
 } // namespace predef
 
 template<typename T>
@@ -37,8 +37,7 @@ struct space_object_data {
 
 	explicit space_object_data(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
 	                           double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
-		: position(_position), velocity(_velocity), mass(_mass), radius(_radius) {
-	}
+		: position(_position), velocity(_velocity), mass(_mass), radius(_radius) {}
 };
 
 template<typename T>
@@ -58,18 +57,17 @@ public:
 
 	space_object &operator=(const space_object &object) = default;
 
-	space_object() : object_data(glm::vec<3, T>(1.0)) {
-	}
+	space_object() : object_data(glm::vec<3, T>(1.0)) {}
 
 	explicit space_object(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
 	                      double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
 		: object_data(_position, _velocity, _mass, _radius) {
 	}
 
-	static void update_position(space_object *data, glm::mat4 *data_model, time since_last_upd,
-	                            unsigned int count, const shared_ptr<cuda_stream> &stream) {
+	static void update_position(space_object *data, glm::mat4 *data_model, raw::core::time since_last_upd,
+	                            unsigned int count, const shared_ptr<cuda_types::cuda_stream> &stream) {
 		since_last_upd.to_milli();
-		launch_leapfrog<T>(data, data_model, since_last_upd.val, count, predef::G,
+		launch_leapfrog<T>(data, data_model, since_last_upd.val, count, n_body::predef::G,
 		                   stream->stream());
 	};
 };

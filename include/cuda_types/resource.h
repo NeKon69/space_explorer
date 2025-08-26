@@ -12,7 +12,7 @@
 #include "cuda_types/fwd.h"
 #include "cuda_types/stream.h"
 
-namespace raw::cuda {
+namespace raw::cuda_types {
     /**
  * @class resource
  * @brief Base class for CUDA data from opengl, takes in the constructor function to register the
@@ -23,7 +23,7 @@ namespace raw::cuda {
     private:
         cudaGraphicsResource_t m_resource = nullptr;
         bool mapped = false;
-        raw::shared_ptr<raw::cuda_stream> stream;
+        raw::shared_ptr<cuda_stream> stream;
 
     protected:
         // I heard somewhere that this down here is better than directly accessing the protected member

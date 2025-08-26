@@ -8,7 +8,6 @@
 #include <source_location>
 #include <stdexcept>
 
-namespace raw {
 #define CUDA_SAFE_CALL(call)                                                                            \
 	do {                                                                                                \
 		cudaError_t error = call;                                                                       \
@@ -21,6 +20,5 @@ namespace raw {
 				std::source_location::current().line()));                                               \
 		}                                                                                               \
 	} while (0)
-} // namespace raw
 
 #endif // SPACE_EXPLORER_ERROR_H

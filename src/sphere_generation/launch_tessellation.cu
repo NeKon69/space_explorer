@@ -1,7 +1,7 @@
 //
 // Created by progamers on 7/18/25.
 //
-#include "../../include/common/vertex.h"
+#include "../../include/graphics/vertex.h"
 #include "sphere_generation/kernel_launcher.h"
 #include "sphere_generation/tessellation_kernel.h"
 

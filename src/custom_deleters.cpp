@@ -5,7 +5,7 @@
 
 #include <glad/glad.h>
 
-namespace raw::deleter {
+namespace raw::deleters {
     gl_array::gl_array(const raw::UI *data) {
         glDeleteVertexArrays(1, data);
         delete data;

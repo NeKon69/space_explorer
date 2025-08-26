@@ -7,11 +7,11 @@
 
 namespace raw {
     void camera_move::DOWN(glm::vec3 &pos, glm::vec3, glm::vec3) {
-        pos.y -= predef::CAMERA_SPEED;
+        pos.y -= core::predef::CAMERA_SPEED;
     }
 
     void camera_move::UP(glm::vec3 &pos, glm::vec3, glm::vec3) {
-        pos.y += predef::CAMERA_SPEED;
+        pos.y += core::predef::CAMERA_SPEED;
     }
 
     void camera_move::LEFT(glm::vec3 &pos, glm::vec3 front, glm::vec3 up) {
