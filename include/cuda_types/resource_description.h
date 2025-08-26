@@ -11,7 +11,7 @@
 #include "cuda_types/fwd.h"
 
 namespace raw::cuda_types {
-	namespace resource_types {
+namespace resource_types {
 struct array {
 	cudaResourceType res_type = cudaResourceTypeArray;
 };
@@ -31,6 +31,6 @@ public:
 		description.res.array.array = array;
 	}
 };
-} // namespace raw::cuda_ty
+} // namespace raw::cuda_types
 
 #endif // SPACE_EXPLORER_RESOURCE_DESCRIPTION_H

@@ -5,12 +5,13 @@
 #ifndef SPACE_EXPLORER_CUDA_FROM_GL_DATA_H
 #define SPACE_EXPLORER_CUDA_FROM_GL_DATA_H
 #include <cuda_gl_interop.h>
+
+#include "common/fwd.h"
 #include "cuda_types/error.h"
 #include "cuda_types/fwd.h"
-#include "common/fwd.h"
 
 namespace raw::cuda_types {
-	// TODO: Make this thing inherit from base class "resource" and put it into "from_gl" folder
+// TODO: Make this thing inherit from base class "resource" and put it into "from_gl" folder
 template<typename T>
 class cuda_from_gl_data {
 	// Meant to be used with ```new``` (or shared-ptr) and deleted when cleanup starts
@@ -60,5 +61,5 @@ public:
 			cudaGraphicsUnregisterResource(cuda_resource);
 	}
 };
-} // namespace raw
+} // namespace raw::cuda_types
 #endif // SPACE_EXPLORER_CUDA_FROM_GL_DATA_H

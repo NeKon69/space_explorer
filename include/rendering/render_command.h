@@ -11,16 +11,16 @@
 #include "rendering/shader/shader.h"
 
 namespace raw::rendering {
-    struct instance_data {
-        UI vbo;
-        int count;
-    };
+struct instance_data {
+	UI	vbo;
+	int count;
+};
 
-    struct command {
-        raw::shared_ptr<raw::mesh> mesh;
-        raw::shared_ptr<raw::shader> shader;
-        std::optional<raw::rendering::instance_data> inst_data;
-    };
+struct command {
+	raw::shared_ptr<raw::mesh>					 mesh;
+	raw::shared_ptr<raw::shader>				 shader;
+	std::optional<raw::rendering::instance_data> inst_data;
+};
 } // namespace raw::rendering
 
 #endif // SPACE_EXPLORER_RENDER_COMMAND_H

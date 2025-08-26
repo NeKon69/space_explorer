@@ -13,6 +13,7 @@ class object_info {
 private:
 	raw::shared_ptr<raw::object> object;
 	glm::mat4					 transform = glm::mat4(1.0);
+
 public:
 	object_info() = default;
 	object_info(raw::shared_ptr<raw::object> obj);

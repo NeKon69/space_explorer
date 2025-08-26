@@ -15,7 +15,7 @@
 #include "n_body/physics/space_object.h"
 
 namespace raw::n_body {
-	// inline void print_mat_ptr(raw::unique_ptr<glm::mat4[]> gg) {
+// inline void print_mat_ptr(raw::unique_ptr<glm::mat4[]> gg) {
 // 	for (int i = 0; i < 4; ++i) {
 // 		std::cout << "\t\tBEGINNING OF MATRIX " << i;
 // 		std::cout << "\n\t\t";
@@ -56,22 +56,22 @@ class interaction_system {
 private:
 	raw::shared_ptr<cuda_types::cuda_stream> stream = raw::make_shared<cuda_types::cuda_stream>();
 	cuda_types::cuda_buffer<physics::space_object<T> > d_objects;
-	std::vector<physics::space_object<T> > c_objects;
-	size_t amount_of_bytes = 0;
-	raw::cuda_types::cuda_from_gl_data<glm::mat4> d_objects_model;
-	bool data_changed;
-	bool paused = false;
-	unsigned int number_of_sim = 0;
-	unsigned int num_of_obj = 0;
-	raw::core::clock clock;
-	raw::unique_ptr<raw::UI, deleters::gl_buffer> vbo;
+	std::vector<physics::space_object<T> >			   c_objects;
+	size_t											   amount_of_bytes = 0;
+	raw::cuda_types::cuda_from_gl_data<glm::mat4>	   d_objects_model;
+	bool											   data_changed;
+	bool											   paused		 = false;
+	unsigned int									   number_of_sim = 0;
+	unsigned int									   num_of_obj	 = 0;
+	raw::core::clock								   clock;
+	raw::unique_ptr<raw::UI, deleters::gl_buffer>	   vbo;
 	friend class physics::space_object<T>;
 
 	void update_data() {
 		if (data_changed) {
 			d_objects.allocate(c_objects.size() * sizeof(physics::space_object<T>));
 			d_objects.set_data(c_objects.data(),
-			                   c_objects.size() * sizeof(physics::space_object<T>));
+							   c_objects.size() * sizeof(physics::space_object<T>));
 		}
 		data_changed = false;
 	}
@@ -142,9 +142,9 @@ public:
 	}
 
 	interaction_system(const std::vector<physics::space_object<T> > &objects, UI vao,
-	                   UI number_of_attr = 2)
-	// We'll allocate only one bit, since it'll be reallocated later anyway (but we do that so
-	// we can have the same stream for all data)
+					   UI number_of_attr = 2)
+		// We'll allocate only one bit, since it'll be reallocated later anyway (but we do that so
+		// we can have the same stream for all data)
 		: d_objects(sizeof(physics::space_object<T>), stream, true),
 		  c_objects(objects),
 
@@ -238,12 +238,11 @@ namespace predef {
 inline auto generate_data_for_sim() {
 	std::initializer_list<physics::space_object<float> > gg = {
 		physics::space_object<float>(glm::vec3(0.0f, 0.f, 0.f), physics::predef::BASIC_VELOCITY, 2,
-		                             sqrt(2)),
+									 sqrt(2)),
 		physics::space_object<float>(glm::vec3(25.f)),
 		physics::space_object<float>(glm::vec3(-10.f)),
 		physics::space_object<float>(glm::vec3(10, -10, 20), physics::predef::BASIC_VELOCITY, 4,
-		                             sqrt(0.25))
-	};
+									 sqrt(0.25))};
 	std::vector<physics::space_object<float> > ggg(gg.begin(), gg.end());
 	return ggg;
 }

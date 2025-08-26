@@ -18,168 +18,168 @@
 #include "rendering/shader/shader.h"
 
 namespace raw {
-    namespace drawing_method {
-        void basic(UI *vao, UI indices_size);
+namespace drawing_method {
+void basic(UI *vao, UI indices_size);
 
-        void lines(UI *vao, UI indices_size);
+void lines(UI *vao, UI indices_size);
 
-        void points(UI *vao, UI indices_size);
+void points(UI *vao, UI indices_size);
 
-        void transparent_alpha(UI *vao, UI indices_size);
+void transparent_alpha(UI *vao, UI indices_size);
 
-        void always_visible(UI *vao, UI indices_size);
+void always_visible(UI *vao, UI indices_size);
 
-        void backface_cull(UI *vao, UI indices_size);
+void backface_cull(UI *vao, UI indices_size);
 
-        void polygon_offset_fill(UI *vao, UI indices_size);
+void polygon_offset_fill(UI *vao, UI indices_size);
 
-        void stencil_mask_equal_1(UI *vao, UI indices_size);
+void stencil_mask_equal_1(UI *vao, UI indices_size);
 
-        void depth_write_disabled(UI *vao, UI indices_size);
+void depth_write_disabled(UI *vao, UI indices_size);
 
-        void color_mask_red_only(UI *vao, UI indices_size);
+void color_mask_red_only(UI *vao, UI indices_size);
 
-        void blend_additive(UI *vao, UI indices_size);
+void blend_additive(UI *vao, UI indices_size);
 
-        inline static constexpr auto &drawing_method = basic;
-    } // namespace drawing_method
+inline static constexpr auto &drawing_method = basic;
+} // namespace drawing_method
 
-    class object {
-    private:
-        // my own kiddie, it's ugly but i SOOO like it)))
-        // look how clean it looks!!!
-        raw::unique_ptr<UI, deleters::gl_array> vao;
-        raw::unique_ptr<UI, deleters::gl_buffer> vbo;
-        raw::unique_ptr<UI, deleters::gl_buffer> ebo;
-        size_t indices_size;
+class object {
+private:
+	// my own kiddie, it's ugly but i SOOO like it)))
+	// look how clean it looks!!!
+	raw::unique_ptr<UI, deleters::gl_array>	 vao;
+	raw::unique_ptr<UI, deleters::gl_buffer> vbo;
+	raw::unique_ptr<UI, deleters::gl_buffer> ebo;
+	size_t									 indices_size;
 
-        void gen_opengl_data() const;
+	void gen_opengl_data() const;
 
-    protected:
-        glm::mat4 transformation = glm::mat4(1.0f);
-        raw::shared_ptr<raw::shader> shader;
+protected:
+	glm::mat4					 transformation = glm::mat4(1.0f);
+	raw::shared_ptr<raw::shader> shader;
 
-    public:
-        object(object &&) noexcept;
+public:
+	object(object &&) noexcept;
 
-        object &operator=(object &&) noexcept;
+	object &operator=(object &&) noexcept;
 
-        void rotate(float degree, const glm::vec3 &axis);
+	void rotate(float degree, const glm::vec3 &axis);
 
-        void move(const glm::vec3 &vec);
+	void move(const glm::vec3 &vec);
 
-        void scale(const glm::vec3 &factor);
+	void scale(const glm::vec3 &factor);
 
-        void rotate_around(const float degree, const glm::vec3 &axis,
-                           const glm::vec3 &distance_to_object);
+	void rotate_around(const float degree, const glm::vec3 &axis,
+					   const glm::vec3 &distance_to_object);
 
-        glm::mat4 get_mat() const {
-            return transformation;
-        }
+	glm::mat4 get_mat() const {
+		return transformation;
+	}
 
-        void reset();
+	void reset();
 
-        [[nodiscard]] UI get_vbo() const {
-            return *vbo;
-        }
+	[[nodiscard]] UI get_vbo() const {
+		return *vbo;
+	}
 
-        [[nodiscard]] UI get_ebo() const {
-            return *ebo;
-        }
+	[[nodiscard]] UI get_ebo() const {
+		return *ebo;
+	}
 
-        void set_shader(const raw::shared_ptr<raw::shader> &sh);
+	void set_shader(const raw::shared_ptr<raw::shader> &sh);
 
-        /**
+	/**
 	 * \brief
 	 * draw the object
 	 * \param reset should matrix reset? defaults to true
 	 */
-        void draw(decltype(drawing_method::drawing_method) drawing_method = drawing_method::basic,
-                  bool reset = true);
+	void draw(decltype(drawing_method::drawing_method) drawing_method = drawing_method::basic,
+			  bool									   reset		  = true);
 
-        template<typename T, typename Y>
-            requires std::ranges::range<T> && std::ranges::range<Y>
-        object(const T &vertices, const Y &indices)
-            : vao(new UI(0)), vbo(new UI(0)), ebo(new UI(0)), indices_size(0) {
-            setup_object(vertices, indices);
-        }
+	template<typename T, typename Y>
+		requires std::ranges::range<T> && std::ranges::range<Y>
+	object(const T &vertices, const Y &indices)
+		: vao(new UI(0)), vbo(new UI(0)), ebo(new UI(0)), indices_size(0) {
+		setup_object(vertices, indices);
+	}
 
-        template<typename T, typename Y>
-            requires std::ranges::range<T> && std::ranges::range<Y>
-        object(const T &vertices, const size_t amount_of_vertices, const Y &indices,
-               const size_t amount_of_indices)
-            : vao(new UI(0)), vbo(new UI(0)), ebo(new UI(0)), indices_size(amount_of_indices) {
-            setup_object(vertices, amount_of_vertices, indices, amount_of_indices);
-        }
+	template<typename T, typename Y>
+		requires std::ranges::range<T> && std::ranges::range<Y>
+	object(const T &vertices, const size_t amount_of_vertices, const Y &indices,
+		   const size_t amount_of_indices)
+		: vao(new UI(0)), vbo(new UI(0)), ebo(new UI(0)), indices_size(amount_of_indices) {
+		setup_object(vertices, amount_of_vertices, indices, amount_of_indices);
+	}
 
-        object() = default;
+	object() = default;
 
-        /**
+	/**
 	 * \brief
 	 * that function can only be called via std/classes that have `begin` method (for example, you
 	 * can use it with vector, but can't with c-style arrays)
 	 */
 
-        template<typename T, typename Y>
-            requires std::ranges::range<T> && std::ranges::range<Y>
-        void setup_object(const T &vertices, const Y &indices) {
-            // still require some manual setup
-            indices_size = indices.size();
-            gen_opengl_data();
+	template<typename T, typename Y>
+		requires std::ranges::range<T> && std::ranges::range<Y>
+	void setup_object(const T &vertices, const Y &indices) {
+		// still require some manual setup
+		indices_size = indices.size();
+		gen_opengl_data();
 
-            glBindVertexArray(*vao);
-            glBindBuffer(GL_ARRAY_BUFFER, *vbo);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), std::data(vertices),
-                         GL_STATIC_DRAW);
+		glBindVertexArray(*vao);
+		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), std::data(vertices),
+					 GL_STATIC_DRAW);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ebo);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(),
-                         std::data(indices), GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(),
+					 std::data(indices), GL_STATIC_DRAW);
 
-            // positions and normals
-            constexpr GLsizei stride = 6 * sizeof(float);
-            // position attribute
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
-            glEnableVertexAttribArray(0);
-            // normal attribute
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void *) (3 * sizeof(float)));
-            glEnableVertexAttribArray(1);
+		// positions and normals
+		constexpr GLsizei stride = 6 * sizeof(float);
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+		glEnableVertexAttribArray(0);
+		// normal attribute
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void *)(3 * sizeof(float)));
+		glEnableVertexAttribArray(1);
 
-            glBindVertexArray(0);
-        }
+		glBindVertexArray(0);
+	}
 
-        template<typename T, typename Y>
-            requires std::ranges::range<T> && std::ranges::range<Y>
+	template<typename T, typename Y>
+		requires std::ranges::range<T> && std::ranges::range<Y>
 
-        void setup_object(const T &vertices, const size_t amount_of_vertices, const Y &indices,
-                          const size_t amount_of_indices) {
-            gen_opengl_data();
+	void setup_object(const T &vertices, const size_t amount_of_vertices, const Y &indices,
+					  const size_t amount_of_indices) {
+		gen_opengl_data();
 
-            glBindVertexArray(*vao);
-            glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+		glBindVertexArray(*vao);
+		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
 
-            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * amount_of_vertices, std::data(vertices),
-                         GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * amount_of_vertices, std::data(vertices),
+					 GL_STATIC_DRAW);
 
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *ebo);
 
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * amount_of_indices,
-                         std::data(indices), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * amount_of_indices,
+					 std::data(indices), GL_STATIC_DRAW);
 
-            // here we accept only the position in the space
-            constexpr GLsizei stride = 3 * sizeof(float);
-            // position attribute
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
-            glEnableVertexAttribArray(0);
+		// here we accept only the position in the space
+		constexpr GLsizei stride = 3 * sizeof(float);
+		// position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+		glEnableVertexAttribArray(0);
 
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
-            glEnableVertexAttribArray(1);
-            glBindVertexArray(0);
-        }
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, nullptr);
+		glEnableVertexAttribArray(1);
+		glBindVertexArray(0);
+	}
 
-    protected:
-        void __draw() const;
-    };
+protected:
+	void __draw() const;
+};
 } // namespace raw
 
 #endif // SPACE_EXPLORER_OBJECT_H

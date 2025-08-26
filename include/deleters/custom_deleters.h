@@ -5,10 +5,11 @@
 #ifndef SPACE_EXPLORER_CUSTOM_DELETERS_H
 #define SPACE_EXPLORER_CUSTOM_DELETERS_H
 #include <cuda_runtime.h>
+
 #include "common/fwd.h"
 
 namespace raw::deleters {
-	struct gl_array {
+struct gl_array {
 	explicit gl_array(UI const* data);
 };
 struct gl_buffer {
@@ -26,6 +27,6 @@ struct cuda_gl_data {
 		delete data;
 	}
 };
-} // namespace raw::deleter
+} // namespace raw::deleters
 
 #endif // SPACE_EXPLORER_CUSTOM_DELETERS_H

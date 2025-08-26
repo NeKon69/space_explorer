@@ -7,9 +7,9 @@
 #include <vector>
 
 namespace raw::rendering {
-    struct instance_data;
-    struct command;
-    using queue = std::vector<raw::rendering::command>;
-    class renderer;
+struct instance_data;
+struct command;
+using queue = std::vector<raw::rendering::command>;
+class renderer;
 } // namespace raw::rendering
 #endif // SPACE_EXPLORER_RENDERING_FWD_H

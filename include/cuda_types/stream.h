@@ -4,10 +4,11 @@
 
 #ifndef SPACE_EXPLORER_STREAM_H
 #define SPACE_EXPLORER_STREAM_H
-#include "cuda_types/fwd.h"
 #include <cuda_runtime.h>
+
+#include "cuda_types/fwd.h"
 namespace raw::cuda_types {
-	class cuda_stream {
+class cuda_stream {
 private:
 	cudaStream_t _stream = nullptr;
 	// Yea yea, it's used to not delete same stream twice. I could've made "cuda_stream" object only
@@ -26,6 +27,6 @@ public:
 	cudaStream_t stream();
 	~cuda_stream();
 };
-} // namespace raw
+} // namespace raw::cuda_types
 
 #endif // SPACE_EXPLORER_STREAM_H

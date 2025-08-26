@@ -9,9 +9,9 @@
 #include "n_body/fwd.h"
 
 namespace raw::n_body::physics {
-	template<typename T>
-	void launch_leapfrog(space_object<T> *objects, glm::mat4 *objects_model, T time, uint16_t count,
-	                     double g, cudaStream_t stream);
-} // namespace raw
+template<typename T>
+void launch_leapfrog(space_object<T> *objects, glm::mat4 *objects_model, T time, uint16_t count,
+					 double g, cudaStream_t stream);
+} // namespace raw::n_body::physics
 
 #endif // SPACE_EXPLORER_LAUNCH_LEAPFROG_H
