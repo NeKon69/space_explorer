@@ -2,18 +2,17 @@
 // Created by progamers on 6/27/25.
 //
 
-#include <glm/glm.hpp>
-
-#include "helper_macros.h"
-
 #ifndef SPACE_EXPLORER_CAMERA_H
 #define SPACE_EXPLORER_CAMERA_H
 
-namespace raw {
+#include <glm/glm.hpp>
 
-namespace predef {
-PASSIVE_VALUE CAMERA_POS	   = glm::vec3(0.0f, 0.0f, 5.0f);
-PASSIVE_VALUE CAMERA_FRONT	   = glm::vec3(0.0f, 0.0f, -1.0f);
+#include "helper/helper_macros.h"
+
+namespace raw::core {
+	namespace predef {
+		PASSIVE_VALUE CAMERA_POS = glm::vec3(0.0f, 0.0f, 5.0f);
+		PASSIVE_VALUE CAMERA_FRONT	   = glm::vec3(0.0f, 0.0f, -1.0f);
 PASSIVE_VALUE CAMERA_UP		   = glm::vec3(0.0f, 1.0f, 0.0f);
 PASSIVE_VALUE SENSITIVITY	   = 0.1f;
 PASSIVE_VALUE CAMERA_SPEED	   = 0.05f;
@@ -96,7 +95,7 @@ public:
 		func(camera_pos, camera_front, camera_up);
 	}
 
-    void move(const glm::vec3& offset);
+	void move(const glm::vec3 &offset);
 
 	template<typename... Func>
 	void adjust_fov(float delta, Func&&... update_shader_uniforms) {
@@ -107,7 +106,7 @@ public:
 		if (fov > 180.0f) {
 			fov = 180.0f;
 		}
-        std::cout << "[Debug] New FOV value: " << fov << "\n";
+		std::cout << "[Debug] New FOV value: " << fov << "\n";
 	}
 
 	[[nodiscard]] inline glm::vec3 pos() const {
@@ -120,14 +119,13 @@ public:
 		return camera_up;
 	}
 	[[nodiscard]] inline glm::vec3 right() const {
-        return glm::cross(camera_front, camera_up);
-    }
+		return glm::cross(camera_front, camera_up);
+	}
 
 	void inline set_window_resolution(int x, int y) {
 		window_aspect_ratio = static_cast<float>(x) / static_cast<float>(y);
 	}
 };
-
-} // namespace raw
+} // namespace raw::core
 
 #endif // SPACE_EXPLORER_CAMERA_H

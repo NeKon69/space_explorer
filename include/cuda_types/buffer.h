@@ -8,12 +8,16 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#include "helper_macros.h"
-#include "stream.h"
+#include "cuda_types/stream.h"
+#include "helper/helper_macros.h"
+#include "cuda_types/fwd.h"
+
 namespace raw {
-enum class cudaMemcpyOrder { cudaMemcpy1to2, cudaMemcpy2to1 };
-template<typename T>
-class cuda_buffer {
+	// This motherfucker right here, yes, this one, he is the fucking ugliest part of my code, it
+	// sucks, it's ugly, and also... IDK
+	// I need to think of some better design for that shit
+	template<typename T>
+	class cuda_buffer {
 private:
 	// Boom! Genius use of streams
 	size_t						 _size = 0;
@@ -27,15 +31,19 @@ private:
 
 public:
 	cuda_buffer() = default;
-	static cuda_buffer create(size_t size) {
+
+	static cuda_buffer create(const size_t size) {
 		// so there'll be only one stream for all buffers. nice!
 		static raw::shared_ptr<cuda_stream> _stream = raw::make_shared<cuda_stream>();
 		return cuda_buffer<T>(size, _stream);
 	}
-	explicit cuda_buffer(size_t size) : _size(size), data_stream(raw::make_shared<cuda_stream>()) {
+
+	explicit cuda_buffer(const size_t size)
+		: _size(size), data_stream(raw::make_shared<cuda_stream>()) {
 		CUDA_SAFE_CALL(cudaMallocAsync((void**)&ptr, _size, data_stream->stream()));
 	}
-	cuda_buffer(size_t size, raw::shared_ptr<cuda_stream> stream, bool manual = false)
+
+	cuda_buffer(const size_t size, raw::shared_ptr<cuda_stream> stream, const bool manual = false)
 		: _size(size), data_stream(std::move(stream)) {
 		CUDA_SAFE_CALL(cudaMallocAsync((void**)&ptr, _size, data_stream->stream()));
 		manual_stream = manual;
@@ -56,9 +64,7 @@ public:
 	cuda_buffer(cuda_buffer&& rhs) noexcept
 		: ptr(rhs.ptr), _size(rhs._size), data_stream(std::move(rhs.data_stream)) {}
 	cuda_buffer& operator=(cuda_buffer&& rhs) noexcept {
-		if (ptr) {
-			CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
-		}
+		free();
 		ptr				= rhs.ptr;
 		_size			= rhs._size;
 		data_stream		= std::move(rhs.data_stream);
@@ -68,22 +74,15 @@ public:
 		return *this;
 	}
 	~cuda_buffer() {
-		if (ptr) {
-			CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
-		}
+		free();
 		ptr			= nullptr;
-		_size		= 0;
 		data_stream = nullptr;
 	}
 	T* get() const {
-		if (!manual_stream)
-			data_stream->sync();
 		return ptr;
 	}
 	void allocate(size_t size) {
-		if (ptr) {
-			CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
-		}
+		free();
 		CUDA_SAFE_CALL(cudaMallocAsync(&ptr, size, data_stream->stream()));
 		_size = size;
 	}
@@ -102,9 +101,10 @@ public:
 		}
 	}
 	void free() {
-		CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
-		ptr	  = nullptr;
-		_size = 0;
+		if (_size != 0) {
+			CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
+			_size = 0;
+		}
 	}
 	explicit operator bool() const {
 		return ptr != nullptr;

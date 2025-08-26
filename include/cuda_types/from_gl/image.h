@@ -6,14 +6,17 @@
 #define SPACE_EXPLORER_IMAGE_H
 #include <cuda_gl_interop.h>
 
+#include "cuda_types/fwd.h"
 #include "cuda_types/resource.h"
+#include "helper/helper_macros.h"
+
 namespace raw::cuda::gl {
 class image : raw::cuda::resource {
 private:
 	cudaArray_t array;
-
 public:
-	using raw::cuda::resource;
+	using raw::cuda::resource::resource;
+
 	// If used default constructor and didn't set the data manually you are screwed (let it be UB)
 	image() = default;
 	image(raw::UI texture_id);

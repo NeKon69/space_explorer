@@ -15,12 +15,11 @@ find_package(glad REQUIRED CONFIG)
 find_package(Freetype REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
-# I so unbelievably dont care, I dont wanna add each file my own, vim sucks for that
+#I so unbelievably dont care, I dont wanna add each file my own, vim sucks for that
 file(GLOB_RECURSE CPP_SOURCES src/*.cpp)
 file(GLOB_RECURSE CUDA_SOURCES src/*.cu)
 
 add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${CUDA_SOURCES})
-
 target_include_directories(${PROJECT_NAME} PRIVATE include include/smartPointers)
 
 target_compile_options(${PROJECT_NAME} PRIVATE

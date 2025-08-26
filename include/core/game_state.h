@@ -5,7 +5,7 @@
 #ifndef SPACE_EXPLORER_GAME_STATE_H
 #define SPACE_EXPLORER_GAME_STATE_H
 
-#include "clock.h"
+#include "helper/fwd.h"
 
 namespace raw {
 namespace rendering {

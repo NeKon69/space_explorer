@@ -1,7 +1,7 @@
 //
 // Created by progamers on 7/24/25.
 //
-#include "player_controller.h"
+#include "../include/core/camera/player_controller.h"
 
 namespace raw {
 player_controller::player_controller(raw::camera &cam) : camera(cam), velocity(1.0f) {}

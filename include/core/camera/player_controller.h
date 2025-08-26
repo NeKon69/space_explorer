@@ -6,8 +6,9 @@
 #define SPACE_EXPLORER_PLAYER_CONTROLLER_H
 #include <glm/glm.hpp>
 
-#include "camera.h"
-#include "movement_state.h"
+#include "core/fwd.h"
+#include "helper/helper_macros.h"
+
 namespace raw {
 
 namespace predef {
@@ -18,12 +19,13 @@ PASSIVE_VALUE FRICTION	   = 30.0f;
 
 class player_controller {
 private:
-	raw::camera& camera;
+	raw::core::camera &camera;
 	glm::vec3	 velocity;
 
 public:
-	explicit player_controller(raw::camera& cam);
-    void update(const raw::movement_state& state, float delta_time);
+	explicit player_controller(raw::core::camera &cam);
+
+	void update(const raw::core::camera_move::movement_state &state, float delta_time);
 };
 } // namespace raw
 #endif // SPACE_EXPLORER_PLAYER_CONTROLLER_H

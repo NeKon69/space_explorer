@@ -4,10 +4,9 @@
 
 #ifndef SPACE_EXPLORER_SURFACE_H
 #define SPACE_EXPLORER_SURFACE_H
-#include <cuda_runtime.h>
-
-#include "cuda_types/resource_description.h"
-#include "helper_macros.h"
+#include "cuda_types/fwd.h"
+#include "helper/helper_macros.h"
+#include <cuda_gl_interop.h>
 
 namespace raw::cuda {
 template<typename T>
@@ -17,7 +16,7 @@ private:
 	bool				created		   = false;
 
 public:
-	surface(resource_description<T>& description) {
+	explicit surface(resource_description<T> &description) {
 		create(description);
 	}
 	void create(resource_description<T>& description) {

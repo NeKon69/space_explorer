@@ -5,22 +5,17 @@
 #ifndef SPACE_EXPLORER_SHADER_H
 #define SPACE_EXPLORER_SHADER_H
 
-#include <glad/glad.h>
-
-#include <fstream>
 #include <glm/glm.hpp>
-#include <iostream>
-#include <sstream>
-#include <string>
 #include <unordered_map>
-#include <vector>
 
-#include "helper_macros.h"
+#include "helper/helper_macros.h"
+
 namespace raw {
 class shader {
 private:
 	std::unordered_map<std::string, UI> cached_locations;
 	unsigned int						id;
+
 public:
 	shader() = delete;
 	shader(const char* vertex_path, const char* fragment_path);

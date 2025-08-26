@@ -2,30 +2,23 @@
 // Created by progamers on 6/19/25.
 //
 
-#include <chrono>
-#include <cmath>
-#include <iostream>
-#include <utility>
-
-#include "helper_macros.h"
-
 #ifndef SPACE_EXPLORER_CLOCK_H
 #define SPACE_EXPLORER_CLOCK_H
+#include <cmath>
+#include "helper/fwd.h"
+#include "helper_macros.h"
 
 namespace raw {
-
-enum class time_rate { NANO, MICRO, MILLI, ORD };
-
-struct time {
-	long double val;
-	time_rate	curr = time_rate::NANO;
+	struct time {
+		long double val;
+		time_rate	curr = time_rate::NANO;
 	explicit constexpr time(long double value) : val(value) {};
 
 	inline void handle_conversion(time_rate target) {
 		// obtain how much to multiply in 1000^x where x is difference between types (nano, micro,
 		// etc...)
-        // I use this structure for cuda kernels, so can't use std::to_underlying
-		val	 = val / std::pow(1000, int(target) - int(curr));
+		// I use this structure for cuda kernels, so can't use std::to_underlying
+		val = val / std::pow(1000, static_cast<int>(target) - static_cast<int>(curr));
 		curr = target;
 	}
 

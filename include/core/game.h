@@ -7,13 +7,13 @@
 
 #include <stack>
 
-#include "game_state.h"
+#include "core/fwd.h"
 #include "rendering/renderer.h"
 
-namespace raw {
-class game {
-private:
-	raw::rendering::renderer					 renderer;
+namespace raw::core {
+	class game {
+	private:
+		raw::rendering::renderer					 renderer;
 	std::stack<std::unique_ptr<raw::game_state>> states;
 	bool										 is_running = true;
 

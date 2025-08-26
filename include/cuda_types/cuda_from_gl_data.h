@@ -4,25 +4,25 @@
 
 #ifndef SPACE_EXPLORER_CUDA_FROM_GL_DATA_H
 #define SPACE_EXPLORER_CUDA_FROM_GL_DATA_H
-
 #include <cuda_gl_interop.h>
-#include <helper_macros.h>
+#include <helper/helper_macros.h>
 
-#include <format>
-#include <source_location>
-
-#include "custom_deleters.h"
+#include "cuda_types/fwd.h"
 
 namespace raw {
+// TODO: Make this thing inherit from base class "resource" and put it into "from_gl" folder
 template<typename T>
 class cuda_from_gl_data {
 	// Meant to be used with ```new``` (or shared-ptr) and deleted when cleanup starts
 
-public:
+private:
 	cudaGraphicsResource_t cuda_resource = nullptr;
 	T*					   data			 = nullptr;
 	bool				   mapped		 = false;
-	cuda_from_gl_data()					 = default;
+
+public:
+	cuda_from_gl_data() = default;
+
 	cuda_from_gl_data(size_t* amount_of_bytes, UI buffer_object) {
 		CUDA_SAFE_CALL(cudaGraphicsGLRegisterBuffer(&cuda_resource, buffer_object,
 													cudaGraphicsRegisterFlagsWriteDiscard));

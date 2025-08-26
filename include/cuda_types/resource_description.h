@@ -8,6 +8,8 @@
 
 #include <cstring>
 
+#include "cuda_types/fwd.h"
+
 namespace raw::cuda {
 namespace resource_types {
 struct array {

@@ -6,18 +6,18 @@
 #define SPACE_EXPLORER_PLAYING_STATE_H
 
 #include <glm/glm.hpp>
-
-#include "camera.h"
-#include "event_handler.h"
-#include "game_state.h"
-#include "input_manager.h"
-#include "movement_state.h"
-#include "n_body/interaction_system.h"
+#include "game_states/fwd.h"
+#include "../core/camera/camera.h"
+#include "unused/event_handler.h"
+#include "core/game_state.h"
+#include "unused/input_manager.h"
+#include "../core/camera/movement_state.h"
+#include "n_body/fwd.h"
 #include "objects/cube.h"
-#include "player_controller.h"
+#include "../core/camera/player_controller.h"
 #include "rendering/render_command.h"
 #include "rendering/renderer.h"
-#include "simulation_state.h"
+#include "../n_body/simulation_state.h"
 #include "sphere_generation/mesh_generator.h"
 namespace raw {
 class playing_state : public game_state {

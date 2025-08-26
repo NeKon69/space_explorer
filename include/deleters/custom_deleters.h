@@ -4,7 +4,9 @@
 
 #ifndef SPACE_EXPLORER_CUSTOM_DELETERS_H
 #define SPACE_EXPLORER_CUSTOM_DELETERS_H
-#include "helper_macros.h"
+#include "helper/helper_macros.h"
+#include <cuda_runtime.h>
+
 namespace raw::deleter {
 struct gl_array {
 	explicit gl_array(UI const* data);

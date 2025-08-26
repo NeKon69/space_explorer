@@ -1,7 +1,7 @@
 //
 // Created by progamers on 6/4/25.
 //
-#include "shader.h"
+#include "../include/core//shader/shader.h"
 
 namespace raw {
 shader::shader(const char* vertex_path, const char* fragment_path) : id(0) {

@@ -4,8 +4,8 @@
 
 #ifndef SPACE_EXPLORER_STREAM_H
 #define SPACE_EXPLORER_STREAM_H
+#include "cuda_types/fwd.h"
 #include <cuda_runtime.h>
-#include <raw_memory.h>
 namespace raw {
 class cuda_stream {
 private:

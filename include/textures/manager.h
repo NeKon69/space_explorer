@@ -4,7 +4,6 @@
 
 #ifndef SPACE_EXPLORER_MANAGER_H
 #define SPACE_EXPLORER_MANAGER_H
-#include "helper_macros.h"
 #include "textures/fwd.h"
 namespace raw::texture {
 // For now, it's just an abstraction from getting seed for the planet to generate, but maybe later

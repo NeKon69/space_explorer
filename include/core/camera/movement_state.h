@@ -4,10 +4,10 @@
 
 #ifndef SPACE_EXPLORER_MOVEMENT_STATE_H
 #define SPACE_EXPLORER_MOVEMENT_STATE_H
-namespace raw {
-struct movement_state {
-	bool forward  = false;
-	bool backward = false;
+namespace raw::core::camera_move {
+	struct movement_state {
+		bool forward = false;
+		bool backward = false;
 	bool left	  = false;
 	bool right	  = false;
 	bool up		  = false;

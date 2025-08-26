@@ -4,8 +4,6 @@
 
 #ifndef SPACE_EXPLORER_HELPER_MACROS_H
 #define SPACE_EXPLORER_HELPER_MACROS_H
-#include <cuda_runtime.h>
-
 #include <chrono>
 #include <exception>
 #include <format>

@@ -7,9 +7,10 @@
 #include <glad/glad.h>
 #include <raw_memory.h>
 
-#include "custom_deleters.h"
+#include "deleters/custom_deleters.h"
 #include "rendering/vertex.h"
-#include "shader.h"
+#include "../core/camera/shader/shader.h"
+
 namespace raw {
 
 class mesh {

@@ -1,37 +1,39 @@
 //
 // Created by progamers on 7/24/25.
 //
-#include "game.h"
+#include "core/game.h"
 
 #include "game_states/playing_state.h"
+
 namespace raw {
-game::game(const std::string& name) : renderer(name) {
-	states.emplace(std::make_unique<playing_state>(renderer->get_window_size()));
-}
-void game::run() {
-	raw::clock clock;
-	while (is_running) {
-		auto delta_time = clock.restart();
-        delta_time.to_milli();
-		if (states.empty()) {
-			is_running = false;
-			continue;
-		}
+    game::game(const std::string &name) : renderer(name) {
+        states.emplace(std::make_unique<playing_state>(renderer->get_window_size()));
+    }
 
-		// returned true, means we gotta pop it from the stack
-		if (states.top()->handle_input()) {
-			pop_state();
-			if (states.empty()) {
-				is_running = false;
-				continue;
-			}
-		}
-		states.top()->update(delta_time);
-		states.top()->draw(renderer);
-	}
-}
+    void game::run() {
+        raw::clock clock;
+        while (is_running) {
+            auto delta_time = clock.restart();
+            delta_time.to_milli();
+            if (states.empty()) {
+                is_running = false;
+                continue;
+            }
 
-void game::pop_state() {
-	states.pop();
-}
+            // returned true, means we gotta pop it from the stack
+            if (states.top()->handle_input()) {
+                pop_state();
+                if (states.empty()) {
+                    is_running = false;
+                    continue;
+                }
+            }
+            states.top()->update(delta_time);
+            states.top()->draw(renderer);
+        }
+    }
+
+    void game::pop_state() {
+        states.pop();
+    }
 } // namespace raw

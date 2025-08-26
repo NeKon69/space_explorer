@@ -11,7 +11,7 @@
 #include <iostream>
 
 namespace raw {
-void init_glad() {
+inline void init_glad() {
 	static bool inited = false;
 	if (inited)
 		return;
