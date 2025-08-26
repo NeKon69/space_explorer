@@ -1,22 +1,14 @@
 //
-// Created by progamers on 6/27/25.
+// Created by progamers on 8/26/25.
 //
 
-#ifndef SPACE_EXPLORER_HELPER_MACROS_H
-#define SPACE_EXPLORER_HELPER_MACROS_H
-#include <chrono>
-#include <exception>
+#ifndef SPACE_EXPLORER_ERROR_H
+#define SPACE_EXPLORER_ERROR_H
 #include <format>
-#include <iostream>
 #include <source_location>
-#include <vector>
+#include <stdexcept>
 
 namespace raw {
-#define PASSIVE_VALUE static constexpr auto
-using std_clock = std::chrono::high_resolution_clock;
-using UI		= unsigned int;
-template<typename T>
-using vec = std::vector<T>;
 #define CUDA_SAFE_CALL(call)                                                                            \
 	do {                                                                                                \
 		cudaError_t error = call;                                                                       \
@@ -29,7 +21,6 @@ using vec = std::vector<T>;
 				std::source_location::current().line()));                                               \
 		}                                                                                               \
 	} while (0)
-
 } // namespace raw
 
-#endif // SPACE_EXPLORER_HELPER_MACROS_H
+#endif // SPACE_EXPLORER_ERROR_H

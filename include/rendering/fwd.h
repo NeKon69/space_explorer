@@ -11,6 +11,5 @@ namespace raw::rendering {
     struct command;
     using queue = std::vector<raw::rendering::command>;
     class renderer;
-    struct vertex;
 } // namespace raw::rendering
 #endif // SPACE_EXPLORER_RENDERING_FWD_H

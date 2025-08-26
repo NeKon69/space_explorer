@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include "helper/helper_functions.h"
+#include "../include/window/gl_loader.h"
 
 namespace raw {
     gl_window::gl_window(const std::string &window_name) {

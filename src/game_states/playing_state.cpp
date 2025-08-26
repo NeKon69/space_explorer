@@ -5,7 +5,7 @@
 namespace raw {
 
 namespace predef {
-PASSIVE_VALUE AM_POINT_LIGHTS = 5;
+static constexpr auto AM_POINT_LIGHTS = 5;
 }
 
 void playing_state::init() const {

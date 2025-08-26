@@ -5,8 +5,6 @@
 #ifndef SPACE_EXPLORER_KERNEL_LAUNCHER_H
 #define SPACE_EXPLORER_KERNEL_LAUNCHER_H
 #include "cuda_types/fwd.h"
-#include "helper/helper_macros.h"
-
 namespace raw {
     extern void launch_tessellation(const raw::vertex *in_vertices, const UI *in_indices,
                                     raw::vertex *out_vertices, UI *out_indices,

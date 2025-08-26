@@ -2,8 +2,8 @@
 // Created by progamers on 6/29/25.
 //
 
-#ifndef SPACE_EXPLORER_HELPER_FUNCTIONS_H
-#define SPACE_EXPLORER_HELPER_FUNCTIONS_H
+#ifndef SPACE_EXPLORER_GL_LOADER_H
+#define SPACE_EXPLORER_GL_LOADER_H
 
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
@@ -24,4 +24,4 @@ inline void init_glad() {
 }
 } // namespace raw
 
-#endif // SPACE_EXPLORER_HELPER_FUNCTIONS_H
+#endif // SPACE_EXPLORER_GL_LOADER_H

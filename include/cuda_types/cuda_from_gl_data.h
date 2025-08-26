@@ -5,9 +5,9 @@
 #ifndef SPACE_EXPLORER_CUDA_FROM_GL_DATA_H
 #define SPACE_EXPLORER_CUDA_FROM_GL_DATA_H
 #include <cuda_gl_interop.h>
-#include <helper/helper_macros.h>
-
+#include "cuda_types/error.h"
 #include "cuda_types/fwd.h"
+#include "common/fwd.h"
 
 namespace raw {
 // TODO: Make this thing inherit from base class "resource" and put it into "from_gl" folder

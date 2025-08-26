@@ -5,7 +5,7 @@
 #ifndef SPACE_EXPLORER_VERTEX_H
 #define SPACE_EXPLORER_VERTEX_H
 #include <glm/glm.hpp>
-#include "rendering/fwd.h"
+#include "common/fwd.h"
 
 namespace raw {
     struct vertex {

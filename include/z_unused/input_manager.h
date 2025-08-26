@@ -8,8 +8,8 @@
 #include <functional>
 
 #include "SDL3/SDL.h"
-#include "helper/clock.h"
-#include "unused/command.h"
+#include "../core/clock.h"
+#include "z_unused/command.h"
 #include <raw_memory.h>
 
 namespace raw {

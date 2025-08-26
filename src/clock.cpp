@@ -1,7 +1,7 @@
 //
 // Created by progamers on 6/19/25.
 //
-#include "helper/clock.h"
+#include "../include/core/clock.h"
 
 namespace raw {
     inline long double ticks_now() {

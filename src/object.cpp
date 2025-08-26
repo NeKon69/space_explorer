@@ -1,13 +1,13 @@
 //
 // Created by progamers on 7/1/25.
 //
-#include "../include/unused/object.h"
+#include "../include/z_unused/object.h"
 
 #include <glad/glad.h>
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "helper/helper_macros.h"
+#include "../include/cuda_types/error.h"
 
 namespace raw {
     namespace drawing_method {

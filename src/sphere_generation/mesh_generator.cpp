@@ -7,7 +7,7 @@
 #include <array>
 #include <numbers>
 
-#include "helper/clock.h"
+#include "../../include/core/clock.h"
 #include "cuda_types/buffer.h"
 #include "sphere_generation/kernel_launcher.h"
 #include "sphere_generation/tessellation_kernel.h"

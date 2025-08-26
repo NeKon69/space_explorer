@@ -1,7 +1,7 @@
 //
 // Created by progamers on 7/23/25.
 //
-#include "../include/mesh.h"
+#include "../include/common/mesh.h"
 
 namespace raw {
     void mesh::gen_opengl_data() const {

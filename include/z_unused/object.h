@@ -15,7 +15,7 @@
 #include <glm/vec3.hpp>
 
 #include "../deleters/custom_deleters.h"
-#include "../helper/helper_macros.h"
+#include "../cuda_types/error.h"
 #include "../core/camera/shader/shader.h"
 
 namespace raw {
@@ -42,7 +42,7 @@ namespace raw {
 
         void blend_additive(UI *vao, UI indices_size);
 
-        inline PASSIVE_VALUE &drawing_method = basic;
+        inline static constexpr auto &drawing_method = basic;
     } // namespace drawing_method
 
     class object {

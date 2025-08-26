@@ -12,8 +12,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <unordered_map>
 
-#include "unused/button.h"
-#include "helper/clock.h"
+#include "z_unused/button.h"
+#include "../core/clock.h"
 #include "../core/shader/shader.h"
 
 namespace raw {

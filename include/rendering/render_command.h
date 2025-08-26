@@ -6,7 +6,7 @@
 #define SPACE_EXPLORER_RENDER_COMMAND_H
 #include <raw_memory.h>
 #include "rendering/fwd.h"
-#include "mesh.h"
+#include "../common/mesh.h"
 #include "core/shader/shader.h"
 
 namespace raw::rendering {

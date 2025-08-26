@@ -3,7 +3,7 @@
 //
 #include "cuda_types/stream.h"
 
-#include "helper/helper_macros.h"
+#include "../../include/cuda_types/error.h"
 
 namespace raw {
     cuda_stream::cuda_stream() : created(make_shared<bool>(false)) {
