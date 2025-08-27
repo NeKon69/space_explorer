@@ -17,7 +17,7 @@
 #include "deleters/custom_deleters.h"
 #include "rendering/shader/shader.h"
 
-namespace raw {
+namespace raw::z_unused {
 namespace drawing_method {
 void basic(UI *vao, UI indices_size);
 
@@ -57,7 +57,7 @@ private:
 
 protected:
 	glm::mat4					 transformation = glm::mat4(1.0f);
-	raw::shared_ptr<raw::shader> shader;
+	raw::shared_ptr<raw::rendering::shader::shader> shader;
 
 public:
 	object(object &&) noexcept;
@@ -87,7 +87,7 @@ public:
 		return *ebo;
 	}
 
-	void set_shader(const raw::shared_ptr<raw::shader> &sh);
+	void set_shader(const raw::shared_ptr<raw::rendering::shader::shader> &sh);
 
 	/**
 	 * \brief

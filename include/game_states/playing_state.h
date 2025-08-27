@@ -20,14 +20,14 @@
 namespace raw::game_states {
 class playing_state : public raw::core::game_state {
 private:
-	raw::shared_ptr<raw::shader>	  object_shader;
-	raw::shared_ptr<raw::shader>	  light_shader;
+	raw::shared_ptr<raw::rendering::shader::shader>	  object_shader;
+	raw::shared_ptr<raw::rendering::shader::shader>	  light_shader;
 	raw::core::camera::movement_state move_state;
 
 	static constexpr std::initializer_list<glm::vec3> light_pos = {
 		glm::vec3(2.5, 2.5, 5), glm::vec3(-5, -5, 10), glm::vec3(0, -5, -5), glm::vec3(-5, 5, 5)};
 
-	raw::cube light_cube;
+	raw::z_unused::objects::cube light_cube;
 
 	raw::shared_ptr<graphics::mesh>				  sphere_mesh;
 	raw::sphere_generation::icosahedron_generator gen;
@@ -37,8 +37,8 @@ private:
 
 	bool pressed_o = false;
 
-	[[nodiscard]] raw::shared_ptr<raw::shader>				get_basic_shader() const;
-	[[nodiscard]] std::vector<raw::shared_ptr<raw::shader>> get_all_shaders() const;
+	[[nodiscard]] raw::shared_ptr<raw::rendering::shader::shader>				get_basic_shader() const;
+	[[nodiscard]] std::vector<raw::shared_ptr<raw::rendering::shader::shader>> get_all_shaders() const;
 
 	raw::core::camera::camera camera;
 

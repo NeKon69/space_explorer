@@ -17,7 +17,7 @@ static constexpr auto FRICTION	   = 30.0f;
 
 class player_controller {
 private:
-	camera	 &camera;
+	core::camera::camera	 &camera;
 	glm::vec3 velocity;
 
 public:
