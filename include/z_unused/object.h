@@ -18,7 +18,7 @@
 #include "rendering/shader/shader.h"
 
 namespace raw::z_unused {
-	namespace drawing_method {
+namespace drawing_method {
 void basic(UI *vao, UI indices_size);
 
 void lines(UI *vao, UI indices_size);
@@ -56,7 +56,7 @@ private:
 	void gen_opengl_data() const;
 
 protected:
-	glm::mat4					 transformation = glm::mat4(1.0f);
+	glm::mat4										transformation = glm::mat4(1.0f);
 	raw::shared_ptr<raw::rendering::shader::shader> shader;
 
 public:
@@ -180,6 +180,6 @@ public:
 protected:
 	void __draw() const;
 };
-} // namespace raw
+} // namespace raw::z_unused
 
 #endif // SPACE_EXPLORER_OBJECT_H

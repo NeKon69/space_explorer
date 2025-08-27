@@ -30,7 +30,7 @@ private:
 	raw::z_unused::objects::cube light_cube;
 
 	raw::shared_ptr<graphics::mesh>				  sphere_mesh;
-	raw::sphere_generation::icosahedron_generator gen;
+	raw::sphere_generation::icosahedron_data_manager gen;
 	bool										  dir_light = false;
 	raw::simulation_state						  sim_state;
 	raw::n_body::interaction_system<float>		  system;

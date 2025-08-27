@@ -4,6 +4,7 @@
 
 #ifndef SPACE_EXPLORER_STREAMING_H
 #define SPACE_EXPLORER_STREAMING_H
+#include <glad/glad.h>
 #include <raw_memory.h>
 
 #include "cuda_types/from_gl/image.h"
@@ -23,17 +24,15 @@ struct texture_slot {
 	bool													 is_in_use			= false;
 	planet_id												 assigned_planet_id = 0;
 
-	texture_slot();
+	texture_slot() : am_id(new UI(0)), nrao_id(new UI(0)) {};
 
-	// : am_id(new UI(0)), nrao_id(new UI(0)) {};
-
-	void create(); /* {
-	 glGenTextures(1, am_id.get());
-	 glGenTextures(1, nrao_id.get());
-	 albedo_metallic.set_data(*am_id);
-	 normal_rough_ao.set_data(*nrao_id);
-	 is_in_use = true;
- }*/
+	void create() {
+		glGenTextures(1, am_id.get());
+		glGenTextures(1, nrao_id.get());
+		albedo_metallic.set_data(*am_id);
+		normal_rough_ao.set_data(*nrao_id);
+		is_in_use = true;
+	}
 
 	texture_slot(int alb_met, int norm_rough_ao, planet_id id);
 

@@ -15,21 +15,28 @@
 #include "sphere_generation/fwd.h"
 
 namespace raw::sphere_generation {
+
 // this class serves as a nice thing to warp around hard things in generating sphere from
 // icosahedron
-class icosahedron_generator {
+class icosahedron_data_manager {
 private:
-	cuda_types::cuda_from_gl_data<raw::vertex> vertices_handle;
-	cuda_types::cuda_from_gl_data<UI>		   indices_handle;
-	raw::shared_ptr<cuda_types::cuda_stream>   stream;
+	cuda_types::cuda_from_gl_data<raw::graphics::vertex> vertices_handle;
+	cuda_types::cuda_from_gl_data<UI>					 indices_handle;
+	raw::shared_ptr<cuda_types::cuda_stream>			 stream;
 
 	UI _vbo;
 	UI _ebo;
 
-	cuda_types::cuda_buffer<raw::vertex> vertices_second;
-	cuda_types::cuda_buffer<UI>			 indices_second;
-	cuda_types::cuda_buffer<uint32_t>	 amount_of_triangles;
-	cuda_types::cuda_buffer<uint32_t>	 amount_of_vertices;
+	cuda_types::cuda_buffer<raw::graphics::vertex> vertices_second;
+	cuda_types::cuda_buffer<UI>					   indices_second;
+
+	cuda_types::cuda_buffer<uint32_t> amount_of_triangles;
+	cuda_types::cuda_buffer<uint32_t> amount_of_vertices;
+	cuda_types::cuda_buffer<uint32_t> amount_of_edges;
+
+	cuda_types::cuda_buffer<edge>	  all_edges;
+	cuda_types::cuda_buffer<edge>	  d_unique_edges;
+	cuda_types::cuda_buffer<uint32_t> edge_to_vertex;
 
 	size_t vertices_bytes = 0;
 	size_t indices_bytes  = 0;
@@ -49,9 +56,9 @@ private:
 	void prepare(UI vbo, UI ebo);
 
 public:
-	icosahedron_generator();
+	icosahedron_data_manager();
 
-	icosahedron_generator(UI vbo, UI ebo, UI steps = predef::BASIC_STEPS);
+	icosahedron_data_manager(UI vbo, UI ebo, UI steps = predef::BASIC_STEPS);
 
 	void generate(UI vbo, UI ebo, UI steps);
 

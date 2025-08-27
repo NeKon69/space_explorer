@@ -19,9 +19,25 @@ static constexpr auto BASIC_AMOUNT_OF_TRIANGLES = 20U;
 namespace predef {
 static const UI MAXIMUM_AMOUNT_OF_INDICES =
 	BASIC_AMOUNT_OF_TRIANGLES * static_cast<UI>(std::pow(4, MAX_STEPS)) + 2;
-static const UI MAXIMUM_AMOUNT_OF_VERTICES = 10 * static_cast<UI>(std::pow(4, MAX_STEPS));
+static const UI MAXIMUM_AMOUNT_OF_VERTICES	= 10 * static_cast<UI>(std::pow(4, MAX_STEPS));
+static const UI MAXIMUM_AMOUNT_OF_TRIANGLES = BASIC_AMOUNT_OF_TRIANGLES * std::pow(4, MAX_STEPS);
 } // namespace predef
 
-class icosahedron_generator;
+class icosahedron_data_manager;
+// Stores 2 indices of vertices in the sphere
+struct edge {
+	uint32_t				 v0;
+	uint32_t				 v1;
+	bool __host__ __device__ operator()(const edge& a, const edge& b) {
+		if (a.v0 > b.v0)
+			return false;
+		if (a.v0 < b.v0)
+			return true;
+		return a.v1 < b.v1;
+	}
+	auto __host__ __device__ operator>(const edge& a) {
+		return operator()(*this, a);
+	}
+};
 } // namespace raw::sphere_generation
 #endif // SPACE_EXPLORER_SPHERE_GENERATION_FWD_H

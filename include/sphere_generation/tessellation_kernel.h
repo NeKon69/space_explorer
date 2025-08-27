@@ -10,11 +10,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 namespace raw::sphere_generation {
-    extern __global__ void subdivide(const raw::vertex *in_vertices, const unsigned int *in_indices,
-                                     raw::vertex *out_vertices, unsigned int *out_indices,
-                                     uint32_t *p_vertex_count, uint32_t *p_triangle_count,
-                                     size_t num_input_triangles);
+extern __global__ void subdivide(raw::graphics::vertex *in_vertices, unsigned int *in_indices,
+								 raw::graphics::vertex *out_vertices, unsigned int *out_indices,
+								 uint32_t *p_vertex_count, uint32_t *p_triangle_count,
+								 size_t num_input_triangles);
 
-    extern __global__ void orthogonalize(raw::vertex *vertices, uint32_t vertex_count);
+extern __global__ void orthogonalize(raw::graphics::vertex *vertices, uint32_t vertex_count);
 } // namespace raw::sphere_generation
 #endif // SPACE_EXPLORER_TESSELLATION_KERNEL_H

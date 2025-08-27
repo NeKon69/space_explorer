@@ -9,7 +9,7 @@
 #include "../z_unused/object.h"
 
 namespace raw::z_unused::objects {
-	namespace axis {
+namespace axis {
 inline constexpr auto X = glm::vec3(1.0, 0.0, 0.0);
 inline constexpr auto Y = glm::vec3(0.0, 1.0, 0.0);
 inline constexpr auto Z = glm::vec3(0.0, 0.0, 1.0);
@@ -52,6 +52,6 @@ public:
 
 	explicit cube(const raw::shared_ptr<raw::rendering::shader::shader> &sh);
 };
-} // namespace raw
+} // namespace raw::z_unused::objects
 
 #endif // SPACE_EXPLORER_CUBE_H

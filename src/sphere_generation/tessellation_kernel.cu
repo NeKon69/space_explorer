@@ -13,7 +13,7 @@ __device__ void calc_tex_coords(glm::vec2 *writing_ptr, glm::vec3 &normalized_po
         *writing_ptr = glm::vec2{u, v};
     }
 
-__global__ void subdivide(const raw::graphics::vertex *in_vertices, const unsigned int *in_indices,
+__global__ void subdivide(raw::graphics::vertex *in_vertices, unsigned int *in_indices,
                           raw::graphics::vertex *out_vertices, unsigned int *out_indices,
                           uint32_t *p_vertex_count, uint32_t *p_triangle_count,
                           size_t num_input_triangles) {
