@@ -1,10 +1,11 @@
 //
 // Created by progamers on 6/26/25.
 //
-#include "../include/window/sdl_video.h"
+#include "window/sdl_video.h"
+
 #include <iostream>
 
-namespace raw {
+namespace raw::window {
     // first function to call in graphics application
     sdl_video::sdl_video() {
         gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 2);
@@ -23,4 +24,4 @@ namespace raw {
     sdl_video::~sdl_video() noexcept {
         SDL_Quit();
     }
-} // namespace raw
+} // namespace raw::window

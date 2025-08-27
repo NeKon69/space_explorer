@@ -10,4 +10,4 @@ namespace raw::textures {
     planet_id manager::get_seed() {
         return current_seed++;
     }
-} // namespace raw::texture
+} // namespace raw::textures

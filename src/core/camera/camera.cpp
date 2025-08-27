@@ -1,33 +1,33 @@
 //
 // Created by progamers on 6/27/25.
 //
-#include "../include/core/camera/camera.h"
+#include "../../../include/core/camera/camera.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
-namespace raw {
+namespace raw::core::camera {
     void camera_move::DOWN(glm::vec3 &pos, glm::vec3, glm::vec3) {
-        pos.y -= core::predef::CAMERA_SPEED;
+        pos.y -= predef::CAMERA_SPEED;
     }
 
     void camera_move::UP(glm::vec3 &pos, glm::vec3, glm::vec3) {
-        pos.y += core::predef::CAMERA_SPEED;
+        pos.y += predef::CAMERA_SPEED;
     }
 
     void camera_move::LEFT(glm::vec3 &pos, glm::vec3 front, glm::vec3 up) {
-        pos -= glm::normalize(glm::cross(front, up)) * raw::predef::CAMERA_SPEED;
+        pos -= glm::normalize(glm::cross(front, up)) * predef::CAMERA_SPEED;
     }
 
     void camera_move::RIGHT(glm::vec3 &pos, glm::vec3 front, glm::vec3 up) {
-        pos += glm::normalize(glm::cross(front, up)) * raw::predef::CAMERA_SPEED;
+        pos += glm::normalize(glm::cross(front, up)) * predef::CAMERA_SPEED;
     }
 
     void camera_move::FORWARD(glm::vec3 &pos, glm::vec3 front, glm::vec3) {
-        pos += front * raw::predef::CAMERA_SPEED;
+        pos += front * predef::CAMERA_SPEED;
     }
 
     void camera_move::BACKWARD(glm::vec3 &pos, glm::vec3 front, glm::vec3) {
-        pos -= front * raw::predef::CAMERA_SPEED;
+        pos -= front * predef::CAMERA_SPEED;
     }
 
     camera::camera(glm::vec3 _pos, glm::vec3 _front, glm::vec3 _up)

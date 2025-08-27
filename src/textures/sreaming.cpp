@@ -15,4 +15,4 @@ namespace raw::textures {
             slot.create();
         }
     }
-} // namespace raw::texture
+} // namespace raw::textures

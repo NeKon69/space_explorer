@@ -2,9 +2,13 @@
 // Created by progamers on 7/4/25.
 //
 #include "game_states/playing_state.h"
-namespace raw {
 
-namespace predef {
+#include "rendering/render_command.h"
+#include "rendering/renderer.h"
+#include "window/gl_window.h"
+
+namespace raw::game_states {
+	namespace predef {
 static constexpr auto AM_POINT_LIGHTS = 5;
 }
 
@@ -43,27 +47,29 @@ void playing_state::init() const {
 	light_shader->use();
 	light_shader->set_vec3("lightColor", 1, 1, 1);
 
-	raw::gl::RULE(GL_MULTISAMPLE);
-	raw::gl::CLEAR_COLOR(0.1f, 0.1f, 0.1f, 1.0f);
+	raw::window::gl::RULE(GL_MULTISAMPLE);
+	raw::window::gl::CLEAR_COLOR(0.1f, 0.1f, 0.1f, 1.0f);
 
-	raw::gl::RULE(GL_DEPTH_TEST);
-	raw::gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	raw::gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 4);
-	raw::gl::RULE(GL_MULTISAMPLE);
+	raw::window::gl::RULE(GL_DEPTH_TEST);
+	raw::window::gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	raw::window::gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 4);
+	raw::window::gl::RULE(GL_MULTISAMPLE);
 }
 
 playing_state::playing_state(glm::uvec2 window_size)
-	: object_shader(make_shared<raw::shader>("shaders/objects/vertex_shader.glsl",
-											 "shaders/objects/color_shader.frag")),
-	  light_shader(make_shared<raw::shader>("shaders/light/vertex_shader.glsl",
-											"shaders/light/color_shader.frag")),
+	: object_shader(make_shared<raw::rendering::shader::shader>(
+		  "shaders/objects/vertex_shader.glsl", "shaders/objects/color_shader.frag")),
+	  light_shader(make_shared<raw::rendering::shader::shader>("shaders/light/vertex_shader.glsl",
+	                                                           "shaders/light/color_shader.frag")),
 	  light_cube(object_shader),
 
-	  sphere_mesh(make_shared<raw::mesh>(predef::MAXIMUM_AMOUNT_OF_VERTICES,
-										 predef::MAXIMUM_AMOUNT_OF_INDICES)),
+	  sphere_mesh(
+		  make_shared<raw::graphics::mesh>(sphere_generation::predef::MAXIMUM_AMOUNT_OF_VERTICES,
+		                                   sphere_generation::predef::MAXIMUM_AMOUNT_OF_INDICES)),
 	  gen(sphere_mesh->get_vbo(), sphere_mesh->get_ebo()),
-	  sim_state {true, 5},
-	  system(predef::generate_data_for_sim(), sphere_mesh->get_vao(), sphere_mesh->attr_num()),
+	  sim_state{true, 5},
+	  system(n_body::predef::generate_data_for_sim(), sphere_mesh->get_vao(),
+	         sphere_mesh->attr_num()),
 	  camera(),
 	  controller(camera) {
 	sphere_mesh->unbind();
@@ -85,7 +91,7 @@ raw::rendering::queue playing_state::build_rendering_queue() const {
 	return queue;
 }
 
-void playing_state::update(const raw::time& delta_time) {
+void playing_state::update(const raw::core::time& delta_time) {
 	system.update_sim();
 	controller.update(move_state, delta_time.val);
 }
@@ -169,8 +175,8 @@ bool playing_state::handle_input() {
 		} else if (event.type == SDL_EVENT_MOUSE_WHEEL) {
 			camera.adjust_fov(event.wheel.y);
 		} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-			auto x = event.motion.xrel * predef::SENSITIVITY;
-			auto y = event.motion.yrel * predef::SENSITIVITY;
+			auto x = event.motion.xrel * core::camera::predef::SENSITIVITY;
+			auto y = event.motion.yrel * core::camera::predef::SENSITIVITY;
 			camera.set_rotation(x, y);
 		}
 	}
@@ -190,4 +196,4 @@ playing_state::~playing_state() {
 	std::cout << "[Debug] Quiting the playing state\n";
 }
 
-} // namespace raw
+} // namespace raw::game_states

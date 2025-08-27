@@ -5,9 +5,9 @@
 
 #include <iostream>
 
-#include "../include/window/gl_loader.h"
+#include "window/gl_loader.h"
 
-namespace raw {
+namespace raw::window {
     gl_window::gl_window(const std::string &window_name) {
         gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 1);
         gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 1024);
@@ -35,7 +35,7 @@ namespace raw {
         }
         init_glad();
         grab_mouse();
-        raw::gl::VIEW(0, 0, 2560, 1440);
+        gl::VIEW(0, 0, 2560, 1440);
     }
 
     gl_window::~gl_window() noexcept {
@@ -77,4 +77,4 @@ namespace raw {
     void gl_window::set_running(bool state) noexcept {
         running = state;
     }
-} // namespace raw
+} // namespace raw::window

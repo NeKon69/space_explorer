@@ -23,7 +23,7 @@ class resource {
 private:
 	cudaGraphicsResource_t		 m_resource = nullptr;
 	bool						 mapped		= false;
-	raw::shared_ptr<cuda_stream> stream;
+	static raw::shared_ptr<cuda_stream> stream;
 
 protected:
 	// I heard somewhere that this down here is better than directly accessing the protected member

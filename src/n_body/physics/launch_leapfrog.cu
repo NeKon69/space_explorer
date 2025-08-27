@@ -1,20 +1,20 @@
 //
 // Created by progamers on 7/21/25.
 //
-#include "../../include/n_body/physics/launch_leapfrog.h"
-#include "../../include/n_body/physics/leapfrog_kernels.h"
-#include "../../include/n_body/physics/space_object.h"
+#include "n_body/physics/launch_leapfrog.h"
+#include "n_body/physics/leapfrog_kernels.h"
+#include "n_body/physics/space_object.h"
 
-namespace raw {
-    template void launch_leapfrog<double>(raw::space_object<double> *, glm::mat4 *objects_model, double,
+namespace raw::n_body::physics {
+    template void launch_leapfrog<double>(space_object<double> *, glm::mat4 *objects_model, double,
                                           uint16_t, double, cudaStream_t stream);
 
-    template void launch_leapfrog<float>(raw::space_object<float> *, glm::mat4 *objects_model, float,
+    template void launch_leapfrog<float>(space_object<float> *, glm::mat4 *objects_model, float,
                                          unsigned short, double, cudaStream_t stream);
 
     template<typename T>
-    void launch_leapfrog(raw::space_object<T> *objects, glm::mat4 *objects_model, T time,
-                         uint16_t count, double g, cudaStream_t stream) {
+    void launch_leapfrog(space_object<T> *objects, glm::mat4 *objects_model, T time, uint16_t count,
+                         double g, cudaStream_t stream) {
         auto threads_per_block = 256;
         auto blocks = (count + threads_per_block - 1) / 256;
         if (count < 512) {
@@ -23,4 +23,4 @@ namespace raw {
         compute_leapfrog<T><<<blocks, threads_per_block, 0, stream>>>(objects, objects_model, count,
                                                                       time, static_cast<T>(g));
     }
-} // namespace raw
+} // namespace raw::n_body::physics

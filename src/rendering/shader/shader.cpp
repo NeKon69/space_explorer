@@ -1,10 +1,13 @@
 //
 // Created by progamers on 6/4/25.
 //
-#include "../include/core//shader/shader.h"
+#include "rendering/shader/shader.h"
+#include <fstream>
+#include <iostream>
+#include <glad/glad.h>
 
-namespace raw {
-shader::shader(const char* vertex_path, const char* fragment_path) : id(0) {
+namespace raw::rendering::shader {
+	shader::shader(const char* vertex_path, const char* fragment_path) : id(0) {
 	if (!set_shaders(vertex_path, fragment_path)) {
 		std::cerr << "Failed to create shader program." << std::endl;
 		throw std::runtime_error(std::format("Failed to create shader program from {} and {}",

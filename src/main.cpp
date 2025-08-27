@@ -4,8 +4,8 @@
 #include "core/game.h"
 
 int main(int argc, char *argv[]) {
-    raw::core::game game("Mike Hawk");
-    game.run();
+	raw::core::game game("Mike Hawk");
+	game.run();
 
-    return 0;
+	return 0;
 }

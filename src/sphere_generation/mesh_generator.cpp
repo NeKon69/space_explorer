@@ -4,25 +4,23 @@
 
 #include "sphere_generation/mesh_generator.h"
 
-#include <array>
 #include <numbers>
 
-#include "../../include/core/clock.h"
+#include "core/clock.h"
 #include "cuda_types/buffer.h"
 #include "sphere_generation/kernel_launcher.h"
-#include "sphere_generation/tessellation_kernel.h"
 
-namespace raw {
+namespace raw::sphere_generation {
     inline constexpr float GOLDEN_RATIO = std::numbers::phi_v<float>;
 
     icosahedron_generator::icosahedron_generator()
-        : stream(make_shared<cuda_stream>()),
+        : stream(make_shared<cuda_types::cuda_stream>()),
           amount_of_triangles(sizeof(uint32_t), stream, true),
           amount_of_vertices(sizeof(uint32_t), stream, true) {
     }
 
     icosahedron_generator::icosahedron_generator(raw::UI vbo, raw::UI ebo, raw::UI steps)
-        : stream(make_shared<cuda_stream>()),
+        : stream(make_shared<cuda_types::cuda_stream>()),
           amount_of_triangles(sizeof(uint32_t), stream, true),
           amount_of_vertices(sizeof(uint32_t), stream, true) {
         _vbo = vbo;
@@ -33,11 +31,11 @@ namespace raw {
     void icosahedron_generator::init(raw::UI vbo, raw::UI ebo) {
         _vbo = vbo;
         _ebo = ebo;
-        vertices_handle = cuda_from_gl_data<raw::vertex>(&vertices_bytes, vbo);
-        indices_handle = cuda_from_gl_data<UI>(&indices_bytes, ebo);
+        vertices_handle = cuda_types::cuda_from_gl_data<raw::vertex>(&vertices_bytes, vbo);
+        indices_handle = cuda_types::cuda_from_gl_data<UI>(&indices_bytes, ebo);
 
-        vertices_second = cuda_buffer<raw::vertex>(vertices_bytes, stream, true);
-        indices_second = cuda_buffer<UI>(indices_bytes, stream, true);
+        vertices_second = cuda_types::cuda_buffer<raw::vertex>(vertices_bytes, stream, true);
+        indices_second = cuda_types::cuda_buffer<UI>(indices_bytes, stream, true);
 
         cudaMemcpy(vertices_handle.get_data(), (void *) std::data(generate_icosahedron_vertices()),
                    num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
@@ -80,7 +78,7 @@ namespace raw {
 
         prepare(vbo, ebo);
 
-        raw::clock timer;
+        raw::core::clock timer;
         for (UI i = 0; i < steps; ++i) {
             amount_of_triangles.zero_data(sizeof(UI) * 1);
             amount_of_vertices.set_data(&num_vertices_cpu, sizeof(uint32_t), cudaMemcpyHostToDevice);
@@ -95,7 +93,7 @@ namespace raw {
             } else {
                 vertices_second.set_data(vertices_handle.get_data(),
                                          num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice,
-                                         cudaMemcpyOrder::cudaMemcpy1to2);
+                                         cuda_types::cudaMemcpyOrder::cudaMemcpy1to2);
                 launch_tessellation(vertices_second.get(), indices_second.get(),
                                     vertices_handle.get_data(), indices_handle.get_data(),
                                     amount_of_vertices.get(), amount_of_triangles.get(),
@@ -107,7 +105,8 @@ namespace raw {
         // eat my ass (for no reason i am just sleepy)
         if (steps % 2 != 0) {
             vertices_second.set_data(vertices_handle.get_data(), num_vertices_cpu * sizeof(glm::vec3),
-                                     cudaMemcpyDeviceToDevice, cudaMemcpyOrder::cudaMemcpy1to2);
+                                     cudaMemcpyDeviceToDevice,
+                                     cuda_types::cudaMemcpyOrder::cudaMemcpy1to2);
         }
         launch_orthogonalization(vertices_handle.get_data(), num_vertices_cpu, *stream);
         stream->sync();
@@ -176,4 +175,4 @@ namespace raw {
     icosahedron_generator::generate_icosahedron_data() {
         return std::pair{generate_icosahedron_vertices(), generate_icosahedron_indices()};
     }
-} // namespace raw
+} // namespace raw::sphere_generation
