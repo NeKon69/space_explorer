@@ -9,15 +9,16 @@
 #include "sphere_generation/mesh_generator.h"
 
 namespace raw::z_unused::objects {
-class sphere {
+	class sphere {
 private:
 	std::vector<UI>		  indices;
 	std::vector<float>	  vertices;
-	z_unused::object			  obj;
+	z_unused::object obj;
 	sphere_generation::icosahedron_generator gen;
 
 public:
-	explicit sphere(const raw::shared_ptr<raw::rendering::shader::shader> &, float radius = sphere_generation::predef::BASIC_RADIUS);
+	explicit sphere(const raw::shared_ptr<raw::rendering::shader::shader> &,
+	                float radius = sphere_generation::predef::BASIC_RADIUS);
 
 	// Yea yea it would've been more correct to use inheritance here, but for some unknown, very
 	// important reason i can't

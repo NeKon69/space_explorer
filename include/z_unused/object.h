@@ -18,7 +18,7 @@
 #include "rendering/shader/shader.h"
 
 namespace raw::z_unused {
-namespace drawing_method {
+	namespace drawing_method {
 void basic(UI *vao, UI indices_size);
 
 void lines(UI *vao, UI indices_size);
