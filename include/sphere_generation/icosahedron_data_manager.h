@@ -9,6 +9,7 @@
 #include <array>
 #include <glm/glm.hpp>
 
+#include "sphere_generation/generation_context.h"
 #include "cuda_types/buffer.h"
 #include "cuda_types/cuda_from_gl_data.h"
 #include "graphics/vertex.h"
@@ -46,6 +47,7 @@ private:
 
 	bool inited = false;
 
+	friend class generation_context;
 	// Called every time after `generate` function
 	void cleanup();
 
@@ -60,11 +62,19 @@ public:
 
 	icosahedron_data_manager(UI vbo, UI ebo, UI steps = predef::BASIC_STEPS);
 
+	generation_context create_context();
 	void generate(UI vbo, UI ebo, UI steps);
 
 	static constexpr std::array<glm::vec3, 12> generate_icosahedron_vertices();
 
 	static constexpr std::array<UI, 60> generate_icosahedron_indices();
+
+	 auto get_data() {
+		return std::make_tuple(vertices_handle.get_data(), indices_handle.get_data(), all_edges.get(),
+				vertices_second.get(),		indices_second.get(),	   d_unique_edges.get(),
+				edge_to_vertex.get(),		amount_of_vertices.get(),  amount_of_triangles.get(),
+				amount_of_edges.get());
+	}
 
 	static constexpr std::pair<std::array<glm::vec3, 12>, std::array<UI, 60> >
 	generate_icosahedron_data();

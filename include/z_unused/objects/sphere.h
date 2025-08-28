@@ -6,7 +6,7 @@
 #define SPACE_EXPLORER_SPHERE_H
 #include "../z_unused/object.h"
 #include "n_body/n_body_predef.h"
-#include "sphere_generation/mesh_generator.h"
+#include "sphere_generation/icosahedron_data_manager.h"
 
 namespace raw::z_unused::objects {
 class sphere {

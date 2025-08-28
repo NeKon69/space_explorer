@@ -14,7 +14,7 @@
 #include "graphics/mesh.h"
 #include "n_body/interaction_system.h"
 #include "n_body/simulation_state.h"
-#include "sphere_generation/mesh_generator.h"
+#include "sphere_generation/icosahedron_data_manager.h"
 #include "z_unused/objects/cube.h"
 
 namespace raw::game_states {

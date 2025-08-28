@@ -2,7 +2,7 @@
 // Created by progamers on 7/7/25.
 //
 
-#include "sphere_generation/mesh_generator.h"
+#include "sphere_generation/icosahedron_data_manager.h"
 
 #include <numbers>
 
@@ -30,6 +30,9 @@ icosahedron_data_manager::icosahedron_data_manager(raw::UI vbo, raw::UI ebo, raw
 }
 
 void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
+	static int times_called = 0;
+	// can be called only once in the lifetime
+	assert(times_called == 0);
 	_vbo			= vbo;
 	_ebo			= ebo;
 	vertices_handle = cuda_types::cuda_from_gl_data<raw::graphics::vertex>(&vertices_bytes, vbo);
@@ -46,6 +49,7 @@ void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
 	amount_of_edges.zero_data(sizeof(uint32_t));
 
 	inited = true;
+	++times_called;
 }
 
 void icosahedron_data_manager::prepare(raw::UI vbo, raw::UI ebo) {
@@ -58,11 +62,15 @@ void icosahedron_data_manager::prepare(raw::UI vbo, raw::UI ebo) {
 	vertices_second.allocate(vertices_bytes);
 	indices_second.allocate(indices_bytes);
 	// Need to update func to also produce some cool data as tangent/bitangent
-	cudaMemcpy(vertices_handle.get_data(), (void *)std::data(generate_icosahedron_vertices()),
-			   num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice);
-	cudaMemcpy(indices_handle.get_data(), (void *)std::data(generate_icosahedron_indices()),
-			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
+	cudaMemcpyAsync(vertices_handle.get_data(), (void *)std::data(generate_icosahedron_vertices()),
+					num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice, stream->stream());
+	cudaMemcpyAsync(indices_handle.get_data(), (void *)std::data(generate_icosahedron_indices()),
+					num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice, stream->stream());
 }
+generation_context icosahedron_data_manager::create_context() {
+	return generation_context(*this, _vbo, _ebo);
+}
+
 // TODO: Delete this function as this class will serve only as data manager
 void icosahedron_data_manager::generate(raw::UI vbo, raw::UI ebo, raw::UI steps) {
 	// Motherfucker doesn't like then i use same amount of memory as was allocated so here will be
@@ -83,44 +91,6 @@ void icosahedron_data_manager::generate(raw::UI vbo, raw::UI ebo, raw::UI steps)
 	}
 
 	prepare(vbo, ebo);
-
-	raw::core::clock timer;
-	for (UI i = 0; i < steps; ++i) {
-		amount_of_triangles.zero_data(sizeof(UI) * 1);
-		amount_of_vertices.set_data(&num_vertices_cpu, sizeof(uint32_t), cudaMemcpyHostToDevice);
-		if (i % 2 == 0) {
-			vertices_second.set_data(vertices_handle.get_data(),
-									 num_vertices_cpu * sizeof(glm::vec3),
-									 cudaMemcpyDeviceToDevice);
-			launch_tessellation(vertices_handle.get_data(), indices_handle.get_data(),
-								vertices_second.get(), indices_second.get(),
-								amount_of_vertices.get(), amount_of_triangles.get(),
-								num_triangles_cpu, *stream);
-		} else {
-			vertices_second.set_data(vertices_handle.get_data(),
-									 num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyDeviceToDevice,
-									 cuda_types::cudaMemcpyOrder::cudaMemcpy1to2);
-			launch_tessellation(vertices_second.get(), indices_second.get(),
-								vertices_handle.get_data(), indices_handle.get_data(),
-								amount_of_vertices.get(), amount_of_triangles.get(),
-								num_triangles_cpu, *stream);
-		}
-		num_vertices_cpu += 3 * num_triangles_cpu;
-		num_triangles_cpu *= 4;
-	}
-	// eat my ass (for no reason i am just sleepy)
-	if (steps % 2 != 0) {
-		vertices_second.set_data(vertices_handle.get_data(), num_vertices_cpu * sizeof(glm::vec3),
-								 cudaMemcpyDeviceToDevice,
-								 cuda_types::cudaMemcpyOrder::cudaMemcpy1to2);
-	}
-	launch_orthogonalization(vertices_handle.get_data(), num_vertices_cpu, *stream);
-	stream->sync();
-	auto passed_time = timer.restart();
-	passed_time.to_milli();
-	std::cout << std::string("[Debug] Tesselation with amount of steps of ") << steps << " took "
-			  << passed_time << " to complete\n";
-
 	cleanup();
 }
 

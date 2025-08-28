@@ -24,6 +24,8 @@ static const UI MAXIMUM_AMOUNT_OF_TRIANGLES = BASIC_AMOUNT_OF_TRIANGLES * std::p
 } // namespace predef
 
 class icosahedron_data_manager;
+class sphere_generator;
+class generation_context;
 // Stores 2 indices of vertices in the sphere
 struct edge {
 	uint32_t				 v0;
@@ -38,6 +40,7 @@ struct edge {
 	auto __host__ __device__ operator>(const edge& a) {
 		return operator()(*this, a);
 	}
+	auto operator<=>(const edge& edge) const = default;
 };
 } // namespace raw::sphere_generation
 #endif // SPACE_EXPLORER_SPHERE_GENERATION_FWD_H

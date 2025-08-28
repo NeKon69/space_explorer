@@ -24,7 +24,7 @@ public:
 	void		 sync();
 	void		 destroy();
 	void		 create();
-	cudaStream_t stream();
+	cudaStream_t& stream();
 	~cuda_stream();
 };
 } // namespace raw::cuda_types
