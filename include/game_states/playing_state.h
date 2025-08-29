@@ -15,31 +15,36 @@
 #include "n_body/interaction_system.h"
 #include "n_body/simulation_state.h"
 #include "sphere_generation/icosahedron_data_manager.h"
+#include "sphere_generation/sphere_generator.h"
 #include "z_unused/objects/cube.h"
 
 namespace raw::game_states {
 class playing_state : public raw::core::game_state {
 private:
-	raw::shared_ptr<raw::rendering::shader::shader> object_shader;
-	raw::shared_ptr<raw::rendering::shader::shader> light_shader;
-	raw::core::camera::movement_state move_state;
+	std::shared_ptr<raw::rendering::shader::shader> object_shader;
+	std::shared_ptr<raw::rendering::shader::shader> light_shader;
+	raw::core::camera::movement_state				move_state;
 
 	static constexpr std::initializer_list<glm::vec3> light_pos = {
 		glm::vec3(2.5, 2.5, 5), glm::vec3(-5, -5, 10), glm::vec3(0, -5, -5), glm::vec3(-5, 5, 5)};
 
 	raw::z_unused::objects::cube light_cube;
 
-	raw::shared_ptr<graphics::mesh>				  sphere_mesh;
-	raw::sphere_generation::icosahedron_data_manager gen;
-	bool										  dir_light = false;
-	raw::simulation_state						  sim_state;
-	raw::n_body::interaction_system<float>		  system;
+	// For now let's just store the stream locally
+	std::shared_ptr<raw::cuda_types::cuda_stream>	 stream;
+	std::shared_ptr<graphics::mesh>					 sphere_mesh;
+	raw::sphere_generation::icosahedron_data_manager sphere_manager;
+	raw::sphere_generation::sphere_generator		 sphere_gen;
+	bool											 dir_light = false;
+	raw::simulation_state							 sim_state;
+	raw::n_body::interaction_system<float>			 system;
 
 	bool pressed_o = false;
 
-	[[nodiscard]] raw::shared_ptr<raw::rendering::shader::shader> get_basic_shader() const;
+	[[nodiscard]] std::shared_ptr<raw::rendering::shader::shader> get_basic_shader() const;
 
-	[[nodiscard]] std::vector<raw::shared_ptr<raw::rendering::shader::shader> > get_all_shaders() const;
+	[[nodiscard]] std::vector<std::shared_ptr<raw::rendering::shader::shader> > get_all_shaders()
+		const;
 
 	raw::core::camera::camera camera;
 

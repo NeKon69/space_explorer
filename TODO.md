@@ -1,10 +1,10 @@
 ## Top Priority (Refactoring, need to be done now)
 
 1. ~~Divide kernel for sphere tesselation into 2 kernels, one for vertices and one for another TBN data~~
-2. Split "icosahedron_generator" into two classes, one for managing resources second for launching kernels
+2. ~~Split "icosahedron_generator" into two classes, one for managing resources second for launching kernels~~
 3. Fix n-body by dividing single kernel into 2 separate ones, "kick-drift" and "kick" to properly work on more than 256
    objects
-4. Update basic vertices/indices generators to support normal mapping
+4. ~~Update basic vertices/indices generators to support normal mapping~~
 5. Check if UV coordinate system actually works and if it has "edges"
 
 ## Top priority (features, need to be done now)

@@ -9,11 +9,11 @@
 #include <array>
 #include <glm/glm.hpp>
 
-#include "sphere_generation/generation_context.h"
 #include "cuda_types/buffer.h"
 #include "cuda_types/cuda_from_gl_data.h"
 #include "graphics/vertex.h"
 #include "sphere_generation/fwd.h"
+#include "sphere_generation/generation_context.h"
 
 namespace raw::sphere_generation {
 
@@ -23,7 +23,7 @@ class icosahedron_data_manager {
 private:
 	cuda_types::cuda_from_gl_data<raw::graphics::vertex> vertices_handle;
 	cuda_types::cuda_from_gl_data<UI>					 indices_handle;
-	raw::shared_ptr<cuda_types::cuda_stream>			 stream;
+	std::shared_ptr<cuda_types::cuda_stream>			 stream;
 
 	UI _vbo;
 	UI _ebo;
@@ -60,24 +60,21 @@ private:
 public:
 	icosahedron_data_manager();
 
-	icosahedron_data_manager(UI vbo, UI ebo, UI steps = predef::BASIC_STEPS);
+	icosahedron_data_manager(UI vbo, UI ebo, std::shared_ptr<cuda_types::cuda_stream> stream);
 
 	generation_context create_context();
-	void generate(UI vbo, UI ebo, UI steps);
 
-	static constexpr std::array<glm::vec3, 12> generate_icosahedron_vertices();
+	static constexpr std::array<graphics::vertex, 12> generate_icosahedron_vertices();
 
 	static constexpr std::array<UI, 60> generate_icosahedron_indices();
 
-	 auto get_data() {
-		return std::make_tuple(vertices_handle.get_data(), indices_handle.get_data(), all_edges.get(),
-				vertices_second.get(),		indices_second.get(),	   d_unique_edges.get(),
-				edge_to_vertex.get(),		amount_of_vertices.get(),  amount_of_triangles.get(),
-				amount_of_edges.get());
+	auto get_data() const{
+		return std::make_tuple(vertices_handle.get_data(), indices_handle.get_data(),
+							   all_edges.get(), vertices_second.get(), indices_second.get(),
+							   d_unique_edges.get(), edge_to_vertex.get(), amount_of_vertices.get(),
+							   amount_of_triangles.get(), amount_of_edges.get());
 	}
 
-	static constexpr std::pair<std::array<glm::vec3, 12>, std::array<UI, 60> >
-	generate_icosahedron_data();
 };
 } // namespace raw::sphere_generation
 #endif // SPACE_EXPLORER_MESH_GENERATOR_H

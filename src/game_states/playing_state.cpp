@@ -8,7 +8,7 @@
 #include "window/gl_window.h"
 
 namespace raw::game_states {
-	namespace predef {
+namespace predef {
 static constexpr auto AM_POINT_LIGHTS = 5;
 }
 
@@ -57,23 +57,25 @@ void playing_state::init() const {
 }
 
 playing_state::playing_state(glm::uvec2 window_size)
-	: object_shader(make_shared<raw::rendering::shader::shader>(
+	: object_shader(std::make_shared<raw::rendering::shader::shader>(
 		  "shaders/objects/vertex_shader.glsl", "shaders/objects/color_shader.frag")),
-	  light_shader(make_shared<raw::rendering::shader::shader>("shaders/light/vertex_shader.glsl",
-	                                                           "shaders/light/color_shader.frag")),
+	  light_shader(std::make_shared<raw::rendering::shader::shader>(
+		  "shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag")),
 	  light_cube(object_shader),
 
-	  sphere_mesh(
-		  make_shared<raw::graphics::mesh>(sphere_generation::predef::MAXIMUM_AMOUNT_OF_VERTICES,
-		                                   sphere_generation::predef::MAXIMUM_AMOUNT_OF_INDICES)),
-	  gen(sphere_mesh->get_vbo(), sphere_mesh->get_ebo()),
-	  sim_state{true, 5},
+	  stream(std::make_shared<cuda_types::cuda_stream>()),
+	  sphere_mesh(std::make_shared<raw::graphics::mesh>(
+		  sphere_generation::predef::MAXIMUM_AMOUNT_OF_VERTICES,
+		  sphere_generation::predef::MAXIMUM_AMOUNT_OF_INDICES)),
+	  sphere_manager(sphere_mesh->get_vbo(), sphere_mesh->get_ebo(), stream),
+	  sphere_gen(),
+	  sim_state {true, 5},
 	  system(n_body::predef::generate_data_for_sim(), sphere_mesh->get_vao(),
-	         sphere_mesh->attr_num()),
+			 sphere_mesh->attr_num()),
 	  camera(),
 	  controller(camera) {
 	sphere_mesh->unbind();
-
+	sphere_gen.generate(5, *stream.get(), sphere_manager);
 	camera.set_window_resolution(window_size.x, window_size.y);
 	init();
 }

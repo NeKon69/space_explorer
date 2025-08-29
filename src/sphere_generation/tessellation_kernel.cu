@@ -72,11 +72,11 @@ __global__ void create_unique_midpoint_vertices(
 }
 // Uses binary sorting because "unique_edges" are sorted
 __device__ int find_edge(const edge *unique_edges, uint32_t num_unique_edges, edge target) {
-	int low	 = 0;
-	int high = num_unique_edges - 1;
+	uint32_t low  = 0;
+	uint32_t high = num_unique_edges - 1;
 	while (low <= high) {
-		int	 mid	  = low + (high - low) / 2;
-		edge mid_edge = unique_edges[mid];
+		uint32_t mid	  = low + (high - low) / 2;
+		edge	 mid_edge = unique_edges[mid];
 		if (mid_edge.v0 < target.v0 || (mid_edge.v0 == target.v0 && mid_edge.v1 < target.v1)) {
 			low = mid + 1;
 		} else if (mid_edge == target) {
@@ -104,7 +104,9 @@ __global__ void create_triangles(const UI *in_indices, UI *out_indices, const ed
 	const uint32_t i2 = in_indices[x * 3 + 2];
 
 	// recreate the structure of the edges
-	edge e01, e12, e20;
+	edge e01;
+	edge e12;
+	edge e20;
 	make_canonical_edge(e01, i0, i1);
 	make_canonical_edge(e12, i1, i2);
 	make_canonical_edge(e20, i2, i0);
@@ -138,7 +140,33 @@ __global__ void create_triangles(const UI *in_indices, UI *out_indices, const ed
 	out_tri_ptr[10] = new_i12;
 	out_tri_ptr[11] = new_i20;
 }
+__global__ void calculate_tbn_and_uv(raw::graphics::vertex *vertices, uint32_t num_input_vertices) {
+	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
+	if (x >= num_input_vertices) {
+		return;
+	}
+	graphics::vertex &vertex = vertices[x];
 
+	glm::vec3 P = vertex.position;
+
+	float longitude = atan2f(P.z, P.x);
+	float latitude	= asinf(P.y);
+
+	vertex.tex_coord.x = longitude / (2.0f * CUDART_PI_F) + 0.5f;
+	vertex.tex_coord.y = latitude / CUDART_PI_F + 0.5f;
+
+	glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+	if (abs(P.y) > 0.9999f) {
+		vertex.tangent = glm::vec3(0.0f, 1.0f, 0.0f);
+	} else {
+		vertex.tangent = glm::normalize(glm::cross(up, vertex.normal));
+	}
+	vertex.bitangent = glm::normalize(glm::cross(vertex.normal, vertex.tangent));
+}
+/**
+ *  @deprecated
+ */
 __device__ void calc_tex_coords(glm::vec2 *writing_ptr, glm::vec3 &normalized_pos) {
 	float u		 = atan2f(normalized_pos.z, normalized_pos.x) / (2.0f * CUDART_PI_F) + 0.5f;
 	float v		 = 0.5f - asinf(normalized_pos.y) / CUDART_PI_F;

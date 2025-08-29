@@ -8,35 +8,40 @@
 
 #include "core/clock.h"
 #include "cuda_types/buffer.h"
+#include "sphere_generation/generation_context.h"
 #include "sphere_generation/kernel_launcher.h"
 
 namespace raw::sphere_generation {
 inline constexpr float GOLDEN_RATIO = std::numbers::phi_v<float>;
+inline constexpr float PI			= std::numbers::pi_v<float>;
 
 icosahedron_data_manager::icosahedron_data_manager()
-	: stream(make_shared<cuda_types::cuda_stream>()),
+	: stream(std::make_shared<cuda_types::cuda_stream>()),
+	  _vbo(0),
+	  _ebo(0),
 	  amount_of_triangles(sizeof(uint32_t), stream, true),
 	  amount_of_vertices(sizeof(uint32_t), stream, true),
 	  amount_of_edges(sizeof(uint32_t), stream, true) {}
 
-icosahedron_data_manager::icosahedron_data_manager(raw::UI vbo, raw::UI ebo, raw::UI steps)
-	: stream(make_shared<cuda_types::cuda_stream>()),
+icosahedron_data_manager::icosahedron_data_manager(raw::UI vbo, raw::UI ebo,
+												   std::shared_ptr<cuda_types::cuda_stream> stream)
+
+	: stream(stream),
 	  amount_of_triangles(sizeof(uint32_t), stream, true),
 	  amount_of_vertices(sizeof(uint32_t), stream, true),
 	  amount_of_edges(sizeof(uint32_t), stream, true) {
-	_vbo = vbo;
-	_ebo = ebo;
-	generate(vbo, ebo, steps);
+	init(vbo, ebo);
 }
 
 void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
 	static int times_called = 0;
 	// can be called only once in the lifetime
 	assert(times_called == 0);
-	_vbo			= vbo;
-	_ebo			= ebo;
-	vertices_handle = cuda_types::cuda_from_gl_data<raw::graphics::vertex>(&vertices_bytes, vbo);
-	indices_handle	= cuda_types::cuda_from_gl_data<UI>(&indices_bytes, ebo);
+	_vbo = vbo;
+	_ebo = ebo;
+	vertices_handle =
+		cuda_types::cuda_from_gl_data<raw::graphics::vertex>(&vertices_bytes, vbo, stream);
+	indices_handle = cuda_types::cuda_from_gl_data<UI>(&indices_bytes, ebo, stream);
 
 	vertices_second = cuda_types::cuda_buffer<raw::graphics::vertex>(vertices_bytes, stream, true);
 	indices_second	= cuda_types::cuda_buffer<UI>(indices_bytes, stream, true);
@@ -68,30 +73,7 @@ void icosahedron_data_manager::prepare(raw::UI vbo, raw::UI ebo) {
 					num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice, stream->stream());
 }
 generation_context icosahedron_data_manager::create_context() {
-	return generation_context(*this, _vbo, _ebo);
-}
-
-// TODO: Delete this function as this class will serve only as data manager
-void icosahedron_data_manager::generate(raw::UI vbo, raw::UI ebo, raw::UI steps) {
-	// Motherfucker doesn't like then i use same amount of memory as was allocated so here will be
-	// >= and not just > (which sucks btw)
-	// One day i will find that sick piece of shit that doesn't let me use all allocated memory, and
-	// i promise, if he even then will say cudaErrorIllegalAddress, i will kill myself
-	// TODO: Put this check into generator function
-	if (steps >= predef::MAX_STEPS) {
-		throw std::runtime_error(std::format(
-			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
-			predef::MAX_STEPS, steps));
-	}
-	// TODO: After refactoring the class remember to delete that
-	if (vbo != _vbo || ebo != _ebo) {
-		throw std::runtime_error(std::format(
-			"Function for LOD on different BO's was not yet created, don't call that. VBO given was {} while stored VBO was {}, EBO given was {} while stored was {}",
-			vbo, _vbo, ebo, _ebo));
-	}
-
-	prepare(vbo, ebo);
-	cleanup();
+	return generation_context {*this, _vbo, _ebo};
 }
 
 void icosahedron_data_manager::cleanup() {
@@ -107,13 +89,11 @@ void icosahedron_data_manager::cleanup() {
 // Icosahedron as most things in this project sounds horrifying, but, n-body (my algorithms), this
 // thing, and tesselation are surprisingly easy things, just for some reason someone wanted give
 // them scary names
-constexpr std::array<glm::vec3, 12> icosahedron_data_manager::generate_icosahedron_vertices() {
-	std::array<glm::vec3, 12> vertices {};
-	int						  vertex_index = 0;
+constexpr std::array<graphics::vertex, 12>
+icosahedron_data_manager::generate_icosahedron_vertices() {
+	std::array<graphics::vertex, 12> vertices;
+	int								 vertex_index = 0;
 
-	// FIXME: program won't launch properly until i actually 100% not clickbait will actually
-	// eventually fix this to return not only the vertices itself but also other important stuff (i
-	// also hate opengl and want to make my own renderer)
 	const float unscaled_dist = std::sqrt(1.0f + GOLDEN_RATIO * GOLDEN_RATIO);
 	const float scale		  = 1 / unscaled_dist;
 	const float a			  = 1.0f * scale;
@@ -124,7 +104,7 @@ constexpr std::array<glm::vec3, 12> icosahedron_data_manager::generate_icosahedr
 			const auto sign1 = (j & 2) ? -1.0f : 1.0f;
 			const auto sign2 = (j & 1) ? -1.0f : 1.0f;
 
-			glm::vec3 point = {1.0f, 1.0f, 1.0f};
+			glm::vec3 point(1.0f);
 			if (i == 0) {
 				point = {sign1 * a, sign2 * b, 0.0f};
 			} else if (i == 1) {
@@ -133,7 +113,16 @@ constexpr std::array<glm::vec3, 12> icosahedron_data_manager::generate_icosahedr
 				point = {sign1 * b, 0.0f, sign2 * a};
 			}
 
-			vertices[vertex_index++] = point;
+			auto &v = vertices[vertex_index++];
+
+			v.position = glm::normalize(point);
+			v.normal   = v.position;
+
+			constexpr glm::vec3 up = {0.0f, 1.0f, 0.0f};
+			v.tangent			   = glm::normalize(glm::cross(up, v.normal));
+			v.bitangent			   = glm::normalize(glm::cross(v.normal, v.tangent));
+			v.tex_coord.x		   = 0.5f + std::atan2(v.normal.z, v.normal.x) / (2.0f * PI);
+			v.tex_coord.y		   = 0.5f - std::asin(v.normal.y) / PI;
 		}
 	}
 	return vertices;
@@ -145,8 +134,4 @@ constexpr std::array<UI, 60> icosahedron_data_manager::generate_icosahedron_indi
 			7, 9,  1,  9, 8,  6, 8, 4, 3, 6, 10, 7,	 3, 11, 9,	7, 5, 8, 9, 0};
 }
 
-constexpr std::pair<std::array<glm::vec3, 12>, std::array<UI, 60> >
-icosahedron_data_manager::generate_icosahedron_data() {
-	return std::pair {generate_icosahedron_vertices(), generate_icosahedron_indices()};
-}
 } // namespace raw::sphere_generation

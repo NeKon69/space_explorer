@@ -17,17 +17,23 @@ class cuda_from_gl_data {
 	// Meant to be used with ```new``` (or shared-ptr) and deleted when cleanup starts
 
 private:
-	cudaGraphicsResource_t cuda_resource = nullptr;
-	T*					   data			 = nullptr;
-	bool				   mapped		 = false;
+	cudaGraphicsResource_t		 cuda_resource = nullptr;
+	T*							 data		   = nullptr;
+	bool						 mapped		   = false;
+	std::shared_ptr<cuda_stream> stream;
 
 public:
 	cuda_from_gl_data() = default;
 
-	cuda_from_gl_data(size_t* amount_of_bytes, UI buffer_object) {
+	cuda_from_gl_data(size_t* amount_of_bytes, UI buffer_object,
+					  std::shared_ptr<cuda_stream> stream = nullptr)
+		: stream(stream) {
+		if (stream == nullptr) {
+			stream = std::make_shared<cuda_types::cuda_stream>();
+		}
 		CUDA_SAFE_CALL(cudaGraphicsGLRegisterBuffer(&cuda_resource, buffer_object,
 													cudaGraphicsRegisterFlagsWriteDiscard));
-		CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &cuda_resource, nullptr));
+		CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &cuda_resource, stream->stream()));
 		CUDA_SAFE_CALL(
 			cudaGraphicsResourceGetMappedPointer((void**)&data, amount_of_bytes, cuda_resource));
 		mapped = true;

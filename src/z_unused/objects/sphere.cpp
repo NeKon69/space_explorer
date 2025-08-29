@@ -9,12 +9,12 @@
 #include "rendering/shader/shader.h"
 
 namespace raw::z_unused::objects {
-	sphere::sphere(const raw::shared_ptr<raw::rendering::shader::shader> &shader, float radius)
+	sphere::sphere(const std::shared_ptr<raw::rendering::shader::shader> &shader, float radius)
 		: indices(sphere_generation::predef::MAXIMUM_AMOUNT_OF_INDICES),
 		  vertices(sphere_generation::predef::MAXIMUM_AMOUNT_OF_VERTICES),
 		  obj(vertices, sphere_generation::predef::MAXIMUM_AMOUNT_OF_VERTICES, indices,
 		      sphere_generation::predef::MAXIMUM_AMOUNT_OF_INDICES),
-		  gen(obj.get_vbo(), 0, obj.get_ebo()) {
+		  gen(obj.get_vbo(), obj.get_ebo(), std::make_shared<cuda_types::cuda_stream>()) {
 		obj.set_shader(shader);
 		obj.scale(glm::vec3(radius));
 		// Acted as a dummy to create obj, so they can be cleared
@@ -45,7 +45,7 @@ namespace raw::z_unused::objects {
 		obj.draw(drawing_method, should_reset);
 	}
 
-	void sphere::set_shader(const raw::shared_ptr<raw::rendering::shader::shader> &sh) {
+	void sphere::set_shader(const std::shared_ptr<raw::rendering::shader::shader> &sh) {
 		obj.set_shader(sh);
 	}
 

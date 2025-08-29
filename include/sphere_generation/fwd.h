@@ -5,6 +5,14 @@
 #ifndef SPACE_EXPLORER_SPHERE_GENERATION_FWD_H
 #define SPACE_EXPLORER_SPHERE_GENERATION_FWD_H
 #include "common/fwd.h"
+#include <cmath>
+
+#ifdef __CUDACC__
+#define HOST_DEVICE __host__ __device__
+#else
+#define HOST_DEVICE
+#endif
+
 
 namespace raw::sphere_generation {
 namespace predef {
@@ -30,14 +38,14 @@ class generation_context;
 struct edge {
 	uint32_t				 v0;
 	uint32_t				 v1;
-	bool __host__ __device__ operator()(const edge& a, const edge& b) {
+	bool  HOST_DEVICE operator()(const edge& a, const edge& b) {
 		if (a.v0 > b.v0)
 			return false;
 		if (a.v0 < b.v0)
 			return true;
 		return a.v1 < b.v1;
 	}
-	auto __host__ __device__ operator>(const edge& a) {
+	auto HOST_DEVICE operator>(const edge& a) {
 		return operator()(*this, a);
 	}
 	auto operator<=>(const edge& edge) const = default;
