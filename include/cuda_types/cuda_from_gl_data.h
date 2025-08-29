@@ -37,6 +37,7 @@ public:
 		CUDA_SAFE_CALL(
 			cudaGraphicsResourceGetMappedPointer((void**)&data, amount_of_bytes, cuda_resource));
 		mapped = true;
+		unmap();
 	};
 	cuda_from_gl_data& operator=(cuda_from_gl_data&& rhs) noexcept {
 		mapped			  = rhs.mapped;
