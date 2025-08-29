@@ -34,7 +34,6 @@ namespace raw::window {
                 " in " + std::string(__FILE__) + " on " + std::to_string(__LINE__) + " line");
         }
         init_glad();
-        grab_mouse();
         gl::VIEW(0, 0, 2560, 1440);
     }
 

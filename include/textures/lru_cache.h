@@ -25,7 +25,7 @@ private:
 public:
 	explicit lru_cache(uint32_t cap) : capacity(cap) {}
 
-	raw::shared_ptr<V> get(const K &key) {
+	std::shared_ptr<V> get(const K &key) {
 		auto it = map.find(key);
 
 		if (it == map.end()) {
@@ -35,7 +35,7 @@ public:
 
 		// Put the found element into the hot (first) cache (means it was just requested)
 		list.splice(list.begin(), list, it->second);
-		return raw::make_shared<V>(it->second->second);
+		return std::make_shared<V>(it->second->second);
 	}
 
 	void put(const K &key, V value) {

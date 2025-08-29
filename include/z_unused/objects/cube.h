@@ -50,7 +50,7 @@ public:
 	// specifically
 	using object::object;
 
-	explicit cube(const raw::shared_ptr<raw::rendering::shader::shader> &sh);
+	explicit cube(const std::shared_ptr<raw::rendering::shader::shader> &sh);
 };
 } // namespace raw::z_unused::objects
 

@@ -64,7 +64,7 @@ public:
 
 	static void update_position(space_object *data, glm::mat4 *data_model,
 								raw::core::time since_last_upd, unsigned int count,
-								const shared_ptr<cuda_types::cuda_stream> &stream) {
+								const std::shared_ptr<cuda_types::cuda_stream> &stream) {
 		since_last_upd.to_milli();
 		launch_leapfrog<T>(data, data_model, since_last_upd.val, count, n_body::predef::G,
 						   stream->stream());

@@ -13,7 +13,7 @@ template<typename T>
 class weak_ptr_base : public smart_ptr_base<T> {
 protected:
 	hub* hub_ptr = nullptr;
-	friend class shared_ptr<T>;
+	friend class std::shared_ptr<T>;
 
 public:
 	// Inherit constructors
@@ -102,16 +102,16 @@ public:
 		return use_count() == 0;
 	}
 
-	inline shared_ptr<T> lock() const noexcept {
+	inline std::shared_ptr<T> lock() const noexcept {
 #ifdef RAW_MULTI_THREADED
 		if (this->hub_ptr && this->hub_ptr->try_increment_use_count_if_not_zero()) {
 #else
 		if (this->hub_ptr && this->hub_ptr->use_count > 0) {
 			this->hub_ptr->use_count++;
 #endif
-			return shared_ptr<T>(this->ptr, this->hub_ptr);
+			return std::shared_ptr<T>(this->ptr, this->hub_ptr);
 		}
-		return shared_ptr<T>();
+		return std::shared_ptr<T>();
 	}
 };
 template<typename T>
@@ -124,7 +124,7 @@ public:
 
 	weak_ptr(std::nullptr_t) noexcept : weak_ptr_base<T>(nullptr) {}
 
-	weak_ptr(const shared_ptr<T>& shared) noexcept {
+	weak_ptr(const std::shared_ptr<T>& shared) noexcept {
 		this->ptr	  = shared.get();
 		this->hub_ptr = shared.hub_ptr;
 		if (this->hub_ptr) {
@@ -132,7 +132,7 @@ public:
 		}
 	}
 
-	inline weak_ptr& operator=(const shared_ptr<T>& shared) noexcept {
+	inline weak_ptr& operator=(const std::shared_ptr<T>& shared) noexcept {
 		if (this->hub_ptr) {
 			this->hub_ptr->decrement_weak_count();
 		}
@@ -154,7 +154,7 @@ public:
 
 	weak_ptr(std::nullptr_t) noexcept : weak_ptr_base<T[]>(nullptr) {}
 
-	weak_ptr(const shared_ptr<T[]>& shared) noexcept {
+	weak_ptr(const std::shared_ptr<T[]>& shared) noexcept {
 		this->ptr	  = shared.get();
 		this->hub_ptr = shared.hub_ptr;
 		if (this->hub_ptr) {
@@ -162,7 +162,7 @@ public:
 		}
 	}
 
-	inline weak_ptr& operator=(const shared_ptr<T[]>& shared) noexcept {
+	inline weak_ptr& operator=(const std::shared_ptr<T[]>& shared) noexcept {
 		if (this->hub_ptr) {
 			this->hub_ptr->decrement_weak_count();
 		}

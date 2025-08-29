@@ -4,7 +4,7 @@
 #include "cuda_types/resource.h"
 
 namespace raw::cuda_types {
-raw::shared_ptr<cuda_stream> resource::stream = raw::make_shared<cuda_stream>();
+std::shared_ptr<cuda_stream> resource::stream = std::make_shared<cuda_stream>();
 
 cudaGraphicsResource_t &resource::get_resource() {
 	return m_resource;

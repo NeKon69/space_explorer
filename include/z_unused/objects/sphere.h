@@ -17,7 +17,7 @@ private:
 	sphere_generation::icosahedron_data_manager gen;
 
 public:
-	explicit sphere(const raw::shared_ptr<raw::rendering::shader::shader> &,
+	explicit sphere(const std::shared_ptr<raw::rendering::shader::shader> &,
 					float radius = sphere_generation::predef::BASIC_RADIUS);
 
 	// Yea yea it would've been more correct to use inheritance here, but for some unknown, very
@@ -37,7 +37,7 @@ public:
 
 	void reset();
 
-	void set_shader(const raw::shared_ptr<raw::rendering::shader::shader> &sh);
+	void set_shader(const std::shared_ptr<raw::rendering::shader::shader> &sh);
 
 	/**
 	 * \brief

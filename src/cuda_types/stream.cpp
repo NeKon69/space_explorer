@@ -8,7 +8,7 @@
 #include "cuda_types/error.h"
 
 namespace raw::cuda_types {
-cuda_stream::cuda_stream() : created(make_shared<bool>(false)) {
+cuda_stream::cuda_stream() : created(std::make_shared<bool>(false)) {
 	CUDA_SAFE_CALL(cudaStreamCreate(&_stream));
 	created = true;
 }

@@ -252,7 +252,7 @@ namespace raw::z_unused {
 	}
 }
 
-void object::set_shader(const raw::shared_ptr<raw::rendering::shader::shader> &sh) {
+void object::set_shader(const std::shared_ptr<raw::rendering::shader::shader> &sh) {
 	shader = sh;
 	shader->use();
 }

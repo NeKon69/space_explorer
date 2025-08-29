@@ -18,7 +18,7 @@
 
 namespace raw {
 template<typename T>
-void update_uniform(const raw::shared_ptr<raw::shader> &shader, std::string name, T value) {
+void update_uniform(const std::shared_ptr<raw::shader> &shader, std::string name, T value) {
 	shader->use();
 	// since I am a lazy man, I will just spam "if constexpr" statements here
 	if constexpr (std::is_same_v<T, glm::vec3>) {
@@ -42,7 +42,7 @@ class playing_state;
 
 template<typename T>
 void update_uniform_for_shaders(const std::string &name, const T &value,
-								const std::vector<raw::shared_ptr<raw::shader> > &shaders) {
+								const std::vector<std::shared_ptr<raw::shader> > &shaders) {
 	for (auto shader : shaders) {
 		update_uniform(shader, name, value);
 	}

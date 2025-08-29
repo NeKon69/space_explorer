@@ -54,7 +54,7 @@ namespace raw::n_body {
 template<typename T>
 class interaction_system {
 private:
-	raw::shared_ptr<cuda_types::cuda_stream> stream = raw::make_shared<cuda_types::cuda_stream>();
+	std::shared_ptr<cuda_types::cuda_stream> stream = std::make_shared<cuda_types::cuda_stream>();
 	cuda_types::cuda_buffer<physics::space_object<T> > d_objects;
 	std::vector<physics::space_object<T> >			   c_objects;
 	size_t											   amount_of_bytes = 0;

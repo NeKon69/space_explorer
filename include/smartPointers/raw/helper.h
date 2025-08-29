@@ -13,7 +13,7 @@
 #include "fwd.h"
 #include "hub.h"
 
-// Struct to emulate shared_ptr's internal structure
+// Struct to emulate std::shared_ptr's internal structure
 template<typename T>
 struct combined {
     raw::hub hub_ptr;
@@ -81,16 +81,16 @@ namespace raw {
         return unique_ptr<T, D>(new T(std::forward<Args>(args)...));
     }
 
-    // I am too lazy to implement the availability to add deleters to shared_ptr (I'll add when
+    // I am too lazy to implement the availability to add deleters to std::shared_ptr (I'll add when
     // necessary)
 
     template<typename T, typename D = raw::default_deleter<T>, typename... Args>
     /**
- * @brief Creates a shared_ptr that manages a single object.
+ * @brief Creates a std::shared_ptr that manages a single object.
  * @param args Constructor arguments for the new object.
  * @param func function to call on destroy, defaults to destroy_make_shared_object
  */
-    std::enable_if_t<!std::is_array_v<T>, raw::shared_ptr<T> > make_shared(
+    std::enable_if_t<!std::is_array_v<T>, std::shared_ptr<T> > make_shared(
         Args &&... args) {
         // Allocate a block of memory that can hold both the object and the hub
         std::byte *raw_block =
@@ -117,15 +117,15 @@ namespace raw {
             throw;
         }
 
-        return shared_ptr<T>(constructed_ptr, constructed_hub);
+        return std::shared_ptr<T>(constructed_ptr, constructed_hub);
     }
 
     /**
- * @brief Creates a shared_ptr that manages a static array.
+ * @brief Creates a std::shared_ptr that manages a static array.
  * @param size size of the array.
  */
     template<typename T>
-    std::enable_if_t<std::is_array_v<T>, raw::shared_ptr<T> > make_shared(size_t size) {
+    std::enable_if_t<std::is_array_v<T>, std::shared_ptr<T> > make_shared(size_t size) {
         using element_type = std::remove_extent_t<T>;
 
         size_t hub_align = alignof(raw::hub);
@@ -167,7 +167,7 @@ namespace raw {
             throw;
         }
 
-        return raw::shared_ptr<T>(constructed_ptr, constructed_hub);
+        return std::shared_ptr<T>(constructed_ptr, constructed_hub);
     }
 } // namespace raw
 

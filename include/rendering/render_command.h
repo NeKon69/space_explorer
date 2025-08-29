@@ -17,8 +17,8 @@ struct instance_data {
 };
 
 struct command {
-	raw::shared_ptr<raw::graphics::mesh> mesh;
-	raw::shared_ptr<raw::rendering::shader::shader> shader;
+	std::shared_ptr<raw::graphics::mesh> mesh;
+	std::shared_ptr<raw::rendering::shader::shader> shader;
 	std::optional<raw::rendering::instance_data> inst_data;
 };
 } // namespace raw::rendering

@@ -9,6 +9,7 @@ generation_context::generation_context(icosahedron_data_manager& mgr, UI vbo, UI
 	manager.prepare(vbo, ebo);
 }
 generation_context::~generation_context() {
+	std::cout << "Clean Up is CALLED!!!\n";
 	manager.cleanup();
 }
 

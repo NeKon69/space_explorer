@@ -57,7 +57,7 @@ private:
 
 protected:
 	glm::mat4										transformation = glm::mat4(1.0f);
-	raw::shared_ptr<raw::rendering::shader::shader> shader;
+	std::shared_ptr<raw::rendering::shader::shader> shader;
 
 public:
 	object(object &&) noexcept;
@@ -87,7 +87,7 @@ public:
 		return *ebo;
 	}
 
-	void set_shader(const raw::shared_ptr<raw::rendering::shader::shader> &sh);
+	void set_shader(const std::shared_ptr<raw::rendering::shader::shader> &sh);
 
 	/**
 	 * \brief

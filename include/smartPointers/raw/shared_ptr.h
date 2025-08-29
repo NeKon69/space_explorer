@@ -133,7 +133,7 @@ namespace raw {
         }
 
         shared_ptr &operator=(unique_ptr<T> &&unique) noexcept {
-            shared_ptr temp(std::move(unique));
+            std::shared_ptr temp(std::move(unique));
             this->swap(temp);
             return *this;
         }
@@ -148,13 +148,13 @@ namespace raw {
         }
 
         shared_ptr &operator=(T *ptr) noexcept {
-            shared_ptr temp(std::move(ptr));
+            std::shared_ptr temp(std::move(ptr));
             this->swap(temp);
             return *this;
         }
 
         inline void reset(T *p = nullptr) noexcept {
-            shared_ptr<T> temp(p);
+            std::shared_ptr<T> temp(p);
             this->swap(temp);
         }
     };
@@ -192,7 +192,7 @@ namespace raw {
         }
 
         shared_ptr &operator=(unique_ptr<T[]> &&unique) noexcept {
-            shared_ptr temp(std::move(unique));
+            std::shared_ptr temp(std::move(unique));
             this->swap(temp);
             return *this;
         }
@@ -207,13 +207,13 @@ namespace raw {
         }
 
         shared_ptr &operator=(T *ptr) noexcept {
-            shared_ptr temp(std::move(ptr));
+            std::shared_ptr temp(std::move(ptr));
             this->swap(temp);
             return *this;
         }
 
         inline void reset(T *p = nullptr) noexcept {
-            shared_ptr<T[]> temp(p);
+            std::shared_ptr<T[]> temp(p);
             this->swap(temp);
         }
     };

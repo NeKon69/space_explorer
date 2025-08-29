@@ -81,7 +81,7 @@ namespace raw {
     protected:
         T *ptr = nullptr;
         friend class unique_ptr<T[]>;
-        friend class shared_ptr<T[]>;
+        friend class std::shared_ptr<T[]>;
 
     public:
         constexpr smart_ptr_base() = default;
