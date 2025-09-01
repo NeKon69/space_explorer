@@ -187,6 +187,7 @@ bool playing_state::handle_input() {
 
 void playing_state::draw(raw::rendering::renderer& renderer) {
 	auto queue = build_rendering_queue();
+	sphere_gen.sync();
 	renderer.render(queue, camera);
 }
 

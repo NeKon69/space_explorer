@@ -31,15 +31,14 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 	constexpr auto threads_per_block = 1024;
 
 	cuda_types::cuda_buffer<uint32_t, cuda_types::side::host> num_triangles_cpu(sizeof(uint32_t));
+	cuda_types::cuda_buffer<uint32_t, cuda_types::side::host> num_unique_edges_cpu(
+		sizeof(uint32_t));
 	*num_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
 	auto blocks		   = (*num_triangles_cpu + threads_per_block - 1) / threads_per_block;
+	int	 base		   = 12;
+	CUDA_SAFE_CALL(
+		cudaMemcpyAsync(p_vertex_count, &base, sizeof(uint32_t), cudaMemcpyHostToDevice, stream));
 	// This shit right here, took me fckn 2 hours to understand LOL
-	printf("[Host] About to launch generate_edges. out_edges pointer is: %p\n", all_edges);
-
-	generate_edges<<<blocks, threads_per_block, 0, stream>>>(in_indices, all_edges,
-															 *num_triangles_cpu);
-
-	CUDA_SAFE_CALL(cudaDeviceSynchronize());
 	for (uint32_t i = 0; i < steps; ++i) {
 		// we need to sync here for above operation to finish, get correct "num_vertices_cpu" and
 		// then perform bottom operation with correct byte size
@@ -48,6 +47,10 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 				cudaMemcpyAsync(out_vertices, in_vertices,
 								predef::MAXIMUM_AMOUNT_OF_VERTICES * sizeof(raw::graphics::vertex),
 								cudaMemcpyDeviceToDevice, stream));
+		} else {
+			CUDA_SAFE_CALL(cudaMemcpyAsync(out_vertices, in_vertices,
+										   12 * sizeof(raw::graphics::vertex),
+										   cudaMemcpyDeviceToDevice, stream));
 		}
 
 		CUDA_SAFE_CALL(cudaMemsetAsync(p_unique_edges_count, 0, sizeof(uint32_t), stream));
@@ -55,23 +58,6 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 		blocks = (*num_triangles_cpu + threads_per_block - 1) / threads_per_block;
 		generate_edges<<<blocks, threads_per_block, 0, stream>>>(in_indices, all_edges,
 																 *num_triangles_cpu);
-		void *p_test_allocation = nullptr;
-		CUDA_SAFE_CALL(cudaMalloc(&p_test_allocation, 16));
-		CUDA_SAFE_CALL(cudaDeviceSynchronize());
-		CUDA_SAFE_CALL(cudaFree(p_test_allocation));
-		CUDA_SAFE_CALL(cudaDeviceSynchronize());
-
-		std::cout << "--- Subdivision Step " << i << " ---" << std::endl;
-		size_t num_edges_to_sort  = (size_t)*num_triangles_cpu * 3;
-		size_t all_edges_capacity = predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3;
-
-		std::cout << "Number of triangles (input): " << *num_triangles_cpu << std::endl;
-		std::cout << "Number of edges to sort:     " << num_edges_to_sort << std::endl;
-		std::cout << "Capacity of all_edges buffer:  " << all_edges_capacity << std::endl;
-
-		if (num_edges_to_sort > all_edges_capacity) {
-			std::cerr << "FATAL ERROR: Attempting to sort more edges than allocated!" << std::endl;
-		}
 		thrust::sort(thrust::cuda::par_nosync.on(stream), all_edges,
 					 all_edges + *num_triangles_cpu * 3);
 
@@ -80,13 +66,19 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 			all_edges, in_vertices, out_vertices, p_vertex_count, d_unique_edges, edge_to_vertex,
 			p_unique_edges_count, *num_triangles_cpu * 3);
 
+		CUDA_SAFE_CALL(cudaMemcpyAsync(num_unique_edges_cpu.get(), p_unique_edges_count,
+									   sizeof(uint32_t), cudaMemcpyDeviceToHost, stream));
+		CUDA_SAFE_CALL(cudaStreamSynchronize(stream));
+		thrust::sort_by_key(thrust::cuda::par_nosync.on(stream), d_unique_edges,
+							d_unique_edges + *num_unique_edges_cpu, edge_to_vertex);
+
 		blocks = (*num_triangles_cpu + threads_per_block - 1) / threads_per_block;
+
 		create_triangles<<<blocks, threads_per_block, 0, stream>>>(
 			in_indices, out_indices, d_unique_edges, edge_to_vertex, p_unique_edges_count,
 			*num_triangles_cpu);
 
 		*num_triangles_cpu *= 4;
-
 		std::swap(in_vertices, out_vertices);
 		std::swap(in_indices, out_indices);
 	}
@@ -103,58 +95,8 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 	}
 	blocks = (num_vertices_cpu + threads_per_block - 1) / threads_per_block;
 
-	// calculate_tbn_and_uv<<<blocks, threads_per_block, 0, stream>>>(in_vertices,
-	// num_vertices_cpu);
-	cudaStreamSynchronize(stream);
-}
-
-void launch_orthogonalization(raw::graphics::vertex *vertices, size_t num_vertices,
-							  cudaStream_t &stream) {
-	constexpr auto threads_per_block = 256;
-	auto		   blocks			 = (num_vertices + threads_per_block - 1) / 256;
-	orthogonalize<<<blocks, threads_per_block, 0, stream>>>(vertices, num_vertices);
-}
-
-__global__ void dummy_kernel(int *counter) {
-	if (threadIdx.x == 0 && blockIdx.x == 0) {
-		atomicAdd(counter, 1);
-	}
-}
-
-// A simple C++ function to launch the dummy kernel
-void launch_dummy_kernel() {
-	int *d_counter;
-	int	 h_counter = 0;
-
-	// Allocate memory on the GPU
-	cudaMalloc(&d_counter, sizeof(int));
-
-	// Copy initial value (0) to GPU
-	cudaMemcpy(d_counter, &h_counter, sizeof(int), cudaMemcpyHostToDevice);
-
-	// Launch the kernel
-	std::cout << "[Debug] Launching dummy kernel..." << std::endl;
-	dummy_kernel<<<1, 1>>>(d_counter);
-
-	// Check for any launch errors
-	cudaError_t err = cudaGetLastError();
-	if (err != cudaSuccess) {
-		std::cerr << "[Debug] Dummy kernel launch failed: " << cudaGetErrorString(err) << std::endl;
-	} else {
-		std::cout << "[Debug] Dummy kernel launched successfully." << std::endl;
-	}
-
-	// Synchronize to ensure the kernel has finished
-	cudaDeviceSynchronize();
-
-	// Copy the result back from GPU
-	cudaMemcpy(&h_counter, d_counter, sizeof(int), cudaMemcpyDeviceToHost);
-
-	// Free GPU memory
-	cudaFree(d_counter);
-
-	// Print the result
-	std::cout << "[Debug] Dummy kernel result: " << h_counter << " (should be 1)" << std::endl;
+	calculate_tbn_and_uv<<<blocks, threads_per_block, 0, stream>>>(in_vertices, num_vertices_cpu);
+	CUDA_SAFE_CALL(cudaStreamSynchronize(stream));
 }
 
 } // namespace raw::sphere_generation

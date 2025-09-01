@@ -13,34 +13,17 @@ __device__ void make_canonical_edge(edge &edge, uint32_t i0, uint32_t i1) {
 	edge.v1 = min(i0, i1);
 }
 __global__ void generate_edges(const UI *in_indices, edge *out_edges, size_t num_input_triangles) {
-	if (blockIdx.x == 0 && threadIdx.x == 0) {
-		printf("[Device] Kernel started. out_edges pointer is: %p\n", out_edges);
-	}
 	const UI x = blockIdx.x * blockDim.x + threadIdx.x;
 	if (x >= num_input_triangles) {
 		return;
 	}
-	if (threadIdx.x < 4 && blockIdx.x == 0) {
-		printf("Thread (%u, %u), Global ID x=%u, num_input_triangles=%u\n", blockIdx.x, threadIdx.x,
-			   x, static_cast<int>(num_input_triangles));
-	}
 
 	// Triangle's indices
-	volatile uint32_t i0 = in_indices[x * 3 + 0];
-	volatile uint32_t i1 = in_indices[x * 3 + 1];
-	volatile uint32_t i2 = in_indices[x * 3 + 2];
-	if (x < 4) {
-		printf("Thread %u is processing triangle %u with indices {%u, %u, %u}\n", threadIdx.x, x,
-			   i0, i1, i2);
-	}
+	uint32_t i0 = in_indices[x * 3 + 0];
+	uint32_t i1 = in_indices[x * 3 + 1];
+	uint32_t i2 = in_indices[x * 3 + 2];
 
 	edge *edge_ptr = &out_edges[x * 3];
-	if (x < 4) {
-		printf(
-			"Thread %u is processing triangle %u with edge {%u, %u}, edge {%u, %u}, and edge {%u, %u}\n",
-			threadIdx.x, x, edge_ptr[0].v0, edge_ptr[0].v1, edge_ptr[1].v0, edge_ptr[1].v1,
-			edge_ptr[2].v0, edge_ptr[2].v1);
-	}
 	// Prepares edges for sorting
 	make_canonical_edge(edge_ptr[0], i0, i1);
 	make_canonical_edge(edge_ptr[1], i1, i2);
@@ -129,9 +112,9 @@ __global__ void create_triangles(const UI *in_indices, UI *out_indices, const ed
 	make_canonical_edge(e20, i2, i0);
 
 	// find the edge in "unique_edges" array
-	UI unique_id_01 = find_edge(unique_edges, num_unique_edges, e01);
-	UI unique_id_12 = find_edge(unique_edges, num_unique_edges, e12);
-	UI unique_id_20 = find_edge(unique_edges, num_unique_edges, e20);
+	int unique_id_01 = find_edge(unique_edges, num_unique_edges, e01);
+	int unique_id_12 = find_edge(unique_edges, num_unique_edges, e12);
+	int unique_id_20 = find_edge(unique_edges, num_unique_edges, e20);
 
 	// retrieve new indices from the lookup
 	uint32_t new_i01 = edge_to_vertex[unique_id_01];

@@ -47,7 +47,12 @@ struct edge {
 		}
 		return v1 < other.v1;
 	}
-	bool operator==(const edge& edge) const = default;
+	HOST_DEVICE bool operator==(const edge& edge) const {
+		return v0 == edge.v0 && v1 == edge.v1;
+	}
+	HOST_DEVICE bool operator!=(const edge& edge) const {
+		return !operator==(edge);
+	}
 };
 } // namespace raw::sphere_generation
 #endif // SPACE_EXPLORER_SPHERE_GENERATION_FWD_H

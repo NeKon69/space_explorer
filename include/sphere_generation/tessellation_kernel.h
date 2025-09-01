@@ -24,6 +24,8 @@ extern __global__ void create_triangles(const UI *in_indices, UI *out_indices,
 										const edge *unique_edges, const uint32_t *edge_to_vertex,
 										const uint32_t *p_num_unique_edges,
 										const size_t	num_input_triangles);
+extern __global__ void calculate_tbn_and_uv(raw::graphics::vertex *vertices,
+											uint32_t			   num_input_vertices);
 
 extern __global__ void subdivide(raw::graphics::vertex *in_vertices, unsigned int *in_indices,
 								 raw::graphics::vertex *out_vertices, unsigned int *out_indices,

@@ -14,9 +14,6 @@ extern void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indic
 								uint32_t *p_vertex_count, uint32_t *p_triangle_count,
 								uint32_t *p_edges_cound, cudaStream_t &stream, uint32_t steps);
 
-extern void launch_orthogonalization(raw::graphics::vertex *vertices, size_t num_vertices,
-									 cudaStream_t &stream);
-extern void launch_dummy_kernel();
 } // namespace raw::sphere_generation
 
 #endif // SPACE_EXPLORER_KERNEL_LAUNCHER_H

@@ -55,8 +55,10 @@ public:
 		return cuda_buffer<T>(size, _stream);
 	}
 
-	explicit cuda_buffer(const size_t size)
-		: _size(size), data_stream(std::make_shared<cuda_stream>()) {
+	explicit cuda_buffer(const size_t size) : _size(size) {
+		if constexpr (Side == side::device) {
+			data_stream = std::make_shared<cuda_stream>();
+		}
 		alloc();
 	}
 
