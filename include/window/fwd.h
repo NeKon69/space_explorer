@@ -25,8 +25,12 @@ inline static constexpr auto &STENCIL_OPERATION	  = glStencilOp;
 inline static constexpr auto &STENCIL_MASK		  = glStencilMask;
 inline static constexpr auto &STENCIL_FUNC		  = glStencilFunc;
 } // namespace gl
+enum class context_type { MAIN, TESS, TEX_GEN };
+struct graphics_data;
 class sdl_video;
 class gl_window;
+template<context_type ctx_type>
+class gl_context_lock;
 } // namespace raw::window
 
 #endif // SPACE_EXPLORER_WINDOW_FWD_H

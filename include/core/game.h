@@ -16,7 +16,7 @@ namespace raw::core {
 class game {
 private:
 	raw::rendering::renderer							renderer;
-	std::stack<std::unique_ptr<raw::core::game_state> > states;
+	std::stack<std::unique_ptr<raw::core::game_state>> states;
 	bool												is_running = true;
 
 public:

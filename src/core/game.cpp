@@ -7,7 +7,6 @@
 
 namespace raw::core {
 game::game(const std::string &name) : renderer(name) {
-	cudaSetDevice(0);
 	states.emplace(std::make_unique<game_states::playing_state>(renderer->get_window_size()));
 }
 

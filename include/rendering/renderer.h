@@ -23,7 +23,7 @@ public:
 
 	raw::window::gl_window *operator->();
 
-	void render(raw::rendering::queue &command_queue, const core::camera::camera &camera) const;
+	void render(raw::rendering::queue &command_queue, const core::camera::camera &camera) ;
 };
 } // namespace raw::rendering
 
