@@ -25,6 +25,8 @@ inline static constexpr auto &STENCIL_OPERATION	  = glStencilOp;
 inline static constexpr auto &STENCIL_MASK		  = glStencilMask;
 inline static constexpr auto &STENCIL_FUNC		  = glStencilFunc;
 } // namespace gl
+
+struct graphics_data;
 class sdl_video;
 class gl_window;
 } // namespace raw::window
