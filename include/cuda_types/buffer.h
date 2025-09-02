@@ -43,14 +43,27 @@ private:
 public:
 	cuda_buffer() = default;
 
+	__host__ T &operator*()
+		requires(Side == side::host)
+	{
+		return *ptr;
+	}
+	__host__ T &operator*() const
+		requires(Side == side::device)
+	{
+		return *ptr;
+	}
+
 	static cuda_buffer create(const size_t size) {
 		// so there'll be only one stream for all buffers. nice!
 		static std::shared_ptr<cuda_stream> _stream = std::make_shared<cuda_stream>();
 		return cuda_buffer<T>(size, _stream);
 	}
 
-	explicit cuda_buffer(const size_t size)
-		: _size(size), data_stream(std::make_shared<cuda_stream>()) {
+	explicit cuda_buffer(const size_t size) : _size(size) {
+		if constexpr (Side == side::device) {
+			data_stream = std::make_shared<cuda_stream>();
+		}
 		alloc();
 	}
 

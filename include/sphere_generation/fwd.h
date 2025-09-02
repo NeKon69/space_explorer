@@ -4,15 +4,15 @@
 
 #ifndef SPACE_EXPLORER_SPHERE_GENERATION_FWD_H
 #define SPACE_EXPLORER_SPHERE_GENERATION_FWD_H
-#include "common/fwd.h"
 #include <cmath>
+
+#include "common/fwd.h"
 
 #ifdef __CUDACC__
 #define HOST_DEVICE __host__ __device__
 #else
 #define HOST_DEVICE
 #endif
-
 
 namespace raw::sphere_generation {
 namespace predef {
@@ -25,10 +25,11 @@ static constexpr auto MAX_STEPS	   = 8U;
 static constexpr auto BASIC_AMOUNT_OF_TRIANGLES = 20U;
 } // namespace predef
 namespace predef {
-static const UI MAXIMUM_AMOUNT_OF_INDICES =
-	BASIC_AMOUNT_OF_TRIANGLES * static_cast<UI>(std::pow(4, MAX_STEPS)) + 2;
-static const UI MAXIMUM_AMOUNT_OF_VERTICES	= 10 * static_cast<UI>(std::pow(4, MAX_STEPS));
-static const UI MAXIMUM_AMOUNT_OF_TRIANGLES = BASIC_AMOUNT_OF_TRIANGLES * std::pow(4, MAX_STEPS);
+static constexpr UI MAXIMUM_AMOUNT_OF_INDICES =
+	BASIC_AMOUNT_OF_TRIANGLES * (1u << (2u * MAX_STEPS)) * 3u;
+static constexpr UI MAXIMUM_AMOUNT_OF_VERTICES = 10u * (1u << (2u * MAX_STEPS)) + 2u;
+static constexpr UI MAXIMUM_AMOUNT_OF_TRIANGLES =
+	BASIC_AMOUNT_OF_TRIANGLES * (1u << (2u * MAX_STEPS));
 } // namespace predef
 
 class icosahedron_data_manager;
@@ -36,19 +37,23 @@ class sphere_generator;
 class generation_context;
 // Stores 2 indices of vertices in the sphere
 struct edge {
-	uint32_t				 v0;
-	uint32_t				 v1;
-	bool  HOST_DEVICE operator()(const edge& a, const edge& b) {
-		if (a.v0 > b.v0)
-			return false;
-		if (a.v0 < b.v0)
+	uint32_t		 v0;
+	uint32_t		 v1;
+	HOST_DEVICE bool operator<(const edge& other) const {
+		if (v0 < other.v0) {
 			return true;
-		return a.v1 < b.v1;
+		}
+		if (v0 > other.v0) {
+			return false;
+		}
+		return v1 < other.v1;
 	}
-	auto HOST_DEVICE operator>(const edge& a) {
-		return operator()(*this, a);
+	HOST_DEVICE bool operator==(const edge& edge) const {
+		return v0 == edge.v0 && v1 == edge.v1;
 	}
-	auto operator<=>(const edge& edge) const = default;
+	HOST_DEVICE bool operator!=(const edge& edge) const {
+		return !operator==(edge);
+	}
 };
 } // namespace raw::sphere_generation
 #endif // SPACE_EXPLORER_SPHERE_GENERATION_FWD_H

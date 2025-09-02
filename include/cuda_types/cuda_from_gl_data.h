@@ -20,6 +20,7 @@ private:
 	cudaGraphicsResource_t		 cuda_resource = nullptr;
 	T*							 data		   = nullptr;
 	bool						 mapped		   = false;
+	size_t						 bytes;
 	std::shared_ptr<cuda_stream> stream;
 
 public:
@@ -33,11 +34,20 @@ public:
 		}
 		CUDA_SAFE_CALL(cudaGraphicsGLRegisterBuffer(&cuda_resource, buffer_object,
 													cudaGraphicsRegisterFlagsWriteDiscard));
+		// Optionally discover size once; keep resource initially unmapped.
 		CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &cuda_resource, stream->stream()));
-		CUDA_SAFE_CALL(
-			cudaGraphicsResourceGetMappedPointer((void**)&data, amount_of_bytes, cuda_resource));
-		mapped = true;
+		CUDA_SAFE_CALL(cudaGraphicsResourceGetMappedPointer((void**)&data, &bytes, cuda_resource));
+		if (amount_of_bytes)
+			*amount_of_bytes = bytes;
+		CUDA_SAFE_CALL(cudaGraphicsUnmapResources(1, &cuda_resource, stream->stream()));
+		data   = nullptr;
+		mapped = false;
 	};
+	cuda_from_gl_data(cuda_from_gl_data&& rhs) noexcept {
+		*this = std::move(rhs);
+	}
+	cuda_from_gl_data(const cuda_from_gl_data&)			   = delete;
+	cuda_from_gl_data& operator=(const cuda_from_gl_data&) = delete;
 	cuda_from_gl_data& operator=(cuda_from_gl_data&& rhs) noexcept {
 		mapped			  = rhs.mapped;
 		rhs.mapped		  = false;
@@ -45,20 +55,30 @@ public:
 		data			  = rhs.data;
 		rhs.cuda_resource = nullptr;
 		rhs.data		  = nullptr;
+		bytes			  = rhs.bytes;
+		rhs.bytes		  = 0;
+		stream			  = std::move(rhs.stream);
 		return *this;
 	}
 	[[nodiscard]] T* get_data() const {
 		return data;
 	}
 	void unmap() {
-		if (mapped)
-			CUDA_SAFE_CALL(cudaGraphicsUnmapResources(1, &cuda_resource, nullptr));
-		mapped = false;
+		if (mapped) {
+			CUDA_SAFE_CALL(
+				cudaGraphicsUnmapResources(1, &cuda_resource, stream ? stream->stream() : nullptr));
+			mapped = false;
+			data   = nullptr;
+		}
 	}
 	void map() {
-		if (!mapped)
-			CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &cuda_resource, nullptr));
-		mapped = true;
+		if (!mapped) {
+			CUDA_SAFE_CALL(
+				cudaGraphicsMapResources(1, &cuda_resource, stream ? stream->stream() : 0));
+			CUDA_SAFE_CALL(
+				cudaGraphicsResourceGetMappedPointer((void**)&data, &bytes, cuda_resource));
+			mapped = true;
+		}
 	}
 
 	~cuda_from_gl_data() {

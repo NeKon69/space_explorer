@@ -45,16 +45,20 @@ void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
 
 	vertices_second = cuda_types::cuda_buffer<raw::graphics::vertex>(vertices_bytes, stream, true);
 	indices_second	= cuda_types::cuda_buffer<UI>(indices_bytes, stream, true);
-	all_edges = cuda_types::cuda_buffer<edge>(predef::MAXIMUM_AMOUNT_OF_TRIANGLES * sizeof(edge),
-											  stream, true);
+	all_edges		= cuda_types::cuda_buffer<edge>(
+		  predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(edge), stream, true);
 	edge_to_vertex = cuda_types::cuda_buffer<uint32_t>(
-		predef::MAXIMUM_AMOUNT_OF_TRIANGLES * sizeof(uint32_t), stream, true);
+		predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(uint32_t), stream, true);
 	d_unique_edges = cuda_types::cuda_buffer<edge>(
-		predef::MAXIMUM_AMOUNT_OF_TRIANGLES * sizeof(edge), stream, true);
+		predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(edge), stream, true);
 	amount_of_edges.zero_data(sizeof(uint32_t));
 
 	inited = true;
 	++times_called;
+	cudaMemcpy(vertices_handle.get_data(), (void *)std::data(generate_icosahedron_vertices()),
+			   num_vertices_cpu * sizeof(graphics::vertex), cudaMemcpyHostToDevice);
+	cudaMemcpy(indices_handle.get_data(), (void *)std::data(generate_icosahedron_indices()),
+			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
 }
 
 void icosahedron_data_manager::prepare(raw::UI vbo, raw::UI ebo) {
@@ -66,9 +70,13 @@ void icosahedron_data_manager::prepare(raw::UI vbo, raw::UI ebo) {
 	indices_handle.map();
 	vertices_second.allocate(vertices_bytes);
 	indices_second.allocate(indices_bytes);
+	all_edges.allocate(predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(edge));
+	edge_to_vertex.allocate(predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(uint32_t));
+	d_unique_edges.allocate(predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(edge));
+
 	// Need to update func to also produce some cool data as tangent/bitangent
 	cudaMemcpyAsync(vertices_handle.get_data(), (void *)std::data(generate_icosahedron_vertices()),
-					num_vertices_cpu * sizeof(glm::vec3), cudaMemcpyHostToDevice, stream->stream());
+					num_vertices_cpu * sizeof(graphics::vertex), cudaMemcpyHostToDevice, stream->stream());
 	cudaMemcpyAsync(indices_handle.get_data(), (void *)std::data(generate_icosahedron_indices()),
 					num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice, stream->stream());
 }
@@ -77,11 +85,13 @@ generation_context icosahedron_data_manager::create_context() {
 }
 
 void icosahedron_data_manager::cleanup() {
-	stream->sync();
 	vertices_second.free();
 	indices_second.free();
 	vertices_handle.unmap();
 	indices_handle.unmap();
+	all_edges.free();
+	d_unique_edges.free();
+	edge_to_vertex.free();
 	num_vertices_cpu  = 12;
 	num_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
 }
