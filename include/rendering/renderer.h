@@ -9,6 +9,34 @@
 #include "rendering/fwd.h"
 #include "window/gl_window.h"
 
+/**
+ * Renderer that owns and manages an OpenGL window and performs rendering.
+ *
+ * Provides access to the underlying gl_window and a method to execute a
+ * rendering command queue using a camera.
+ */
+ 
+/**
+ * @param window_name Human-readable title for the created GL window.
+ */
+ 
+/**
+ * @return true if the managed GL window is currently running; false otherwise.
+ */
+ 
+/**
+ * @return Pointer to the underlying raw::window::gl_window to access window operations.
+ */
+ 
+/**
+ * Execute the given rendering command queue using the provided camera.
+ *
+ * This may update the renderer's internal state and the managed window as part
+ * of performing the rendering work.
+ *
+ * @param command_queue Queue of rendering commands to execute.
+ * @param camera Camera whose view/projection transforms are used for rendering.
+ */
 namespace raw::rendering {
 // I am not entirely sure what to put here, so I guess I just put something and then expend if
 // needed

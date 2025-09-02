@@ -13,6 +13,27 @@
 #include "cuda_types/fwd.h"
 #include "cuda_types/stream.h"
 
+/**
+ * @brief RAII buffer wrapper for CUDA host or device memory.
+ *
+ * Templated buffer that owns a contiguous allocation either on the CUDA device
+ * (Side == side::device) or pinned host memory (Side == side::host). Provides
+ * allocation, deallocation, asynchronous copies driven by an associated
+ * cuda_stream, and utility operations (zeroing, get, bool-conversion).
+ *
+ * Key behaviors:
+ * - Allocation/free semantics are chosen at compile time based on Side:
+ *   device uses cudaMallocAsync / cudaFreeAsync; host uses cudaMallocHost /
+ *   cudaFreeHost.
+ * - Copy constructor performs a deep copy of the allocated bytes.
+ * - Move operations transfer ownership without copying.
+ * - set_data clamps requested copy size to the current allocation and issues a
+ *   runtime warning when the requested size exceeds the buffer size.
+ * - Most asynchronous CUDA operations use the buffer's associated cuda_stream.
+ *
+ * @tparam T Type of the underlying element (buffer holds contiguous bytes of T).
+ * @tparam Side Memory side of the allocation (side::device or side::host).
+ */
 namespace raw::cuda_types {
 // This motherfucker right here, yes, this one, he is the fucking ugliest part of my code, it
 // sucks, it's ugly, and also... IDK

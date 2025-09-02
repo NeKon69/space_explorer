@@ -12,6 +12,61 @@
 #include "../graphics/gl_context_lock.h"
 #include "window/fwd.h"
 
+/**
+ * Construct a GL-capable window and initialize its graphics state.
+ * @param window_name Human-readable window title.
+ */
+
+/**
+ * Poll for a single SDL event.
+ * @param event Pointer to an SDL_Event to be filled; may be null.
+ * @return true if an event was retrieved, false if no events are available.
+ */
+
+/**
+ * Clear the current rendering target (color/depth/stencil as configured).
+ */
+
+/**
+ * Access the internal graphics state structure for mutable operations.
+ * @return Reference to the window's graphics::graphics_data.
+ */
+
+/**
+ * Get the underlying SDL_Window pointer.
+ * @return Raw SDL_Window pointer owned by this object (may be nullptr if not initialized).
+ */
+
+/**
+ * Get the current window size in pixels.
+ * @return 2D integer vector (width, height).
+ */
+
+/**
+ * Present any pending rendering updates or perform per-frame GL/SDL updates.
+ */
+
+/**
+ * Capture and hide the cursor, routing pointer input to this window.
+ */
+
+/**
+ * Release a previously captured cursor, restoring normal pointer behavior.
+ */
+
+/**
+ * Destroy the window and clean up associated graphics resources.
+ */
+
+/**
+ * Query whether the window's main loop is still running.
+ * @return true if running, false otherwise.
+ */
+
+/**
+ * Set the running state used to control the window's main loop.
+ * @param state New running state.
+ */
 namespace raw::window {
 class gl_window {
 private:

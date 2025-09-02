@@ -10,6 +10,27 @@
 #include "cuda_types/error.h"
 #include "cuda_types/fwd.h"
 
+/**
+ * RAII wrapper for a CUDA graphics resource created from an OpenGL buffer.
+ *
+ * Manages registration of a GL buffer as a CUDA graphics resource, provides
+ * access to the mapped device pointer of type `T*`, and controls explicit
+ * mapping/unmapping of the resource. The constructor registers the GL buffer
+ * and maps it briefly to obtain the mapped pointer and size, then immediately
+ * unmaps the resource; callers must call map() before accessing the data if
+ * the resource is required to be mapped. The destructor ensures the resource
+ * is unmapped and unregistered.
+ *
+ * Usage notes:
+ * - get_data() returns the last obtained device pointer (valid only while the
+ *   resource is mapped).
+ * - map() maps the resource into CUDA address space; unmap() undoes that.
+ *
+ * @param amount_of_bytes Output pointer updated in the constructor with the
+ *                        size (in bytes) of the mapped memory region.
+ * @param buffer_object   OpenGL buffer object identifier to register as a CUDA
+ *                        graphics resource.
+ */
 namespace raw::cuda_types {
 // TODO: Make this thing inherit from base class "resource" and put it into "from_gl" folder
 template<typename T>

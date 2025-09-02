@@ -12,6 +12,19 @@ namespace predef {
 static constexpr auto AM_POINT_LIGHTS = 5;
 }
 
+/**
+ * @brief Configure shader lighting/material uniforms and OpenGL state for rendering.
+ *
+ * Initializes the object and light shaders' lighting parameters (directional light,
+ * an array of point lights using predef::AM_POINT_LIGHTS and light_pos, and a spotlight),
+ * sets the object material properties (ambient/diffuse/specular and shininess), and
+ * configures GL state used by the renderer (clear color, depth testing, and multisampling
+ * attributes).
+ *
+ * This function has side effects: it binds and updates shader uniforms and calls
+ * underlying GL/window helpers to enable multisampling and depth testing. It assumes
+ * the shaders and light_pos are initialized prior to calling.
+ */
 void playing_state::init() const {
 	// Setup all those wierd ass shaders...
 	// that's still the ugliest part of my code by far
@@ -56,6 +69,16 @@ void playing_state::init() const {
 	raw::window::gl::RULE(GL_MULTISAMPLE);
 }
 
+/**
+ * @brief Construct a playing_state and initialize rendering, simulation, and scene resources.
+ *
+ * Initializes shaders, mesh and CUDA resources, the sphere manager and generator, the simulation
+ * system, camera and controller. Generates an initial set of spheres, sets the camera window
+ * resolution, and configures GL/shader state by calling init().
+ *
+ * @param graphics_data Graphics context/data required by sphere generation.
+ * @param window_size Initial window resolution (width, height) used to set the camera.
+ */
 playing_state::playing_state(graphics::graphics_data& graphics_data, glm::uvec2 window_size)
 	: object_shader(std::make_shared<raw::rendering::shader::shader>(
 		  "shaders/objects/vertex_shader.glsl", "shaders/objects/color_shader.frag")),
@@ -80,6 +103,16 @@ playing_state::playing_state(graphics::graphics_data& graphics_data, glm::uvec2 
 	init();
 }
 
+/**
+ * @brief Build the frame's rendering queue.
+ *
+ * Constructs and returns a rendering queue containing a single instanced draw
+ * command that uses the state's object shader and sphere mesh. The command's
+ * instance data references the simulation VBO and the total number of sphere
+ * instances.
+ *
+ * @return raw::rendering::queue A queue ready for the renderer with one instanced command.
+ */
 raw::rendering::queue playing_state::build_rendering_queue() const {
 	raw::rendering::queue queue;
 	{
@@ -93,6 +126,14 @@ raw::rendering::queue playing_state::build_rendering_queue() const {
 	return queue;
 }
 
+/**
+ * @brief Advance per-frame logic for the playing state.
+ *
+ * Updates the input/controller state using the elapsed time for this frame.
+ * Note: simulation step (system.update_sim()) is currently disabled/commented out.
+ *
+ * @param delta_time Elapsed time since the previous frame.
+ */
 void playing_state::update(const raw::core::time& delta_time) {
 	// system.update_sim();
 	controller.update(move_state, delta_time.val);
@@ -185,6 +226,12 @@ bool playing_state::handle_input() {
 	return false;
 }
 
+/**
+ * @brief Render the current frame.
+ *
+ * Builds the frame's render queue, synchronizes generated geometry, and submits the queue
+ * to the provided renderer using this state's camera.
+ */
 void playing_state::draw(raw::rendering::renderer& renderer) {
 	auto queue = build_rendering_queue();
 	sphere_gen.sync();

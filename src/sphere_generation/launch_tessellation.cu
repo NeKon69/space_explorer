@@ -12,6 +12,16 @@
 #include "sphere_generation/tessellation_kernel.h"
 
 namespace raw::sphere_generation {
+/**
+ * @brief Strict ordering comparator for edges (ascending by endpoints).
+ *
+ * Compares two edges first by their v0 index, and if those are equal, by their v1 index.
+ * Designed to be usable on both host and device for sorting operations (e.g., with Thrust).
+ *
+ * @param a First edge to compare.
+ * @param b Second edge to compare.
+ * @return true if edge `a` should come before edge `b` (a < b) under the ordering.
+ */
 __device__ __host__ bool edge_comparator(const edge &a, const edge &b) {
 	if (a.v0 > b.v0)
 		return false;
@@ -19,6 +29,36 @@ __device__ __host__ bool edge_comparator(const edge &a, const edge &b) {
 		return true;
 	return a.v1 < b.v1;
 }
+/**
+ * @brief Perform iterative triangular mesh tessellation (subdivision) on the device.
+ *
+ * Performs `steps` iterations of midpoint subdivision: for each iteration it generates edges
+ * from the current triangle index buffer, creates unique midpoint vertices for edges,
+ * rebuilds the triangle index buffer (each triangle becomes 4), and updates device-side
+ * vertex/triangle counts. After the loop it computes per-vertex tangents/bitangents/UVs.
+ *
+ * The function operates entirely on device memory and CUDA streams: it launches device
+ * kernels, performs device-to-device and device-to-host count transfers, and synchronizes
+ * the provided CUDA stream at key points. If `steps` is odd, the final vertex/index buffers
+ * are copied back into the original input buffers so the caller's base buffers contain the
+ * final tessellated mesh.
+ *
+ * @param in_vertices Device pointer to the current input vertex buffer (may be swapped internally).
+ * @param in_indices Device pointer to the current input index buffer (may be swapped internally).
+ * @param all_edges Device array used to store generated edges for the current iteration.
+ * @param out_vertices Device pointer to the output vertex buffer (used as a swap target).
+ * @param out_indices Device pointer to the output index buffer (used as a swap target).
+ * @param d_unique_edges Device array used to store unique edges identified for midpoint creation.
+ * @param edge_to_vertex Device array mapping an edge key to its midpoint vertex index.
+ * @param p_vertex_count Device pointer to a uint32_t counter holding the current vertex count;
+ *        updated on-device as midpoints are created. (Device-side writable.)
+ * @param p_triangle_count Device pointer to a uint32_t counter holding the current triangle count;
+ *        the function multiplies this count by 4 each subdivision iteration. (Device-side writable.)
+ * @param p_unique_edges_count Device pointer to a uint32_t used to return the number of unique edges
+ *        discovered in each iteration; the host-side copy of this value is used to size subsequent sorts.
+ * @param stream CUDA stream on which all operations and kernel launches are enqueued.
+ * @param steps Number of subdivision iterations to perform.
+ */
 void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edge *all_edges,
 
 						 raw::graphics::vertex *out_vertices, UI *out_indices, edge *d_unique_edges,

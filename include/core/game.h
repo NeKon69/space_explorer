@@ -12,6 +12,31 @@
 #include "game_state.h"
 #include "rendering/renderer.h"
 
+/**
+ * Construct a game instance with the given name.
+ *
+ * The name is used to identify the game (e.g., window title or project identifier).
+ * @param name Human-readable name for the game instance.
+ */
+
+/**
+ * Run the main game loop.
+ *
+ * This function blocks and drives the game's update/render loop until the game stops.
+ */
+
+/**
+ * Push a new game state onto the state stack.
+ *
+ * The provided state takes ownership and becomes the current active state.
+ * @param state Unique pointer to the game state to push.
+ */
+
+/**
+ * Pop the current game state from the state stack.
+ *
+ * Removes the top-most state, allowing the previous state (if any) to resume.
+ */
 namespace raw::core {
 class game {
 private:
