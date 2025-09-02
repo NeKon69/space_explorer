@@ -10,7 +10,6 @@
 namespace raw::window {
 gl_window::gl_window(const std::string &window_name) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 	gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 1024);
 	gl::ATTR(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -26,6 +25,8 @@ gl_window::gl_window(const std::string &window_name) {
 			__FILE__ + " on " + std::to_string(__LINE__));
 	}
 	data.main_context = SDL_GL_CreateContext(data.window);
+	SDL_GL_MakeCurrent(data.window, data.main_context);
+	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 	if (!data.main_context) {
 		// Idk why, but one day I got roasted for not using informative error messages, so here we
 		// go

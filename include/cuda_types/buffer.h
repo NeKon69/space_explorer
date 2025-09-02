@@ -43,8 +43,13 @@ private:
 public:
 	cuda_buffer() = default;
 
-	__device__ __host__ T &operator*()
+	__host__ T &operator*()
 		requires(Side == side::host)
+	{
+		return *ptr;
+	}
+	__host__ T &operator*() const
+		requires(Side == side::device)
 	{
 		return *ptr;
 	}

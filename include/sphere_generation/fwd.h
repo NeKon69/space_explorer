@@ -25,10 +25,11 @@ static constexpr auto MAX_STEPS	   = 8U;
 static constexpr auto BASIC_AMOUNT_OF_TRIANGLES = 20U;
 } // namespace predef
 namespace predef {
-static const UI MAXIMUM_AMOUNT_OF_INDICES =
-	BASIC_AMOUNT_OF_TRIANGLES * static_cast<UI>(std::pow(4, MAX_STEPS)) + 2;
-static const UI MAXIMUM_AMOUNT_OF_VERTICES	= 10 * static_cast<UI>(std::pow(4, MAX_STEPS)) + 2;
-static const UI MAXIMUM_AMOUNT_OF_TRIANGLES = BASIC_AMOUNT_OF_TRIANGLES * std::pow(4, MAX_STEPS);
+static constexpr UI MAXIMUM_AMOUNT_OF_INDICES =
+	BASIC_AMOUNT_OF_TRIANGLES * (1u << (2u * MAX_STEPS)) * 3u;
+static constexpr UI MAXIMUM_AMOUNT_OF_VERTICES = 10u * (1u << (2u * MAX_STEPS)) + 2u;
+static constexpr UI MAXIMUM_AMOUNT_OF_TRIANGLES =
+	BASIC_AMOUNT_OF_TRIANGLES * (1u << (2u * MAX_STEPS));
 } // namespace predef
 
 class icosahedron_data_manager;
