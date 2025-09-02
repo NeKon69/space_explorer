@@ -14,7 +14,15 @@
 #define HOST_DEVICE
 #endif
 
-namespace raw::sphere_generation {
+/**
+	 * Lexicographically compare this edge with another.
+	 *
+	 * The comparison orders by v0 first; if v0 are equal, v1 is compared.
+	 *
+	 * @param other Edge to compare against.
+	 * @return true if this edge is lexicographically less than `other`.
+	 */
+	namespace raw::sphere_generation {
 namespace predef {
 // Oh and btw, turns out, even after 4 steps our sphere gets nearly perfect (even on 2k monitor,
 // well maybe on 4k it would be nice to have 6, but 4 is pretty much enough)

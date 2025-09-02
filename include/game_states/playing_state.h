@@ -18,6 +18,14 @@
 #include "sphere_generation/sphere_generator.h"
 #include "z_unused/objects/cube.h"
 
+/**
+ * Construct a playing_state that manages the "playing" phase (rendering, input, camera and N-body simulation).
+ *
+ * Initializes the state with graphics resources and an optional initial window size.
+ *
+ * @param graphics_data Reference to graphics::graphics_data used to obtain and initialize GPU/renderer resources required by the state.
+ * @param window_size Initial window size (pixels). Defaults to 2560x1440.
+ */
 namespace raw::game_states {
 class playing_state : public raw::core::game_state {
 private:

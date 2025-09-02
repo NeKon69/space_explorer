@@ -12,6 +12,23 @@ __device__ void make_canonical_edge(edge &edge, uint32_t i0, uint32_t i1) {
 	edge.v0 = max(i0, i1);
 	edge.v1 = min(i0, i1);
 }
+/**
+ * @brief CUDA kernel that produces the three canonical edges for each input triangle.
+ *
+ * For each triangle at index `t` (thread-local), reads its three vertex indices from
+ * `in_indices[t*3 + 0..2]`, constructs the three edges (i0-i1, i1-i2, i2-i0) in
+ * canonical form (as produced by make_canonical_edge) and writes them into
+ * `out_edges[t*3 + 0..2]`.
+ *
+ * @param in_indices Pointer to an array of triangle vertex indices (3 indices per triangle).
+ * @param out_edges  Output array where three edges per input triangle will be written;
+ *                   must have space for at least `num_input_triangles * 3` entries.
+ * @param num_input_triangles Number of triangles in `in_indices`.
+ *
+ * @note Each kernel thread handles one triangle (index = blockIdx.x*blockDim.x + threadIdx.x).
+ * @note make_canonical_edge normalizes edge ordering so the stored edge endpoints follow
+ *       the file's canonical convention.
+ */
 __global__ void generate_edges(const UI *in_indices, edge *out_edges, size_t num_input_triangles) {
 	const UI x = blockIdx.x * blockDim.x + threadIdx.x;
 	if (x >= num_input_triangles) {
@@ -89,6 +106,33 @@ __device__ int find_edge(const edge *unique_edges, uint32_t num_unique_edges, ed
 	return -1;
 }
 
+/**
+ * @brief Reconstructs four subdivided triangles from each input triangle using midpoint vertices.
+ *
+ * For each input triangle (three consecutive indices in in_indices), this kernel:
+ * - Recreates the triangle's three canonical edges.
+ * - Looks up those edges in the sorted unique_edges array (via find_edge).
+ * - Maps each found unique edge to its midpoint vertex index using edge_to_vertex.
+ * - Writes four new triangles (12 indices) into out_indices at slot x*12 .. x*12+11.
+ *
+ * Input / output layouts:
+ * - in_indices: array of uint indices, 3 entries per input triangle (i0,i1,i2).
+ * - out_indices: array where each input triangle produces 4 triangles (12 entries).
+ * - unique_edges: sorted array of unique edges used by find_edge.
+ * - edge_to_vertex: mapping from unique edge index -> midpoint vertex index.
+ * - p_num_unique_edges: device pointer to the number of entries in unique_edges.
+ *
+ * Behavior and notes:
+ * - Each thread processes one triangle determined by its global thread index; threads with index >= num_input_triangles return immediately.
+ * - The kernel expects find_edge to locate each edge; if an edge is not found the behavior is undefined (the code uses the returned index to read edge_to_vertex).
+ *
+ * @param in_indices Input triangle index array (3 * num_input_triangles entries).
+ * @param out_indices Output index array (12 * num_input_triangles entries).
+ * @param unique_edges Sorted list of unique edges for lookup.
+ * @param edge_to_vertex Mapping from unique edge index to midpoint vertex index.
+ * @param p_num_unique_edges Device pointer to the number of unique edges.
+ * @param num_input_triangles Number of triangles in in_indices.
+ */
 __global__ void create_triangles(const UI *in_indices, UI *out_indices, const edge *unique_edges,
 								 const uint32_t *edge_to_vertex, const uint32_t *p_num_unique_edges,
 								 const size_t num_input_triangles) {

@@ -11,6 +11,21 @@
 #include "window/fwd.h"
 
 namespace raw::graphics {
+/**
+ * RAII guard that binds one of the stored SDL GL contexts to the window while
+ * holding the corresponding context mutex.
+ *
+ * Template parameter `ctx_type` selects which context/mutex pair from
+ * `graphics_data` is used (context_type::MAIN, ::TESS, or ::TEX_GEN). Construction
+ * acquires the selected mutex and makes the associated SDL_GLContext current for
+ * the window. Destruction detaches the current context by calling
+ * `SDL_GL_MakeCurrent(window, nullptr)` and releases the mutex.
+ *
+ * If `SDL_GL_MakeCurrent` fails when binding the context, the constructor will
+ * throw std::runtime_error with the SDL error message.
+ *
+ * Copying is disabled; move construction/assignment are permitted.
+ */
 enum class context_type { MAIN, TESS, TEX_GEN };
 
 struct graphics_data {

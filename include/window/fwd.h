@@ -8,6 +8,69 @@
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
 
+/**
+ * Convenience aliases for SDL and OpenGL function calls used by the windowing layer.
+ *
+ * Each identifier is a constexpr reference alias to the corresponding SDL/OpenGL function,
+ * provided so call sites can use short, consistent names for GL/SDL window operations.
+ * These aliases do not change semantics of the underlying functions.
+ */
+
+/**
+ * Alias for SDL_GL_SetAttribute.
+ */
+ 
+/**
+ * Alias for glEnable.
+ */
+
+/**
+ * Alias for glDisable.
+ */
+
+/**
+ * Alias for glViewport.
+ */
+
+/**
+ * Alias for SDL_SetWindowMouseGrab.
+ */
+
+/**
+ * Alias for SDL_SetWindowRelativeMouseMode.
+ */
+
+/**
+ * Alias for glClearColor.
+ */
+
+/**
+ * Alias for glDepthFunc.
+ */
+
+/**
+ * Alias for glStencilOp.
+ */
+
+/**
+ * Alias for glStencilMask.
+ */
+
+/**
+ * Alias for glStencilFunc.
+ */
+
+/**
+ * Forward declaration for graphics_data, which holds renderer/window-related resources.
+ */
+ 
+/**
+ * Forward declaration for sdl_video, the platform video subsystem wrapper.
+ */
+
+/**
+ * Forward declaration for gl_window, an OpenGL-backed window abstraction.
+ */
 namespace raw::window {
 namespace gl {
 // add more if you need

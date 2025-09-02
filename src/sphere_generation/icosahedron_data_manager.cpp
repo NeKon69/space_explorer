@@ -33,6 +33,26 @@ icosahedron_data_manager::icosahedron_data_manager(raw::UI vbo, raw::UI ebo,
 	init(vbo, ebo);
 }
 
+/**
+ * @brief Initialize CUDA/GL resources and upload the base icosahedron to device memory.
+ *
+ * Performs a one-time setup that binds the provided OpenGL VBO/EBO for CUDA access,
+ * allocates device-side staging buffers and edge-related buffers, zeroes edge counters,
+ * and copies the generated icosahedron vertex and index data from host to device.
+ *
+ * This function must be called exactly once during the manager's lifetime; a debug
+ * assertion will fail on subsequent calls.
+ *
+ * @param vbo GL vertex buffer object handle to be mapped for CUDA access.
+ * @param ebo GL element buffer object handle to be mapped for CUDA access.
+ *
+ * Side effects:
+ * - Maps the specified GL buffers to CUDA for direct device access.
+ * - Allocates CUDA buffers for vertex/index staging and edge bookkeeping
+ *   (sized to accommodate up to predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 entries).
+ * - Copies initial icosahedron vertex and index arrays to the mapped device buffers.
+ * - Sets the internal initialized flag.
+ */
 void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
 	static int times_called = 0;
 	// can be called only once in the lifetime
@@ -61,6 +81,19 @@ void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
 			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
 }
 
+/**
+ * @brief Prepare GPU and CUDA resources for icosahedron generation.
+ *
+ * Ensures the manager is initialized (calls init(vbo, ebo) once if needed), maps the GL
+ * vertex/index buffers for CUDA access, allocates/resizes staging buffers and edge-related
+ * buffers sized for the maximum subdivision target, and uploads the base icosahedron
+ * vertex and index data to the mapped device memory.
+ *
+ * The host-to-device copies are performed asynchronously on the manager's CUDA stream.
+ *
+ * @param vbo OpenGL vertex buffer object handle to map for CUDA access.
+ * @param ebo OpenGL element buffer object handle to map for CUDA access.
+ */
 void icosahedron_data_manager::prepare(raw::UI vbo, raw::UI ebo) {
 	if (!inited) {
 		init(vbo, ebo);
@@ -80,10 +113,32 @@ void icosahedron_data_manager::prepare(raw::UI vbo, raw::UI ebo) {
 	cudaMemcpyAsync(indices_handle.get_data(), (void *)std::data(generate_icosahedron_indices()),
 					num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice, stream->stream());
 }
+/**
+ * @brief Create a generation context bound to this manager and its GL buffers.
+ *
+ * Returns a generation_context that encapsulates this icosahedron_data_manager
+ * instance together with the manager's VBO and EBO handles. The returned
+ * context is intended for downstream geometry generation operations that rely
+ * on this manager's state and the associated OpenGL buffers.
+ *
+ * @return generation_context Context referring to this manager and its VBO/EBO.
+ */
 generation_context icosahedron_data_manager::create_context() {
 	return generation_context {*this, _vbo, _ebo};
 }
 
+/**
+ * @brief Release GPU/CUDA resources and reset CPU-side counts for reuse.
+ *
+ * Frees staging CUDA buffers for vertices and indices, releases edge-related
+ * CUDA buffers, and unmaps any CUDA mappings of the OpenGL VBO/EBO.
+ * After cleanup, CPU counters are reset to the basic icosahedron defaults
+ * (12 vertices and predef::BASIC_AMOUNT_OF_TRIANGLES).
+ *
+ * @note This function does not synchronize the CUDA stream; callers that
+ * require guaranteed completion should synchronize the stream externally
+ * before or after calling cleanup.
+ */
 void icosahedron_data_manager::cleanup() {
 	vertices_second.free();
 	indices_second.free();
