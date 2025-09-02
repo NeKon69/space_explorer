@@ -7,7 +7,8 @@
 
 namespace raw::core {
 game::game(const std::string &name) : renderer(name) {
-	states.emplace(std::make_unique<game_states::playing_state>(renderer->get_window_size()));
+	states.emplace(std::make_unique<game_states::playing_state>(renderer->get_data(),
+																renderer->get_window_size()));
 }
 
 void game::run() {

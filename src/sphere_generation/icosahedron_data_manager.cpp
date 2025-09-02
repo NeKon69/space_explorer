@@ -85,7 +85,6 @@ generation_context icosahedron_data_manager::create_context() {
 }
 
 void icosahedron_data_manager::cleanup() {
-	stream->sync();
 	vertices_second.free();
 	indices_second.free();
 	vertices_handle.unmap();

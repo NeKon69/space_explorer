@@ -56,7 +56,8 @@ private:
 	void init() const;
 
 public:
-	explicit playing_state(glm::uvec2 window_size = {2560, 1440});
+	explicit playing_state(graphics::graphics_data& graphics_data,
+						   glm::uvec2				window_size = {2560, 1440});
 	~playing_state() override;
 	bool handle_input() override;
 	void update(const raw::core::time& delta_time) override;

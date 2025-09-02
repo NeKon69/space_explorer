@@ -20,7 +20,7 @@ window::gl_window *renderer::operator->() {
 }
 
 void renderer::render(queue &command_queue, const raw::core::camera::camera &camera) {
-	window::gl_context_lock<window::context_type::MAIN> context_lock(window.get_data());
+	graphics::gl_context_lock<graphics::context_type::MAIN> context_lock(window.get_data());
 	window.clear();
 
 	for (auto &command : command_queue) {

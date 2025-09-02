@@ -9,7 +9,7 @@
 
 #include <glm/glm.hpp>
 #include <string>
-#include "window/gl_context_lock.h"
+#include "../graphics/gl_context_lock.h"
 #include "window/fwd.h"
 
 namespace raw::window {
@@ -17,7 +17,7 @@ class gl_window {
 private:
 	bool running = true;
 	// I'll replace this with smart pointer later, but for now I don't really care
-	graphics_data data;
+	graphics::graphics_data data;
 	static sdl_video video_context;
 
 public:
@@ -41,7 +41,7 @@ public:
 
 	void clear() const;
 
-	graphics_data& get_data();
+	graphics::graphics_data& get_data();
 
 	SDL_Window *get() const;
 

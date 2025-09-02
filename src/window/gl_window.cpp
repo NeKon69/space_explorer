@@ -10,6 +10,7 @@
 namespace raw::window {
 gl_window::gl_window(const std::string &window_name) {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 	gl::ATTR(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	gl::ATTR(SDL_GL_MULTISAMPLESAMPLES, 1024);
 	gl::ATTR(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -33,7 +34,6 @@ gl_window::gl_window(const std::string &window_name) {
 			" in " + std::string(__FILE__) + " on " + std::to_string(__LINE__) + " line");
 	}
 	init_glad();
-	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 	data.tessellation_context = SDL_GL_CreateContext(data.window);
 	if (!data.tessellation_context) {
 		throw std::runtime_error("Tessellation OpenGL context could not be created! SDL_Error: " +
@@ -62,7 +62,7 @@ bool gl_window::poll_event(SDL_Event *event) const {
 	return SDL_PollEvent(event);
 }
 
-graphics_data &gl_window::get_data() {
+graphics::graphics_data &gl_window::get_data() {
 	return data;
 }
 

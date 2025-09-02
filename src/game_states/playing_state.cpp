@@ -56,7 +56,7 @@ void playing_state::init() const {
 	raw::window::gl::RULE(GL_MULTISAMPLE);
 }
 
-playing_state::playing_state(glm::uvec2 window_size)
+playing_state::playing_state(graphics::graphics_data& graphics_data, glm::uvec2 window_size)
 	: object_shader(std::make_shared<raw::rendering::shader::shader>(
 		  "shaders/objects/vertex_shader.glsl", "shaders/objects/color_shader.frag")),
 	  light_shader(std::make_shared<raw::rendering::shader::shader>(
@@ -75,7 +75,7 @@ playing_state::playing_state(glm::uvec2 window_size)
 	  camera(),
 	  controller(camera) {
 	sphere_mesh->unbind();
-	sphere_gen.generate(5, *stream.get(), sphere_manager);
+	sphere_gen.generate(5, *stream.get(), sphere_manager, graphics_data);
 	camera.set_window_resolution(window_size.x, window_size.y);
 	init();
 }
@@ -94,7 +94,7 @@ raw::rendering::queue playing_state::build_rendering_queue() const {
 }
 
 void playing_state::update(const raw::core::time& delta_time) {
-	system.update_sim();
+	// system.update_sim();
 	controller.update(move_state, delta_time.val);
 }
 
