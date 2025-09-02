@@ -19,11 +19,11 @@ __global__ void generate_edges(const UI *in_indices, edge *out_edges, size_t num
 	}
 
 	// Triangle's indices
-	uint32_t i0		  = in_indices[x * 3 + 0];
-	uint32_t i1		  = in_indices[x * 3 + 1];
-	uint32_t i2		  = in_indices[x * 3 + 2];
-	edge	*edge_ptr = &out_edges[x * 3];
+	uint32_t i0 = in_indices[x * 3 + 0];
+	uint32_t i1 = in_indices[x * 3 + 1];
+	uint32_t i2 = in_indices[x * 3 + 2];
 
+	edge *edge_ptr = &out_edges[x * 3];
 	// Prepares edges for sorting
 	make_canonical_edge(edge_ptr[0], i0, i1);
 	make_canonical_edge(edge_ptr[1], i1, i2);
@@ -112,9 +112,9 @@ __global__ void create_triangles(const UI *in_indices, UI *out_indices, const ed
 	make_canonical_edge(e20, i2, i0);
 
 	// find the edge in "unique_edges" array
-	UI unique_id_01 = find_edge(unique_edges, num_unique_edges, e01);
-	UI unique_id_12 = find_edge(unique_edges, num_unique_edges, e12);
-	UI unique_id_20 = find_edge(unique_edges, num_unique_edges, e20);
+	int unique_id_01 = find_edge(unique_edges, num_unique_edges, e01);
+	int unique_id_12 = find_edge(unique_edges, num_unique_edges, e12);
+	int unique_id_20 = find_edge(unique_edges, num_unique_edges, e20);
 
 	// retrieve new indices from the lookup
 	uint32_t new_i01 = edge_to_vertex[unique_id_01];
