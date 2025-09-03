@@ -94,7 +94,7 @@ raw::rendering::queue playing_state::build_rendering_queue() const {
 }
 
 void playing_state::update(const raw::core::time& delta_time) {
-	// system.update_sim();
+	system.update_sim();
 	controller.update(move_state, delta_time.val);
 }
 

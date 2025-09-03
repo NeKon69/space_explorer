@@ -80,7 +80,7 @@ private:
 		glGenBuffers(1, vbo.get());
 		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
 
-		std::vector<glm::mat4> vec(1000);
+		std::vector<glm::mat4> vec(1000, 1.0f);
 		//		vec[0] = glm::mat4(2.0);
 		//		vec[1] = glm::translate(glm::mat4(3.0), glm::vec3(2.0, 2.0, 2.0));
 		//

@@ -41,13 +41,13 @@ private:
 		// position attribute
 		glVertexAttribPointer(number_of_attr, 3, GL_FLOAT, GL_FALSE, stride, (void *)offset);
 		glEnableVertexAttribArray(number_of_attr++);
-		// texture coords attribute
-		offset = offsetof(raw::graphics::vertex, tex_coord);
-		glVertexAttribPointer(number_of_attr, 2, GL_FLOAT, GL_FALSE, stride, (void *)offset);
-		glEnableVertexAttribArray(number_of_attr++);
 		// normal attribute
 		offset = offsetof(raw::graphics::vertex, normal);
 		glVertexAttribPointer(number_of_attr, 3, GL_FLOAT, GL_FALSE, stride, (void *)offset);
+		glEnableVertexAttribArray(number_of_attr++);
+		// texture coords attribute
+		offset = offsetof(raw::graphics::vertex, tex_coord);
+		glVertexAttribPointer(number_of_attr, 2, GL_FLOAT, GL_FALSE, stride, (void *)offset);
 		glEnableVertexAttribArray(number_of_attr++);
 		// tangent attribute
 		offset = offsetof(raw::graphics::vertex, tangent);

@@ -15,6 +15,7 @@ namespace raw::rendering {
 class renderer {
 private:
 	raw::window::gl_window window;
+	graphics::gl_context_lock<graphics::context_type::MAIN> gl_context;
 
 public:
 	explicit renderer(const std::string &window_name = "Mike Hawk");

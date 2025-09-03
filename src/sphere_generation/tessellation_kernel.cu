@@ -133,8 +133,8 @@ __global__ void create_triangles(const UI *in_indices, UI *out_indices, const ed
 	out_tri_ptr[5] = new_i01;
 	// third one is 2 - 20 - 12
 	out_tri_ptr[6] = i2;
-	out_tri_ptr[7] = new_i20;
-	out_tri_ptr[8] = new_i12;
+	out_tri_ptr[7] = new_i12;
+	out_tri_ptr[8] = new_i20;
 	// and fourth is 01 - 12 - 20
 	out_tri_ptr[9]	= new_i01;
 	out_tri_ptr[10] = new_i12;

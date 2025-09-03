@@ -9,7 +9,8 @@
 #include "rendering/render_command.h"
 
 namespace raw::rendering {
-renderer::renderer(const std::string &window_name) : window(window_name) {}
+renderer::renderer(const std::string &window_name)
+	: window(window_name), gl_context(window.get_data()) {}
 
 bool renderer::window_running() const noexcept {
 	return window.is_running();
@@ -20,14 +21,15 @@ window::gl_window *renderer::operator->() {
 }
 
 void renderer::render(queue &command_queue, const raw::core::camera::camera &camera) {
-	graphics::gl_context_lock<graphics::context_type::MAIN> context_lock(window.get_data());
 	window.clear();
 
 	for (auto &command : command_queue) {
 		command.shader->use();
 		command.shader->set_mat4("projection", glm::value_ptr(camera.projection()));
 		command.shader->set_mat4("view", glm::value_ptr(camera.view()));
-
+		command.shader->set_vec3("view_dir", camera.pos());
+		command.shader->set_vec3("sp_light.position", camera.pos());
+		command.shader->set_vec3("sp_light.direction", camera.front());
 		const auto &local_mesh = command.mesh;
 		local_mesh->bind();
 		if (command.inst_data) {
