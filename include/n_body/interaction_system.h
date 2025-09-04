@@ -70,8 +70,8 @@ private:
 	void update_data() {
 		if (data_changed) {
 			d_objects.allocate(c_objects.size() * sizeof(physics::space_object<T>));
-			d_objects.set_data(c_objects.data(),
-							   c_objects.size() * sizeof(physics::space_object<T>));
+			d_objects.memset(c_objects.data(),
+							   c_objects.size() * sizeof(physics::space_object<T>), cudaMemcpyHostToDevice);
 		}
 		data_changed = false;
 	}
@@ -143,7 +143,7 @@ public:
 					   UI number_of_attr = 2)
 		// We'll allocate only one bit, since it'll be reallocated later anyway (but we do that so
 		// we can have the same stream for all data)
-		: d_objects(sizeof(physics::space_object<T>), stream, true),
+		: d_objects(sizeof(physics::space_object<T>), stream),
 		  c_objects(objects),
 
 		  data_changed(true),

@@ -19,17 +19,17 @@ icosahedron_data_manager::icosahedron_data_manager()
 	: stream(std::make_shared<cuda_types::cuda_stream>()),
 	  _vbo(0),
 	  _ebo(0),
-	  amount_of_triangles(sizeof(uint32_t), stream, true),
-	  amount_of_vertices(sizeof(uint32_t), stream, true),
-	  amount_of_edges(sizeof(uint32_t), stream, true) {}
+	  amount_of_triangles(sizeof(uint32_t), stream),
+	  amount_of_vertices(sizeof(uint32_t), stream),
+	  amount_of_edges(sizeof(uint32_t), stream) {}
 
 icosahedron_data_manager::icosahedron_data_manager(raw::UI vbo, raw::UI ebo,
 												   std::shared_ptr<cuda_types::cuda_stream> stream)
 
 	: stream(stream),
-	  amount_of_triangles(sizeof(uint32_t), stream, true),
-	  amount_of_vertices(sizeof(uint32_t), stream, true),
-	  amount_of_edges(sizeof(uint32_t), stream, true) {
+	  amount_of_triangles(sizeof(uint32_t), stream),
+	  amount_of_vertices(sizeof(uint32_t), stream),
+	  amount_of_edges(sizeof(uint32_t), stream) {
 	init(vbo, ebo);
 }
 
@@ -43,14 +43,14 @@ void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
 		cuda_types::from_gl::buffer<raw::graphics::vertex>(&vertices_bytes, vbo, stream);
 	indices_handle = cuda_types::from_gl::buffer<UI>(&indices_bytes, ebo, stream);
 
-	vertices_second = cuda_types::cuda_buffer<raw::graphics::vertex>(vertices_bytes, stream, true);
-	indices_second	= cuda_types::cuda_buffer<UI>(indices_bytes, stream, true);
+	vertices_second = cuda_types::cuda_buffer<raw::graphics::vertex>(vertices_bytes, stream);
+	indices_second	= cuda_types::cuda_buffer<UI>(indices_bytes, stream);
 	all_edges		= cuda_types::cuda_buffer<edge>(
-		  predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(edge), stream, true);
+		  predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(edge), stream);
 	edge_to_vertex = cuda_types::cuda_buffer<uint32_t>(
-		predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(uint32_t), stream, true);
+		predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(uint32_t), stream);
 	d_unique_edges = cuda_types::cuda_buffer<edge>(
-		predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(edge), stream, true);
+		predef::MAXIMUM_AMOUNT_OF_TRIANGLES * 3 * sizeof(edge), stream);
 	amount_of_edges.zero_data(sizeof(uint32_t));
 
 	inited = true;

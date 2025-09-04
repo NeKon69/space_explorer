@@ -20,13 +20,11 @@ namespace raw::cuda_types {
 template<typename T, side Side>
 class cuda_buffer {
 private:
-	// Boom! Genius use of streams
 	size_t						 _size = 0;
 	std::shared_ptr<cuda_stream> data_stream;
-	T							*ptr		   = nullptr;
-	bool						 manual_stream = false;
+	T							*ptr = nullptr;
 
-	void _memcpy(T *dst, T *src, size_t size, cudaMemcpyKind kind) {
+	void _memcpy(T *dst, const T *src, size_t size, cudaMemcpyKind kind) {
 		CUDA_SAFE_CALL(cudaMemcpyAsync(dst, src, size, kind, data_stream->stream()));
 	}
 	void alloc()
@@ -41,72 +39,73 @@ private:
 	}
 
 public:
-	cuda_buffer() = default;
+	cuda_buffer() : data_stream(std::make_shared<cuda_stream>()) {}
 
 	__host__ T &operator*()
 		requires(Side == side::host)
 	{
 		return *ptr;
 	}
-	__host__ T &operator*() const
+	const __host__ T &operator*() const
 		requires(Side == side::device)
 	{
 		return *ptr;
 	}
 
+	/** @deprecated This lost its purpose with introduction of a stream to each part of project (with gpgpu calculations)
+	 */
 	static cuda_buffer create(const size_t size) {
-		// so there'll be only one stream for all buffers. nice!
 		static std::shared_ptr<cuda_stream> _stream = std::make_shared<cuda_stream>();
 		return cuda_buffer<T>(size, _stream);
 	}
 
 	explicit cuda_buffer(const size_t size) : _size(size) {
-		if constexpr (Side == side::device) {
-			data_stream = std::make_shared<cuda_stream>();
-		}
+		data_stream = std::make_shared<cuda_stream>();
 		alloc();
 	}
 
-	cuda_buffer(const size_t size, std::shared_ptr<cuda_stream> stream, const bool manual = false)
+	cuda_buffer(const size_t size, std::shared_ptr<cuda_stream> stream)
 		: _size(size), data_stream(std::move(stream)) {
 		alloc();
-		manual_stream = manual;
 	}
 
-	cuda_buffer(const cuda_buffer &rhs) : _size(rhs._size), data_stream(rhs.data_stream) {
+	template<side Side_>
+	explicit cuda_buffer(const cuda_buffer<T, Side_> &rhs)
+		: _size(rhs._size), data_stream(rhs.data_stream) {
 		alloc();
-		if constexpr (Side == side::device) {
-			_memcpy(ptr, rhs.ptr, _size, cudaMemcpyDeviceToDevice);
-		} else {
-			_memcpy(ptr, rhs.ptr, _size, cudaMemcpyHostToHost);
-		}
+		// Only works when the address is unified, and since this is exactly what we do here, it's
+		// fine
+		_memcpy(ptr, rhs.ptr, _size, cudaMemcpyDefault);
 	}
 
 	cuda_buffer &operator=(const cuda_buffer &rhs) {
 		if (this == &rhs) {
 			return *this;
 		}
-		cuda_buffer temp(rhs);
-		std::swap(ptr, temp.ptr);
-		std::swap(_size, temp._size);
-		std::swap(data_stream, temp.data_stream);
+		data_stream = rhs.data_stream;
+		_size		= rhs._size;
+
+		alloc();
+		_memcpy(ptr, rhs.ptr, _size, cudaMemcpyDefault);
+
 		return *this;
 	}
 
 	cuda_buffer(cuda_buffer &&rhs) noexcept
-		: ptr(rhs.ptr), _size(rhs._size), data_stream(std::move(rhs.data_stream)) {
+		: _size(rhs._size), data_stream(std::move(rhs.data_stream)), ptr(rhs.ptr) {
 		rhs.ptr	  = nullptr;
 		rhs._size = 0;
 	}
 
 	cuda_buffer &operator=(cuda_buffer &&rhs) noexcept {
 		free();
-		ptr				= rhs.ptr;
-		_size			= rhs._size;
-		data_stream		= std::move(rhs.data_stream);
-		rhs.ptr			= nullptr;
-		rhs._size		= 0;
-		rhs.data_stream = nullptr;
+		data_stream = std::move(rhs.data_stream);
+
+		ptr		  = rhs.ptr;
+		rhs.ptr	  = nullptr;
+		_size	  = rhs._size;
+		rhs._size = 0;
+
 		return *this;
 	}
 
@@ -114,6 +113,7 @@ public:
 		free();
 		ptr			= nullptr;
 		data_stream = nullptr;
+		_size		= 0;
 	}
 
 	T *get() const {
@@ -124,21 +124,6 @@ public:
 		free();
 		_size = size;
 		alloc();
-	}
-
-	void set_data(T *data, size_t size, cudaMemcpyKind kind = cudaMemcpyDefault,
-				  cudaMemcpyOrder order = cudaMemcpyOrder::cudaMemcpy2to1) {
-		using enum cudaMemcpyOrder;
-		if (size > _size) {
-			std::cout
-				<< "[Warning] Requested amount of bytes to copy was more when currently allocated\n";
-			size = _size;
-		}
-		if (order == cudaMemcpy2to1) {
-			_memcpy(ptr, data, size, kind);
-		} else {
-			_memcpy(data, ptr, size, kind);
-		}
 	}
 
 	void free() {
@@ -152,11 +137,15 @@ public:
 		}
 	}
 
+	void memset(void* _ptr, size_t size, cudaMemcpyKind kind) {
+		cudaMemcpyAsync(ptr, _ptr, size, kind, data_stream->stream());
+	}
+
 	explicit operator bool() const {
 		return ptr != nullptr;
 	}
 
-	void zero_data(size_t amount) {
+	void zero_data(size_t amount) const {
 		cudaMemsetAsync(ptr, 0, amount, data_stream->stream());
 	}
 };
