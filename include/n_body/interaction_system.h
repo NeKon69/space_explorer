@@ -7,9 +7,9 @@
 #include <glad/glad.h>
 #include <raw_memory.h>
 
+#include "../cuda_types/from_gl/buffer.h"
 #include "core/clock.h"
 #include "cuda_types/buffer.h"
-#include "cuda_types/cuda_from_gl_data.h"
 #include "cuda_types/stream.h"
 #include "deleters/custom_deleters.h"
 #include "n_body/physics/space_object.h"
@@ -55,16 +55,16 @@ template<typename T>
 class interaction_system {
 private:
 	std::shared_ptr<cuda_types::cuda_stream> stream = std::make_shared<cuda_types::cuda_stream>();
-	cuda_types::cuda_buffer<physics::space_object<T> > d_objects;
-	std::vector<physics::space_object<T> >			   c_objects;
-	size_t											   amount_of_bytes = 0;
-	raw::cuda_types::cuda_from_gl_data<glm::mat4>	   d_objects_model;
-	bool											   data_changed;
-	bool											   paused		 = false;
-	unsigned int									   number_of_sim = 0;
-	unsigned int									   num_of_obj	 = 0;
-	raw::core::clock								   clock;
-	raw::unique_ptr<raw::UI, deleters::gl_buffer>	   vbo;
+	cuda_types::cuda_buffer<physics::space_object<T>> d_objects;
+	std::vector<physics::space_object<T>>			  c_objects;
+	size_t											  amount_of_bytes = 0;
+	raw::cuda_types::from_gl::buffer<glm::mat4>		  d_objects_model;
+	bool											  data_changed;
+	bool											  paused		= false;
+	unsigned int									  number_of_sim = 0;
+	unsigned int									  num_of_obj	= 0;
+	raw::core::clock								  clock;
+	raw::unique_ptr<raw::UI, deleters::gl_buffer>	  vbo;
 	friend class physics::space_object<T>;
 
 	void update_data() {
@@ -115,9 +115,7 @@ private:
 			std::cout << err << "\n";
 		}
 
-		cuda_types::cuda_from_gl_data<glm::mat4> gg(&amount_of_bytes, *vbo);
-
-		d_objects_model = std::move(gg);
+		d_objects_model = cuda_types::from_gl::buffer<glm::mat4>(&amount_of_bytes, *vbo, stream);
 		d_objects_model.unmap();
 	}
 
@@ -141,7 +139,7 @@ public:
 		clock.restart();
 	}
 
-	interaction_system(const std::vector<physics::space_object<T> > &objects, UI vao,
+	interaction_system(const std::vector<physics::space_object<T>> &objects, UI vao,
 					   UI number_of_attr = 2)
 		// We'll allocate only one bit, since it'll be reallocated later anyway (but we do that so
 		// we can have the same stream for all data)
@@ -185,7 +183,8 @@ public:
 	}
 
 	void setup_model(UI model_vbo) {
-		d_objects_model = cuda_types::cuda_from_gl_data<glm::mat4>(&amount_of_bytes, model_vbo);
+		d_objects_model =
+			cuda_types::from_gl::buffer<glm::mat4>(&amount_of_bytes, model_vbo, stream);
 		d_objects_model.unmap();
 	}
 
@@ -193,7 +192,7 @@ public:
 		return *vbo;
 	}
 
-	std::optional<physics::space_object<T> > get() {
+	std::optional<physics::space_object<T>> get() {
 		if (num_of_obj >= c_objects.size()) {
 			num_of_obj = 0;
 			return std::nullopt;
@@ -236,14 +235,14 @@ public:
 
 namespace predef {
 inline auto generate_data_for_sim() {
-	std::initializer_list<physics::space_object<float> > gg = {
+	std::initializer_list<physics::space_object<float>> gg = {
 		physics::space_object<float>(glm::vec3(0.0f, 0.f, 0.f), physics::predef::BASIC_VELOCITY, 2,
 									 sqrt(2)),
 		physics::space_object<float>(glm::vec3(25.f)),
 		physics::space_object<float>(glm::vec3(-10.f)),
 		physics::space_object<float>(glm::vec3(10, -10, 20), physics::predef::BASIC_VELOCITY, 4,
 									 sqrt(0.25))};
-	std::vector<physics::space_object<float> > ggg(gg.begin(), gg.end());
+	std::vector<physics::space_object<float>> ggg(gg.begin(), gg.end());
 	return ggg;
 }
 } // namespace predef

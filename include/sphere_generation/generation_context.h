@@ -17,10 +17,10 @@ protected:
 
 public:
 	~generation_context();
-	generation_context(const generation_context& other)				   = default;
+	generation_context(const generation_context& other)				   = delete;
 	generation_context(generation_context&& other) noexcept			   = default;
 	generation_context& operator=(const generation_context& other)	   = delete;
-	generation_context& operator=(generation_context&& other) noexcept = delete;
+	generation_context& operator=(generation_context&& other) noexcept = default;
 };
 } // namespace raw::sphere_generation
 #endif // SPACE_EXPLORER_GENERATION_CONTEST_H

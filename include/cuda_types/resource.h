@@ -23,11 +23,14 @@ class resource {
 private:
 	cudaGraphicsResource_t		 m_resource = nullptr;
 	bool						 mapped		= false;
-	static std::shared_ptr<cuda_stream> stream;
+	std::shared_ptr<cuda_stream> stream;
 
 protected:
 	// I heard somewhere that this down here is better than directly accessing the protected member
 	cudaGraphicsResource_t &get_resource();
+
+private:
+	void cleanup();
 
 public:
 	resource() = default;
@@ -35,7 +38,8 @@ public:
 	template<typename F, typename... Args>
 	// TODO: i dont remember how "is_callable" is called and where it is, need to add it here
 		requires std::is_function_v<F>
-	explicit resource(const F &&func, Args &&...args) {
+	explicit resource(const F &&func, std::shared_ptr<cuda_stream> stream, Args&&... args)
+		: stream(stream) {
 		create(func, std::forward<Args &&>(args)...);
 	}
 
@@ -50,15 +54,13 @@ public:
 
 	void map();
 
-	~resource();
+	virtual ~resource();
 
 	resource &operator=(const resource &) = delete;
+	resource(const resource &)			  = delete;
 
-	resource(const resource &) = delete;
-
-	resource &operator=(resource &&) = default;
-
-	resource(resource &&) = default;
+	resource &operator=(resource &&rhs);
+	resource(resource &&rhs);
 };
 } // namespace raw::cuda_types
 

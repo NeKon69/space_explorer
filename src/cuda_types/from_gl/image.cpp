@@ -5,7 +5,7 @@
 
 namespace raw::cuda_types::from_gl {
 image::image(raw::UI texture_id)
-	: raw::cuda_types::resource(cudaGraphicsGLRegisterImage, texture_id, GL_TEXTURE_2D,
+	: raw::cuda_types::resource(cudaGraphicsGLRegisterImage, nullptr, texture_id, GL_TEXTURE_2D,
 	                            cudaGraphicsRegisterFlagsSurfaceLoadStore) {
 	CUDA_SAFE_CALL(cudaGraphicsSubResourceGetMappedArray(&array, get_resource(), 0, 0));
 }

@@ -3,10 +3,35 @@
 //
 #include "cuda_types/resource.h"
 
-namespace raw::cuda_types {
-std::shared_ptr<cuda_stream> resource::stream = std::make_shared<cuda_stream>();
+#include <cuda/std/__ranges/data.h>
 
-cudaGraphicsResource_t &resource::get_resource() {
+namespace raw::cuda_types {
+void resource::cleanup() {
+	unmap();
+	if (m_resource) {
+		CUDA_SAFE_CALL(cudaGraphicsUnregisterResource(m_resource));
+	}
+}
+
+resource& resource::operator=(resource&& rhs) {
+	stream = std::move(rhs.stream);
+
+	cleanup();
+	m_resource = rhs.m_resource;
+	mapped	   = rhs.mapped;
+
+	rhs.m_resource = nullptr;
+	rhs.mapped	   = false;
+	return *this;
+}
+resource::resource(resource&& rhs)
+	: m_resource(rhs.m_resource), mapped(rhs.mapped), stream(std::move(rhs.stream)) {
+	rhs.m_resource = nullptr;
+	rhs.mapped	   = false;
+	rhs.stream	   = nullptr;
+}
+
+cudaGraphicsResource_t& resource::get_resource() {
 	return m_resource;
 }
 
@@ -22,19 +47,25 @@ void resource::unmap() {
 	// stream and that'll be it, sounds much cooler and expandable
 	// HOWEVER that shit would require some class that manages those streams
 	// The point is - fuck this shit
-	if (mapped) {
-		CUDA_SAFE_CALL(cudaGraphicsUnmapResources(1, &m_resource, 0));
+	if (mapped && m_resource) {
+		CUDA_SAFE_CALL(cudaGraphicsUnmapResources(1, &m_resource, stream->stream()));
+		mapped = false;
 	}
 }
 
 void resource::map() {
-	if (!mapped) {
-		CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &m_resource, 0));
+	if (!mapped && m_resource) {
+		CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &m_resource, stream->stream()));
+		mapped = true;
 	}
 }
 
 resource::~resource() {
-	unmap();
-	cudaGraphicsUnregisterResource(m_resource);
+	try {
+		cleanup();
+	} catch (const std::runtime_error& e) {
+		std::cerr << "[CRITICAL] An error occured in resource destructor: " << e.what()
+				  << std::endl;
+	}
 }
 } // namespace raw::cuda_types

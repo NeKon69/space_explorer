@@ -40,8 +40,8 @@ void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
 	_vbo = vbo;
 	_ebo = ebo;
 	vertices_handle =
-		cuda_types::cuda_from_gl_data<raw::graphics::vertex>(&vertices_bytes, vbo, stream);
-	indices_handle = cuda_types::cuda_from_gl_data<UI>(&indices_bytes, ebo, stream);
+		cuda_types::from_gl::buffer<raw::graphics::vertex>(&vertices_bytes, vbo, stream);
+	indices_handle = cuda_types::from_gl::buffer<UI>(&indices_bytes, ebo, stream);
 
 	vertices_second = cuda_types::cuda_buffer<raw::graphics::vertex>(vertices_bytes, stream, true);
 	indices_second	= cuda_types::cuda_buffer<UI>(indices_bytes, stream, true);

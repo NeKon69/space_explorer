@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 
 #include "cuda_types/buffer.h"
-#include "cuda_types/cuda_from_gl_data.h"
+#include "../cuda_types/from_gl/buffer.h"
 #include "graphics/vertex.h"
 #include "sphere_generation/fwd.h"
 #include "sphere_generation/generation_context.h"
@@ -21,8 +21,8 @@ namespace raw::sphere_generation {
 // icosahedron
 class icosahedron_data_manager {
 private:
-	cuda_types::cuda_from_gl_data<raw::graphics::vertex> vertices_handle;
-	cuda_types::cuda_from_gl_data<UI>					 indices_handle;
+	cuda_types::from_gl::buffer<raw::graphics::vertex> vertices_handle;
+	cuda_types::from_gl::buffer<UI>					 indices_handle;
 	std::shared_ptr<cuda_types::cuda_stream>			 stream;
 
 	UI _vbo;
