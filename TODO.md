@@ -15,7 +15,7 @@
 *Key features that need to be implemented for the next milestone.*
 
 * `🎨 [ ⏳ On Hold]` - Finish texture streaming/generations
-* `🌊 [ 📝 Planned]` - Introduce CUDA/OpenCL streams to each part of project (n-body, sphere tesselation, texture
+* `🌊 [ 🗣️ Partly Done]` - Introduce CUDA/OpenCL streams to each part of project (n-body, sphere tesselation, texture
   generation) to prevent chaos of randomly creating/deleting threads locally.
 * `🎛️ [ 📝 Planned]` - Introduce manager for GPU streams
 
@@ -25,7 +25,7 @@
 
 *Important structural changes to be addressed after the current priorities are completed.*
 
-* `🏛️ [ 🚧 In Progress]` - Make base classes for GPU-backend from which other classes will be inherited based on chosen
+* `🏛️ [ 🗣️ Partly Done]` - Make base classes for GPU-backend from which other classes will be inherited based on chosen
   backend (OpenCL or CUDA)
 * `🧩 [ 📝 Planned]` - Refactor "playing_state" class to be more modular, introduce "event_manager", "input_handler", and
   other stuff

@@ -1,10 +1,10 @@
 //
 // Created by progamers on 8/28/25.
 //
-#include "../../../include/sphere_generation/cuda/sphere_generator.h"
+#include "sphere_generation/cuda/sphere_generator.h"
 
-#include "../../../include/sphere_generation/cuda/icosahedron_data_manager.h"
-#include "../../../include/sphere_generation/cuda/kernel_launcher.h"
+#include "sphere_generation/cuda/icosahedron_data_manager.h"
+#include "sphere_generation/cuda/kernel_launcher.h"
 
 namespace raw::sphere_generation::cuda {
 template<typename TargetTuple, std::size_t... Is>
@@ -20,7 +20,7 @@ cuda_tessellation_data cast_tuple(const tessellation_data& source) {
 void sphere_generator::generate(uint32_t steps, cuda_types::cuda_stream& stream,
 								std::shared_ptr<i_sphere_resource_manager> source,
 								graphics::graphics_data&				   graphics_data) {
-	if (steps >= predef::MAX_STEPS) {
+	if (steps > predef::MAX_STEPS) {
 		throw std::runtime_error(std::format(
 			"[Error] Amount of steps should not exceed maximum, which is {}, while was given {}",
 			predef::MAX_STEPS, steps));

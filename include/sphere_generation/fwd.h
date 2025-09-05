@@ -10,7 +10,7 @@ namespace predef {
 // Oh and btw, turns out, even after 4 steps our sphere gets nearly perfect (even on 2k monitor,
 // well maybe on 4k it would be nice to have 6, but 4 is pretty much enough)
 static constexpr auto BASIC_RADIUS = 1.0f;
-static constexpr auto BASIC_STEPS  = 7U;
+static constexpr auto BASIC_STEPS  = 4U;
 static constexpr auto MAX_STEPS	   = 8U;
 // That you can't change, all things above you can
 static constexpr uint32_t BASIC_AMOUNT_OF_TRIANGLES = 20U;

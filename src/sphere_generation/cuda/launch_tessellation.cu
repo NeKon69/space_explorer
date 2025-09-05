@@ -2,29 +2,26 @@
 // Created by progamers on 7/18/25.
 //
 #include <thrust/sort.h>
-#include <thrust/system/cuda/memory_resource.h>
 
 #include "cuda_types/buffer.h"
 #include "cuda_types/error.h"
 #include "cuda_types/stream.h"
 #include "graphics/vertex.h"
-#include "../../../include/sphere_generation/cuda/kernel_launcher.h"
-#include "../../../include/sphere_generation/cuda/tessellation_kernel.h"
+#include "sphere_generation/basic_geomerty.h"
+#include "sphere_generation/cuda/kernel_launcher.h"
+#include "sphere_generation/cuda/tessellation_kernel.h"
 
 namespace raw::sphere_generation::cuda {
-__device__ __host__ bool edge_comparator(const edge &a, const edge &b) {
-	if (a.v0 > b.v0)
-		return false;
-	if (a.v0 < b.v0)
-		return true;
-	return a.v1 < b.v1;
-}
 void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edge *all_edges,
-
 						 raw::graphics::vertex *out_vertices, UI *out_indices, edge *d_unique_edges,
 						 uint32_t *edge_to_vertex, uint32_t *p_vertex_count,
 						 uint32_t *p_triangle_count, uint32_t *p_unique_edges_count,
 						 cudaStream_t &stream, uint32_t steps) {
+	cudaMemcpyAsync(in_vertices, std::data(generate_icosahedron_vertices()),
+					sizeof(graphics::vertex) * 12, cudaMemcpyHostToDevice);
+	cudaMemcpyAsync(in_indices, std::data(generate_icosahedron_indices()), sizeof(uint32_t) * 60,
+					cudaMemcpyHostToDevice);
+
 	auto		   base_in_vertices	 = in_vertices;
 	const auto	   base_in_indices	 = in_indices;
 	uint32_t	   num_vertices_cpu	 = 12;
@@ -99,4 +96,4 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 	CUDA_SAFE_CALL(cudaStreamSynchronize(stream));
 }
 
-} // namespace raw::sphere_generation
+} // namespace raw::sphere_generation::cuda

@@ -69,9 +69,7 @@ public:
 
 	generation_context create_context() override;
 
-	static constexpr std::array<graphics::vertex, 12> generate_icosahedron_vertices();
 
-	static constexpr std::array<UI, 60> generate_icosahedron_indices();
 
 	[[nodiscard]] tessellation_data get_data() const override {
 		return std::make_tuple(vertices_handle.get_data(), indices_handle.get_data(),

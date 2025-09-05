@@ -2,8 +2,8 @@
 // Created by progamers on 7/18/25.
 //
 #include "graphics/vertex.h"
-#include "../../../include/sphere_generation/cuda/fwd.h"
-#include "../../../include/sphere_generation/cuda/tessellation_kernel.h"
+#include "sphere_generation/cuda/fwd.h"
+#include "sphere_generation/cuda/tessellation_kernel.h"
 #ifndef CUDART_PI_F
 #define CUDART_PI_F 3.141592654f
 #endif
@@ -158,9 +158,13 @@ __global__ void calculate_tbn_and_uv(raw::graphics::vertex *vertices, uint32_t n
 	glm::vec3 up(0.0f, 1.0f, 0.0f);
 
 	if (abs(P.y) > 0.9999f) {
-		vertex.tangent = glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
+		vertex.tangent	= glm::normalize(glm::cross(vertex.normal, right));
 	} else {
 		vertex.tangent = glm::normalize(glm::cross(up, vertex.normal));
+	}
+	if (glm::dot(glm::cross(vertex.normal, vertex.tangent), vertex.bitangent) < 0.0f) {
+		vertex.tangent = vertex.tangent * -1.0f;
 	}
 	vertex.bitangent = glm::normalize(glm::cross(vertex.normal, vertex.tangent));
 }
@@ -306,4 +310,4 @@ __global__ void orthogonalize(raw::graphics::vertex *vertices, uint32_t vertex_c
 	// Just for safe measure
 	v.normal = normalize(v.normal);
 }
-} // namespace raw::sphere_generation
+} // namespace raw::sphere_generation::cuda

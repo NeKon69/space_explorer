@@ -52,7 +52,8 @@ public:
 		return *ptr;
 	}
 
-	/** @deprecated This lost its purpose with introduction of a stream to each part of project (with gpgpu calculations)
+	/** @deprecated This lost its purpose with introduction of a stream to each part of project
+	 * (with gpgpu calculations)
 	 */
 	static cuda_buffer create(const size_t size) {
 		static std::shared_ptr<cuda_stream> _stream = std::make_shared<cuda_stream>();
@@ -137,7 +138,7 @@ public:
 		}
 	}
 
-	void memset(void* _ptr, size_t size, cudaMemcpyKind kind) {
+	void memset(void *_ptr, size_t size, cudaMemcpyKind kind) {
 		cudaMemcpyAsync(ptr, _ptr, size, kind, data_stream->stream());
 	}
 
@@ -147,6 +148,9 @@ public:
 
 	void zero_data(size_t amount) const {
 		cudaMemsetAsync(ptr, 0, amount, data_stream->stream());
+	}
+	void set_stream(std::shared_ptr<cuda_stream> stream) {
+		data_stream = std::move(stream);
 	}
 };
 } // namespace raw::cuda_types
