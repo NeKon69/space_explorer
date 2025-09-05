@@ -5,7 +5,6 @@
 * `⚙️ [ 📝 Planned ]` - Fix n-body by dividing single kernel into 2 separate ones, "kick-drift" and "kick" to properly
   work on more than 256 objects
 * `🧐 [ 📝 Planned ]` - Check if UV coordinate system actually works and if it has "edges"
-* `🧹 [ 🚧 In Progress]` - Refactor "buffer.h" to be more robust, right now it's bloated with trash
 * `🛠️ [ 🚧 In Progress]` - (Optional, either do it now or never) Refactor interaction_system into 2 classes and make it
   more reliable
 
@@ -45,3 +44,4 @@
   to be done to prevent bullshit UV/TBN fuckups.~~
 * `[ ✅ Done ]` - ~~Refactor cuda_from_gl_data class to be inherited from resource class and make it another class in "
   from_gl" folder~~
+* `[ ✅ Done ]` - ~~Refactor "buffer.h" to be more robust, right now it's bloated with trash~~

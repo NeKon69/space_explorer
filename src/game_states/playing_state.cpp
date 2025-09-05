@@ -67,15 +67,16 @@ playing_state::playing_state(graphics::graphics_data& graphics_data, glm::uvec2 
 	  sphere_mesh(std::make_shared<raw::graphics::mesh>(
 		  sphere_generation::predef::MAXIMUM_AMOUNT_OF_VERTICES,
 		  sphere_generation::predef::MAXIMUM_AMOUNT_OF_INDICES)),
-	  sphere_manager(sphere_mesh->get_vbo(), sphere_mesh->get_ebo(), stream),
-	  sphere_gen(),
+	  sphere_manager(std::make_shared<sphere_generation::cuda::sphere_resource_manager>(
+		  sphere_mesh->get_vbo(), sphere_mesh->get_ebo(), stream)),
+	  sphere_gen(std::make_shared<sphere_generation::cuda::sphere_generator>()),
 	  sim_state {true, 5},
 	  system(n_body::predef::generate_data_for_sim(), sphere_mesh->get_vao(),
 			 sphere_mesh->attr_num()),
 	  camera(),
 	  controller(camera) {
 	sphere_mesh->unbind();
-	sphere_gen.generate(5, *stream.get(), sphere_manager, graphics_data);
+	sphere_gen->generate(6, *stream.get(), sphere_manager, graphics_data);
 	camera.set_window_resolution(window_size.x, window_size.y);
 	init();
 }
@@ -187,7 +188,7 @@ bool playing_state::handle_input() {
 
 void playing_state::draw(raw::rendering::renderer& renderer) {
 	auto queue = build_rendering_queue();
-	sphere_gen.sync();
+	sphere_gen->sync();
 	renderer.render(queue, camera);
 }
 

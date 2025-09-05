@@ -7,6 +7,8 @@
 
 #include <glm/glm.hpp>
 
+#include "../sphere_generation/cuda/icosahedron_data_manager.h"
+#include "../sphere_generation/cuda/sphere_generator.h"
 #include "core/camera/camera.h"
 #include "core/camera/movement_state.h"
 #include "core/camera/player_controller.h"
@@ -14,8 +16,6 @@
 #include "graphics/mesh.h"
 #include "n_body/interaction_system.h"
 #include "n_body/simulation_state.h"
-#include "sphere_generation/icosahedron_data_manager.h"
-#include "sphere_generation/sphere_generator.h"
 #include "z_unused/objects/cube.h"
 
 namespace raw::game_states {
@@ -31,13 +31,13 @@ private:
 	raw::z_unused::objects::cube light_cube;
 
 	// For now let's just store the stream locally
-	std::shared_ptr<raw::cuda_types::cuda_stream>	 stream;
-	std::shared_ptr<graphics::mesh>					 sphere_mesh;
-	raw::sphere_generation::icosahedron_data_manager sphere_manager;
-	raw::sphere_generation::sphere_generator		 sphere_gen;
-	bool											 dir_light = false;
-	raw::simulation_state							 sim_state;
-	raw::n_body::interaction_system<float>			 system;
+	std::shared_ptr<raw::cuda_types::cuda_stream>					   stream;
+	std::shared_ptr<graphics::mesh>									   sphere_mesh;
+	std::shared_ptr<sphere_generation::i_sphere_resource_manager> sphere_manager;
+	std::shared_ptr<sphere_generation::i_sphere_generator>		   sphere_gen;
+	bool															   dir_light = false;
+	raw::simulation_state											   sim_state;
+	raw::n_body::interaction_system<float>							   system;
 
 	bool pressed_o = false;
 

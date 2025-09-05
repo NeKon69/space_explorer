@@ -2,20 +2,19 @@
 // Created by progamers on 7/7/25.
 //
 
-#include "sphere_generation/icosahedron_data_manager.h"
+#include "sphere_generation/cuda/icosahedron_data_manager.h"
 
 #include <numbers>
 
 #include "core/clock.h"
 #include "cuda_types/buffer.h"
-#include "sphere_generation/generation_context.h"
-#include "sphere_generation/kernel_launcher.h"
+#include "sphere_generation/cuda/kernel_launcher.h"
 
-namespace raw::sphere_generation {
+namespace raw::sphere_generation::cuda {
 inline constexpr float GOLDEN_RATIO = std::numbers::phi_v<float>;
 inline constexpr float PI			= std::numbers::pi_v<float>;
 
-icosahedron_data_manager::icosahedron_data_manager()
+sphere_resource_manager::sphere_resource_manager()
 	: stream(std::make_shared<cuda_types::cuda_stream>()),
 	  _vbo(0),
 	  _ebo(0),
@@ -23,8 +22,8 @@ icosahedron_data_manager::icosahedron_data_manager()
 	  amount_of_vertices(sizeof(uint32_t), stream),
 	  amount_of_edges(sizeof(uint32_t), stream) {}
 
-icosahedron_data_manager::icosahedron_data_manager(raw::UI vbo, raw::UI ebo,
-												   std::shared_ptr<cuda_types::cuda_stream> stream)
+sphere_resource_manager::sphere_resource_manager(raw::UI vbo, raw::UI ebo,
+												 std::shared_ptr<cuda_types::cuda_stream> stream)
 
 	: stream(stream),
 	  amount_of_triangles(sizeof(uint32_t), stream),
@@ -33,7 +32,7 @@ icosahedron_data_manager::icosahedron_data_manager(raw::UI vbo, raw::UI ebo,
 	init(vbo, ebo);
 }
 
-void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
+void sphere_resource_manager::init(raw::UI vbo, raw::UI ebo) {
 	static int times_called = 0;
 	// can be called only once in the lifetime
 	assert(times_called == 0);
@@ -61,7 +60,7 @@ void icosahedron_data_manager::init(raw::UI vbo, raw::UI ebo) {
 			   num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice);
 }
 
-void icosahedron_data_manager::prepare(raw::UI vbo, raw::UI ebo) {
+void sphere_resource_manager::prepare(raw::UI vbo, raw::UI ebo) {
 	if (!inited) {
 		init(vbo, ebo);
 		return;
@@ -76,15 +75,16 @@ void icosahedron_data_manager::prepare(raw::UI vbo, raw::UI ebo) {
 
 	// Need to update func to also produce some cool data as tangent/bitangent
 	cudaMemcpyAsync(vertices_handle.get_data(), (void *)std::data(generate_icosahedron_vertices()),
-					num_vertices_cpu * sizeof(graphics::vertex), cudaMemcpyHostToDevice, stream->stream());
+					num_vertices_cpu * sizeof(graphics::vertex), cudaMemcpyHostToDevice,
+					stream->stream());
 	cudaMemcpyAsync(indices_handle.get_data(), (void *)std::data(generate_icosahedron_indices()),
 					num_triangles_cpu * 3 * sizeof(UI), cudaMemcpyHostToDevice, stream->stream());
 }
-generation_context icosahedron_data_manager::create_context() {
-	return generation_context {*this, _vbo, _ebo};
+generation_context sphere_resource_manager::create_context() {
+	return generation_context {this, _vbo, _ebo};
 }
 
-void icosahedron_data_manager::cleanup() {
+void sphere_resource_manager::cleanup() {
 	vertices_second.free();
 	indices_second.free();
 	vertices_handle.unmap();
@@ -100,7 +100,7 @@ void icosahedron_data_manager::cleanup() {
 // thing, and tesselation are surprisingly easy things, just for some reason someone wanted give
 // them scary names
 constexpr std::array<graphics::vertex, 12>
-icosahedron_data_manager::generate_icosahedron_vertices() {
+sphere_resource_manager::generate_icosahedron_vertices() {
 	std::array<graphics::vertex, 12> vertices;
 	int								 vertex_index = 0;
 
@@ -138,10 +138,10 @@ icosahedron_data_manager::generate_icosahedron_vertices() {
 	return vertices;
 }
 
-constexpr std::array<UI, 60> icosahedron_data_manager::generate_icosahedron_indices() {
+constexpr std::array<UI, 60> sphere_resource_manager::generate_icosahedron_indices() {
 	return {2, 10, 4,  2, 4,  0, 2, 0, 5, 2, 5,	 11, 2, 11, 10, 0, 4, 8, 4, 10,
 			6, 10, 11, 3, 11, 5, 7, 5, 0, 9, 1,	 8,	 6, 1,	6,	3, 1, 3, 7, 1,
 			7, 9,  1,  9, 8,  6, 8, 4, 3, 6, 10, 7,	 3, 11, 9,	7, 5, 8, 9, 0};
 }
 
-} // namespace raw::sphere_generation
+} // namespace raw::sphere_generation::cuda

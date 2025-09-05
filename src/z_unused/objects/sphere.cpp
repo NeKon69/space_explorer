@@ -14,7 +14,7 @@ namespace raw::z_unused::objects {
 		  vertices(sphere_generation::predef::MAXIMUM_AMOUNT_OF_VERTICES),
 		  obj(vertices, sphere_generation::predef::MAXIMUM_AMOUNT_OF_VERTICES, indices,
 		      sphere_generation::predef::MAXIMUM_AMOUNT_OF_INDICES),
-		  gen(obj.get_vbo(), obj.get_ebo(), std::make_shared<cuda_types::cuda_stream>()) {
+		  gen(std::make_shared<sphere_generation::cuda::sphere_resource_manager>(obj.get_vbo(), obj.get_ebo(), std::make_shared<cuda_types::cuda_stream>())) {
 		obj.set_shader(shader);
 		obj.scale(glm::vec3(radius));
 		// Acted as a dummy to create obj, so they can be cleared

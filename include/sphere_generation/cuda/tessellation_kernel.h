@@ -8,8 +8,9 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "sphere_generation/cuda/fwd.h"
 
-namespace raw::sphere_generation {
+namespace raw::sphere_generation::cuda {
 extern __device__ void make_canonical_edge(edge &edge, uint32_t i0, uint32_t i1);
 
 extern __global__ void generate_edges(const UI *in_indices, edge *out_edges,

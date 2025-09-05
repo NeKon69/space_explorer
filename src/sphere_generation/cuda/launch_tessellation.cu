@@ -8,10 +8,10 @@
 #include "cuda_types/error.h"
 #include "cuda_types/stream.h"
 #include "graphics/vertex.h"
-#include "sphere_generation/kernel_launcher.h"
-#include "sphere_generation/tessellation_kernel.h"
+#include "../../../include/sphere_generation/cuda/kernel_launcher.h"
+#include "../../../include/sphere_generation/cuda/tessellation_kernel.h"
 
-namespace raw::sphere_generation {
+namespace raw::sphere_generation::cuda {
 __device__ __host__ bool edge_comparator(const edge &a, const edge &b) {
 	if (a.v0 > b.v0)
 		return false;

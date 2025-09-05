@@ -4,16 +4,18 @@
 
 #ifndef SPACE_EXPLORER_GENERATION_CONTEST_H
 #define SPACE_EXPLORER_GENERATION_CONTEST_H
+#include "sphere_generation/cuda/fwd.h"
 #include "sphere_generation/fwd.h"
 
 namespace raw::sphere_generation {
 class generation_context {
 private:
-	icosahedron_data_manager& manager;
-	friend class icosahedron_data_manager;
+	i_sphere_resource_manager* manager;
+	friend class i_sphere_resource_manager;
+	friend class cuda::sphere_resource_manager;
 
 protected:
-	generation_context(icosahedron_data_manager& mgr, UI vbo, UI ebo);
+	generation_context(i_sphere_resource_manager* mgr, uint32_t vbo, uint32_t ebo);
 
 public:
 	~generation_context();

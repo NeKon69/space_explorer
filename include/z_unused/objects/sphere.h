@@ -6,7 +6,7 @@
 #define SPACE_EXPLORER_SPHERE_H
 #include "../z_unused/object.h"
 #include "n_body/n_body_predef.h"
-#include "sphere_generation/icosahedron_data_manager.h"
+#include "../../sphere_generation/cuda/icosahedron_data_manager.h"
 
 namespace raw::z_unused::objects {
 class sphere {
@@ -14,7 +14,7 @@ private:
 	std::vector<UI>							 indices;
 	std::vector<float>						 vertices;
 	z_unused::object						 obj;
-	sphere_generation::icosahedron_data_manager gen;
+	std::shared_ptr<sphere_generation::i_sphere_resource_manager> gen;
 
 public:
 	explicit sphere(const std::shared_ptr<raw::rendering::shader::shader> &,

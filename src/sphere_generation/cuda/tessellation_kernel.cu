@@ -2,12 +2,12 @@
 // Created by progamers on 7/18/25.
 //
 #include "graphics/vertex.h"
-#include "sphere_generation/fwd.h"
-#include "sphere_generation/tessellation_kernel.h"
+#include "../../../include/sphere_generation/cuda/fwd.h"
+#include "../../../include/sphere_generation/cuda/tessellation_kernel.h"
 #ifndef CUDART_PI_F
 #define CUDART_PI_F 3.141592654f
 #endif
-namespace raw::sphere_generation {
+namespace raw::sphere_generation::cuda {
 __device__ void make_canonical_edge(edge &edge, uint32_t i0, uint32_t i1) {
 	edge.v0 = max(i0, i1);
 	edge.v1 = min(i0, i1);
