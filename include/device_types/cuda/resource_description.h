@@ -8,9 +8,9 @@
 
 #include <cstring>
 
-#include "cuda_types/fwd.h"
+#include "device_types/cuda/fwd.h"
 
-namespace raw::cuda_types {
+namespace raw::devic_types::cuda_types {
 namespace resource_types {
 struct array {
 	cudaResourceType res_type = cudaResourceTypeArray;
@@ -31,6 +31,6 @@ public:
 		description.res.array.array = array;
 	}
 };
-} // namespace raw::cuda_types
+} // namespace raw::device_types::cuda_types
 
 #endif // SPACE_EXPLORER_RESOURCE_DESCRIPTION_H

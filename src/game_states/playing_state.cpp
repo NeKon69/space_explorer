@@ -63,7 +63,7 @@ playing_state::playing_state(graphics::graphics_data& graphics_data, glm::uvec2 
 		  "shaders/light/vertex_shader.glsl", "shaders/light/color_shader.frag")),
 	  light_cube(object_shader),
 
-	  stream(std::make_shared<cuda_types::cuda_stream>()),
+	  stream(std::make_shared<device_types::cuda::cuda_stream>()),
 	  sphere_mesh(std::make_shared<raw::graphics::mesh>(
 		  sphere_generation::predef::MAXIMUM_AMOUNT_OF_VERTICES,
 		  sphere_generation::predef::MAXIMUM_AMOUNT_OF_INDICES)),

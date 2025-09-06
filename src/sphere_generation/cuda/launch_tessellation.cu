@@ -3,16 +3,15 @@
 //
 #include <thrust/sort.h>
 
-#include "cuda_types/buffer.h"
-#include "cuda_types/error.h"
-#include "cuda_types/stream.h"
-#include "cuda_types/exception.h"
+#include "device_types/cuda/buffer.h"
+#include "device_types/cuda/error.h"
 #include "graphics/vertex.h"
 #include "sphere_generation/basic_geomerty.h"
 #include "sphere_generation/cuda/kernel_launcher.h"
 #include "sphere_generation/cuda/tessellation_kernel.h"
 
 namespace raw::sphere_generation::cuda {
+using namespace device_types::cuda;
 void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edge *all_edges,
 						 raw::graphics::vertex *out_vertices, UI *out_indices, edge *d_unique_edges,
 						 uint32_t *edge_to_vertex, uint32_t *p_vertex_count,
@@ -25,12 +24,10 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 
 	auto		   base_in_vertices	 = in_vertices;
 	const auto	   base_in_indices	 = in_indices;
-	uint32_t	   num_vertices_cpu	 = 12;
 	constexpr auto threads_per_block = 1024;
 
-	cuda_types::cuda_buffer<uint32_t, cuda_types::side::host> num_triangles_cpu(sizeof(uint32_t));
-	cuda_types::cuda_buffer<uint32_t, cuda_types::side::host> num_unique_edges_cpu(
-		sizeof(uint32_t));
+	cuda::buffer<uint32_t, cuda::side::host> num_triangles_cpu(sizeof(uint32_t));
+	cuda::buffer<uint32_t, cuda::side::host> num_unique_edges_cpu(sizeof(uint32_t));
 	*num_triangles_cpu = predef::BASIC_AMOUNT_OF_TRIANGLES;
 	auto blocks		   = (*num_triangles_cpu + threads_per_block - 1) / threads_per_block;
 	int	 base		   = 12;
@@ -46,8 +43,8 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 								predef::MAXIMUM_AMOUNT_OF_VERTICES * sizeof(raw::graphics::vertex),
 								cudaMemcpyDeviceToDevice, stream));
 		} else {
-			// We know that at the first iteration we have least amount of vertices, so it's just a
-			// small optimization
+			// We know that at the first iteration we have the least amount of vertices, so it's
+			// just a small optimization
 			CUDA_SAFE_CALL(
 				cudaMemcpyAsync(out_vertices, in_vertices,
 								predef::BASIC_AMOUNT_OF_VERTICES * sizeof(raw::graphics::vertex),
@@ -81,8 +78,8 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 	}
 	in_vertices = base_in_vertices;
 	in_indices	= base_in_indices;
-	// we can predict how much vertices we have since it's the last step
-	// we can probably predict amount of vertices at each step but i am too lazy to test that
+	// we can predict how many vertices we have since it's the last step
+	// we can probably predict amount of vertices at each step, but I am too lazy to test that
 	uint32_t amount_of_vertices = 10u * (1u << (2u * steps)) + 2u;
 	if (steps % 2 != 0) {
 		cudaMemcpyAsync(base_in_vertices, out_vertices,

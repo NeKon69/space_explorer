@@ -9,12 +9,12 @@
 
 #include <memory>
 
-#include "cuda_types/error.h"
-#include "cuda_types/fwd.h"
-#include "cuda_types/stream.h"
+#include "device_types/cuda/error.h"
+#include "device_types/cuda/fwd.h"
+#include "device_types/cuda/stream.h"
 
 
-namespace raw::cuda_types {
+namespace raw::device_types::cuda {
 /**
  * @class resource
  * @brief Base class for CUDA data from opengl, takes in the constructor function to register the
@@ -64,6 +64,6 @@ public:
 	resource &operator=(resource &&rhs) noexcept;
 	resource(resource &&rhs) noexcept;
 };
-} // namespace raw::cuda_types
+} // namespace raw::cuda
 
 #endif // SPACE_EXPLORER_CUDA_RESOURCE_H

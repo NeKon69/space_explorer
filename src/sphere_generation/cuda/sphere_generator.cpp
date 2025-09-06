@@ -3,21 +3,25 @@
 //
 #include "sphere_generation/cuda/sphere_generator.h"
 
+#include "device_types/device_ptr.h"
 #include "sphere_generation/cuda/icosahedron_data_manager.h"
 #include "sphere_generation/cuda/kernel_launcher.h"
 
 namespace raw::sphere_generation::cuda {
-template<typename TargetTuple, std::size_t... Is>
-TargetTuple cast_tuple_impl(const tessellation_data& source, std::index_sequence<Is...>) {
-	return std::make_tuple(
-		static_cast<std::tuple_element_t<Is, TargetTuple>>(std::get<Is>(source))...);
+// The implementation detail, using the index sequence pattern you like.
+template<device_types::backend B, typename SourceTuple, std::size_t... Is>
+auto get_native_pointers(const SourceTuple& source, std::index_sequence<Is...>) {
+	return std::make_tuple(std::get<Is>(source).template get<B>()...);
 }
 
-cuda_tessellation_data cast_tuple(const tessellation_data& source) {
-	constexpr auto tuple_size = std::tuple_size_v<tessellation_data>;
-	return cast_tuple_impl<cuda_tessellation_data>(source, std::make_index_sequence<tuple_size> {});
+// The clean, public-facing function.
+template<device_types::backend B, typename SourceTuple>
+auto retrieve_data(const SourceTuple& source) {
+	constexpr auto tuple_size = std::tuple_size_v<std::decay_t<SourceTuple>>;
+	return get_native_pointers<B>(source, std::make_index_sequence<tuple_size> {});
 }
-void sphere_generator::generate(uint32_t steps, cuda_types::cuda_stream& stream,
+
+void sphere_generator::generate(uint32_t steps, cuda::cuda_stream& stream,
 								std::shared_ptr<i_sphere_resource_manager> source,
 								graphics::graphics_data&				   graphics_data) {
 	if (steps > predef::MAX_STEPS) {
@@ -30,10 +34,10 @@ void sphere_generator::generate(uint32_t steps, cuda_types::cuda_stream& stream,
 		cudaStream_t											local_stream = stream.stream();
 		graphics::gl_context_lock<graphics::context_type::TESS> lock(graphics_data);
 		auto													context = source->create_context();
-		auto data_for_thread = cast_tuple(source->get_data());
-		std::apply(launch_tessellation,
-				   std::tuple_cat(std::move(data_for_thread),
-								  std::make_tuple(std::ref(local_stream), steps)));
+		auto native_data = retrieve_data<device_types::backend::CUDA>(source->get_data());
+		std::apply(
+			launch_tessellation,
+			std::tuple_cat(std::move(native_data), std::make_tuple(std::ref(local_stream), steps)));
 		stream.sync();
 	});
 }

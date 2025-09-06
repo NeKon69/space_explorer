@@ -31,7 +31,7 @@ private:
 	raw::z_unused::objects::cube light_cube;
 
 	// For now let's just store the stream locally
-	std::shared_ptr<raw::cuda_types::cuda_stream>					   stream;
+	std::shared_ptr<device_types::cuda::cuda_stream>					   stream;
 	std::shared_ptr<graphics::mesh>									   sphere_mesh;
 	std::shared_ptr<sphere_generation::i_sphere_resource_manager> sphere_manager;
 	std::shared_ptr<sphere_generation::i_sphere_generator>		   sphere_gen;

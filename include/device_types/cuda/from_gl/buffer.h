@@ -6,13 +6,11 @@
 #define SPACE_EXPLORER_CUDA_FROM_GL_DATA_H
 #include <cuda_gl_interop.h>
 
-#include "common/fwd.h"
-#include "cuda_types/error.h"
-#include "cuda_types/from_gl/fwd.h"
-#include "cuda_types/fwd.h"
-#include "cuda_types/resource.h"
+#include "device_types/cuda/error.h"
+#include "device_types/cuda/fwd.h"
+#include "device_types/cuda/resource.h"
 
-namespace raw::cuda_types::from_gl {
+namespace raw::device_types::cuda::from_gl {
 template<typename T>
 class buffer : public resource {
 	// Meant to be used with ```new``` (or shared-ptr) and deleted when cleanup starts
@@ -25,7 +23,7 @@ public:
 	using resource::resource;
 	buffer() = default;
 
-	buffer(size_t* amount_of_bytes, UI buffer_object, std::shared_ptr<cuda_stream> stream)
+	buffer(size_t* amount_of_bytes, uint32_t buffer_object, std::shared_ptr<cuda_stream> stream)
 		: resource(cudaGraphicsGLRegisterBuffer, stream, buffer_object,
 				   cudaGraphicsRegisterFlagsWriteDiscard) {
 		map();
@@ -59,5 +57,5 @@ public:
 
 	~buffer() override = default;
 };
-} // namespace raw::cuda_types::from_gl
+} // namespace raw::cuda::from_gl
 #endif // SPACE_EXPLORER_CUDA_FROM_GL_DATA_H

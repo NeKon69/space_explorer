@@ -7,10 +7,10 @@
 #include <cuda_gl_interop.h>
 
 #include "common/fwd.h"
-#include "cuda_types/error.h"
-#include "cuda_types/resource_description.h"
+#include "device_types/cuda/error.h"
+#include "device_types/cuda/resource_description.h"
 
-namespace raw::cuda_types {
+namespace raw::devic_types::cuda {
 template<typename T>
 class surface {
 private:
@@ -18,11 +18,11 @@ private:
 	bool				created		   = false;
 
 public:
-	explicit surface(raw::cuda_types::resource_description<T> &description) {
+	explicit surface(resource_description<T> &description) {
 		create(description);
 	}
 
-	void create(raw::cuda_types::resource_description<T> &description) {
+	void create(resource_description<T> &description) {
 		if (!created) {
 			CUDA_SAFE_CALL(cudaCreateSurfaceObject(surface_object, description));
 		}
@@ -44,5 +44,5 @@ public:
 		return surface_object;
 	}
 };
-} // namespace raw::cuda_types
+} // namespace raw::device_types::cuda
 #endif // SPACE_EXPLORER_SURFACE_H

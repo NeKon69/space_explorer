@@ -73,15 +73,17 @@ __global__ void create_unique_midpoint_vertices(
 	}
 }
 
-__global__ void sort_by_key(edge* d_unique_edges, const uint32_t* p_unique_edges_count, uint32_t* edge_to_vertex) {
+__global__ void sort_by_key(edge *d_unique_edges, const uint32_t *p_unique_edges_count,
+							uint32_t *edge_to_vertex) {
 	const uint32_t x = blockIdx.x * blockDim.x + threadIdx.x;
 	if (x == 0) {
-		thrust::sort_by_key(thrust::device, d_unique_edges, d_unique_edges + *p_unique_edges_count, edge_to_vertex);
+		thrust::sort_by_key(thrust::device, d_unique_edges, d_unique_edges + *p_unique_edges_count,
+							edge_to_vertex);
 	}
 }
 
 // Uses binary sorting because "unique_edges" are sorted
-__device__ int find_edge(const edge *unique_edges, uint32_t num_unique_edges, edge target) {
+__device__ uint32_t find_edge(const edge *unique_edges, uint32_t num_unique_edges, edge target) {
 	uint32_t low  = 0;
 	uint32_t high = num_unique_edges - 1;
 	while (low <= high) {
@@ -150,7 +152,8 @@ __global__ void create_triangles(const UI *in_indices, UI *out_indices, const ed
 	out_tri_ptr[10] = new_i12;
 	out_tri_ptr[11] = new_i20;
 }
-__global__ void calculate_tbn_and_uv(raw::graphics::vertex *vertices, uint32_t* num_input_vertices) {
+__global__ void calculate_tbn_and_uv(raw::graphics::vertex *vertices,
+									 uint32_t			   *num_input_vertices) {
 	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
 	if (x >= *num_input_vertices) {
 		return;

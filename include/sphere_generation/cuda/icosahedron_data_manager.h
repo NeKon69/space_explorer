@@ -12,13 +12,14 @@
 
 #include "sphere_generation/generation_context.h"
 #include "sphere_generation/i_sphere_resource_manager.h"
-#include "cuda_types/buffer.h"
-#include "cuda_types/from_gl/buffer.h"
+#include "device_types/cuda/buffer.h"
+#include "device_types/cuda/from_gl/buffer.h"
 #include "graphics/vertex.h"
 #include "sphere_generation/cuda/fwd.h"
 
 // clang-format on
 namespace raw::sphere_generation::cuda {
+using namespace device_types::cuda;
 using cuda_tessellation_data =
 	std::tuple<graphics::vertex*, unsigned*, edge*, graphics::vertex*, unsigned*, edge*, unsigned*,
 			   unsigned*, unsigned*, unsigned*>;
@@ -26,23 +27,23 @@ using cuda_tessellation_data =
 // icosahedron
 class sphere_resource_manager : public i_sphere_resource_manager {
 private:
-	cuda_types::from_gl::buffer<raw::graphics::vertex> vertices_handle;
-	cuda_types::from_gl::buffer<UI>					   indices_handle;
-	std::shared_ptr<cuda_types::cuda_stream>		   stream;
+	cuda::from_gl::buffer<raw::graphics::vertex> vertices_handle;
+	cuda::from_gl::buffer<UI>					   indices_handle;
+	std::shared_ptr<cuda::cuda_stream>		   stream;
 
 	UI _vbo;
 	UI _ebo;
 
-	cuda_types::cuda_buffer<raw::graphics::vertex> vertices_second;
-	cuda_types::cuda_buffer<UI>					   indices_second;
+	cuda::buffer<raw::graphics::vertex> vertices_second;
+	cuda::buffer<UI>					   indices_second;
 
-	cuda_types::cuda_buffer<uint32_t> amount_of_triangles;
-	cuda_types::cuda_buffer<uint32_t> amount_of_vertices;
-	cuda_types::cuda_buffer<uint32_t> amount_of_edges;
+	cuda::buffer<uint32_t> amount_of_triangles;
+	cuda::buffer<uint32_t> amount_of_vertices;
+	cuda::buffer<uint32_t> amount_of_edges;
 
-	cuda_types::cuda_buffer<edge>	  all_edges;
-	cuda_types::cuda_buffer<edge>	  d_unique_edges;
-	cuda_types::cuda_buffer<uint32_t> edge_to_vertex;
+	cuda::buffer<edge>	  all_edges;
+	cuda::buffer<edge>	  d_unique_edges;
+	cuda::buffer<uint32_t> edge_to_vertex;
 
 	size_t vertices_bytes = 0;
 	size_t indices_bytes  = 0;
@@ -65,18 +66,18 @@ private:
 public:
 	sphere_resource_manager();
 
-	sphere_resource_manager(UI vbo, UI ebo, std::shared_ptr<cuda_types::cuda_stream> stream);
+	sphere_resource_manager(UI vbo, UI ebo, std::shared_ptr<cuda::cuda_stream> stream);
 
 	generation_context create_context() override;
 
 
 
 	[[nodiscard]] tessellation_data get_data() const override {
-		return std::make_tuple(vertices_handle.get_data(), indices_handle.get_data(),
-							   static_cast<edge_base*>(all_edges.get()), vertices_second.get(),
-							   indices_second.get(), static_cast<edge_base*>(d_unique_edges.get()),
-							   edge_to_vertex.get(), amount_of_vertices.get(),
-							   amount_of_triangles.get(), amount_of_edges.get());
+		return std::make_tuple(device_ptr(vertices_handle.get_data()), device_ptr(indices_handle.get_data()),
+							   device_ptr(all_edges.get()), device_ptr(vertices_second.get()),
+							   device_ptr(indices_second.get()), device_ptr(d_unique_edges.get()),
+							   device_ptr(edge_to_vertex.get()), device_ptr(amount_of_vertices.get()),
+							   device_ptr(amount_of_triangles.get()), device_ptr(amount_of_edges.get()));
 	}
 };
 } // namespace raw::sphere_generation::cuda

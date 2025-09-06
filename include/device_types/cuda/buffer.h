@@ -9,16 +9,16 @@
 #include <cuda_runtime.h>
 
 #include "common/fwd.h"
-#include "cuda_types/error.h"
-#include "cuda_types/fwd.h"
-#include "cuda_types/stream.h"
+#include "device_types/cuda/error.h"
+#include "device_types/cuda/fwd.h"
+#include "device_types/cuda/stream.h"
 
-namespace raw::cuda_types {
+namespace raw::device_types::cuda {
 // This motherfucker right here, yes, this one, he is the fucking ugliest part of my code, it
 // sucks, it's ugly, and also... IDK
 // I need to think of some better design for that shit
 template<typename T, side Side>
-class cuda_buffer {
+class buffer {
 private:
 	size_t						 _size = 0;
 	std::shared_ptr<cuda_stream> data_stream;
@@ -39,7 +39,7 @@ private:
 	}
 
 public:
-	cuda_buffer() : data_stream(std::make_shared<cuda_stream>()) {}
+	buffer() : data_stream(std::make_shared<cuda_stream>()) {}
 
 	__host__ T &operator*()
 		requires(Side == side::host)
@@ -55,31 +55,30 @@ public:
 	/** @deprecated This lost its purpose with introduction of a stream to each part of project
 	 * (with gpgpu calculations)
 	 */
-	static cuda_buffer create(const size_t size) {
+	static buffer create(const size_t size) {
 		static std::shared_ptr<cuda_stream> _stream = std::make_shared<cuda_stream>();
-		return cuda_buffer<T>(size, _stream);
+		return buffer<T>(size, _stream);
 	}
 
-	explicit cuda_buffer(const size_t size) : _size(size) {
+	explicit buffer(const size_t size) : _size(size) {
 		data_stream = std::make_shared<cuda_stream>();
 		alloc();
 	}
 
-	cuda_buffer(const size_t size, std::shared_ptr<cuda_stream> stream)
+	buffer(const size_t size, std::shared_ptr<cuda_stream> stream)
 		: _size(size), data_stream(std::move(stream)) {
 		alloc();
 	}
 
 	template<side Side_>
-	explicit cuda_buffer(const cuda_buffer<T, Side_> &rhs)
-		: _size(rhs._size), data_stream(rhs.data_stream) {
+	explicit buffer(const buffer<T, Side_> &rhs) : _size(rhs._size), data_stream(rhs.data_stream) {
 		alloc();
 		// Only works when the address is unified, and since this is exactly what we do here, it's
 		// fine
 		_memcpy(ptr, rhs.ptr, _size, cudaMemcpyDefault);
 	}
 
-	cuda_buffer &operator=(const cuda_buffer &rhs) {
+	buffer &operator=(const buffer &rhs) {
 		if (this == &rhs) {
 			return *this;
 		}
@@ -92,13 +91,13 @@ public:
 		return *this;
 	}
 
-	cuda_buffer(cuda_buffer &&rhs) noexcept
+	buffer(buffer &&rhs) noexcept
 		: _size(rhs._size), data_stream(std::move(rhs.data_stream)), ptr(rhs.ptr) {
 		rhs.ptr	  = nullptr;
 		rhs._size = 0;
 	}
 
-	cuda_buffer &operator=(cuda_buffer &&rhs) noexcept {
+	buffer &operator=(buffer &&rhs) noexcept {
 		free();
 		data_stream = std::move(rhs.data_stream);
 
@@ -110,7 +109,7 @@ public:
 		return *this;
 	}
 
-	~cuda_buffer() {
+	~buffer() {
 		free();
 		ptr			= nullptr;
 		data_stream = nullptr;
@@ -159,6 +158,6 @@ public:
 		data_stream = std::move(stream);
 	}
 };
-} // namespace raw::cuda_types
+} // namespace raw::cuda
 
 #endif // SPACE_EXPLORER_CUDA_BUFFER_H

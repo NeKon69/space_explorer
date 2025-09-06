@@ -7,13 +7,13 @@
 #include <numbers>
 
 #include "core/clock.h"
-#include "cuda_types/buffer.h"
+#include "device_types/cuda/buffer.h"
 #include "sphere_generation/cuda/kernel_launcher.h"
 
 namespace raw::sphere_generation::cuda {
 
 sphere_resource_manager::sphere_resource_manager()
-	: stream(std::make_shared<cuda_types::cuda_stream>()),
+	: stream(std::make_shared<device_types::cuda::cuda_stream>()),
 	  _vbo(0),
 	  _ebo(0),
 	  amount_of_triangles(sizeof(uint32_t), stream),
@@ -21,7 +21,7 @@ sphere_resource_manager::sphere_resource_manager()
 	  amount_of_edges(sizeof(uint32_t), stream) {}
 
 sphere_resource_manager::sphere_resource_manager(raw::UI vbo, raw::UI ebo,
-												 std::shared_ptr<cuda_types::cuda_stream> stream)
+												 std::shared_ptr<device_types::cuda::cuda_stream> stream)
 
 	: stream(stream),
 	  amount_of_triangles(sizeof(uint32_t), stream),
@@ -36,8 +36,8 @@ void sphere_resource_manager::init(raw::UI vbo, raw::UI ebo) {
 	assert(times_called == 0);
 	_vbo			= vbo;
 	_ebo			= ebo;
-	vertices_handle = cuda_types::from_gl::buffer<graphics::vertex>(&vertices_bytes, vbo, stream);
-	indices_handle	= cuda_types::from_gl::buffer<UI>(&indices_bytes, ebo, stream);
+	vertices_handle = cuda::from_gl::buffer<graphics::vertex>(&vertices_bytes, vbo, stream);
+	indices_handle	= cuda::from_gl::buffer<UI>(&indices_bytes, ebo, stream);
 
 	vertices_second.set_stream(stream);
 	indices_second.set_stream(stream);

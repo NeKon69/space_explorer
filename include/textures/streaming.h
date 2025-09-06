@@ -7,7 +7,7 @@
 #include <glad/glad.h>
 #include <raw_memory.h>
 
-#include "cuda_types/from_gl/image.h"
+#include "device_types/cuda/from_gl/image.h"
 #include "deleters/custom_deleters.h"
 #include "textures/data_type/compressed_cpu_texture.h"
 #include "textures/lru_cache.h"
@@ -16,8 +16,8 @@
 namespace raw::textures {
 struct texture_slot {
 	// am is simplified from albedo_metallic
-	raw::cuda_types::from_gl::image albedo_metallic;
-	raw::cuda_types::from_gl::image normal_rough_ao;
+	device_types::cuda::from_gl::image albedo_metallic;
+	device_types::cuda::from_gl::image normal_rough_ao;
 
 	raw::unique_ptr<unsigned int, raw::deleters::gl_texture> am_id;
 	raw::unique_ptr<unsigned int, raw::deleters::gl_texture> nrao_id;

@@ -9,10 +9,12 @@
 
 #include "graphics/mesh.h"
 #include "sphere_generation/fwd.h"
+#include "device_types/device_ptr.h"
+using namespace raw::device_types;
 namespace raw::sphere_generation {
 using tessellation_data =
-	std::tuple<graphics::vertex*, unsigned*, edge_base*, graphics::vertex*, unsigned*, edge_base*,
-			   unsigned*, unsigned*, unsigned*, unsigned*>;
+	std::tuple<device_ptr<graphics::vertex*>, device_ptr<unsigned*>, device_ptr<cuda::edge*>, device_ptr<graphics::vertex*>, device_ptr<unsigned*>, device_ptr<cuda::edge*>,
+			   device_ptr<unsigned*>, device_ptr<unsigned*>, device_ptr<unsigned*>, device_ptr<unsigned*>>;
 class i_sphere_resource_manager {
 protected:
 	friend class generation_context;

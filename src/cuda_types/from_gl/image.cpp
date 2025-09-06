@@ -1,11 +1,11 @@
 //
 // Created by progamers on 8/5/25.
 //
-#include "cuda_types/from_gl/image.h"
+#include "device_types/cuda/from_gl/image.h"
 
-namespace raw::cuda_types::from_gl {
+namespace raw::device_types::cuda::from_gl {
 image::image(uint32_t texture_id)
-	: raw::cuda_types::resource(cudaGraphicsGLRegisterImage, nullptr, texture_id, GL_TEXTURE_2D,
+	: resource(cudaGraphicsGLRegisterImage, nullptr, texture_id, GL_TEXTURE_2D,
 	                            cudaGraphicsRegisterFlagsSurfaceLoadStore) {
 	CUDA_SAFE_CALL(cudaGraphicsSubResourceGetMappedArray(&array, get_resource(), 0, 0));
 }
@@ -20,4 +20,4 @@ cudaArray_t image::get() {
 	map();
 	return array;
 }
-} // namespace raw::cuda_types::from_gl
+} // namespace raw::cuda::from_gl

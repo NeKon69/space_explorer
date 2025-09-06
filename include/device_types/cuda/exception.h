@@ -6,9 +6,8 @@
 #define SPACE_EXPLORER_CUDA_EXCEPTION_H
 #include <stdexcept>
 
-#include "cuda_types/fwd.h"
-namespace raw::cuda_types {
-class cuda_exception : public std::exception{
+namespace raw::device_types::cuda {
+class cuda_exception : public std::exception {
 private:
 	std::string message;
 
@@ -18,5 +17,5 @@ public:
 		return message.c_str();
 	}
 };
-} // namespace raw::cuda_types
+} // namespace raw::cuda
 #endif // SPACE_EXPLORER_CUDA_EXCEPTION_H

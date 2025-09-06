@@ -8,17 +8,18 @@
 #include <memory>
 #include <thread>
 
-#include "cuda_types/fwd.h"
+// clang-format off
 #include "graphics/gl_context_lock.h"
+#include "device_types/cuda/from_gl/buffer.h"
 #include "sphere_generation/fwd.h"
-
+// clang-format on
 namespace raw::sphere_generation {
 class i_sphere_generator {
 protected:
 	std::jthread worker_thread;
 
 public:
-	virtual void generate(uint32_t steps, cuda_types::cuda_stream& stream,
+	virtual void generate(uint32_t steps, device_types::cuda::cuda_stream& stream,
 						  std::shared_ptr<i_sphere_resource_manager> source,
 						  graphics::graphics_data&					 data) = 0;
 	void		 sync();

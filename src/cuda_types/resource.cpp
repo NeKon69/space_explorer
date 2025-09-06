@@ -1,11 +1,11 @@
 //
 // Created by progamers on 8/5/25.
 //
-#include "cuda_types/resource.h"
+#include "device_types/cuda/resource.h"
 
 #include <iostream>
 
-namespace raw::cuda_types {
+namespace raw::device_types::cuda {
 void resource::unmap_noexcept() noexcept {
 	if (mapped && m_resource) {
 		try {
@@ -74,4 +74,4 @@ void resource::set_stream(std::shared_ptr<cuda_stream> stream_) {
 resource::~resource() {
 	cleanup();
 }
-} // namespace raw::cuda_types
+} // namespace raw::cuda

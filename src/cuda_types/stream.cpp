@@ -1,13 +1,13 @@
 //
 // Created by progamers on 7/20/25.
 //
-#include "cuda_types/stream.h"
+#include "device_types/cuda/stream.h"
 
-#include <raw_memory.h>
+#include <memory>
 
-#include "cuda_types/error.h"
+#include "device_types/cuda/error.h"
 
-namespace raw::cuda_types {
+namespace raw::device_types::cuda {
 cuda_stream::cuda_stream() : created(std::make_shared<bool>(false)) {
 	CUDA_SAFE_CALL(cudaStreamCreate(&_stream));
 	created = true;
@@ -29,8 +29,7 @@ void cuda_stream::sync() {
 	CUDA_SAFE_CALL(cudaStreamSynchronize(_stream));
 }
 
-cuda_stream::cuda_stream(cuda_stream &&rhs) noexcept
-	: _stream(rhs._stream), created(rhs.created) {
+cuda_stream::cuda_stream(cuda_stream &&rhs) noexcept : _stream(rhs._stream), created(rhs.created) {
 	rhs._stream = nullptr;
 	rhs.created = false;
 }
@@ -52,4 +51,4 @@ cuda_stream::~cuda_stream() {
 	if (created)
 		cudaStreamDestroy(_stream);
 }
-} // namespace raw::cuda_types
+} // namespace raw::device_types::cuda

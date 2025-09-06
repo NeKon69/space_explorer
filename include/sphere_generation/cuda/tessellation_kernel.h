@@ -20,7 +20,7 @@ extern __global__ void create_unique_midpoint_vertices(
 	const edge *sorted_edges, const graphics::vertex *in_vertices, graphics::vertex *out_vertices,
 	uint32_t *p_vertex_count, edge *unique_edges, uint32_t *edge_to_vertex,
 	uint32_t *num_unique_edges, size_t num_total_edges);
-extern __device__ int find_edge(const edge *unique_edges, uint32_t num_unique_edges, edge target);
+extern __device__ uint32_t find_edge(const edge *unique_edges, uint32_t num_unique_edges, edge target);
 
 extern __global__ void sort_by_key(edge *d_unique_edges, const uint32_t *p_unique_edges_count,
 								   uint32_t *edge_to_vertex);

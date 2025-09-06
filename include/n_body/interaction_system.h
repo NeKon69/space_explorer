@@ -7,11 +7,11 @@
 #include <glad/glad.h>
 #include <raw_memory.h>
 
-#include "../cuda_types/from_gl/buffer.h"
 #include "core/clock.h"
-#include "cuda_types/buffer.h"
-#include "cuda_types/stream.h"
 #include "deleters/custom_deleters.h"
+#include "device_types/cuda/buffer.h"
+#include "device_types/cuda/from_gl/buffer.h"
+#include "device_types/cuda/stream.h"
 #include "n_body/physics/space_object.h"
 
 namespace raw::n_body {
@@ -54,24 +54,25 @@ namespace raw::n_body {
 template<typename T>
 class interaction_system {
 private:
-	std::shared_ptr<cuda_types::cuda_stream> stream = std::make_shared<cuda_types::cuda_stream>();
-	cuda_types::cuda_buffer<physics::space_object<T>> d_objects;
-	std::vector<physics::space_object<T>>			  c_objects;
-	size_t											  amount_of_bytes = 0;
-	raw::cuda_types::from_gl::buffer<glm::mat4>		  d_objects_model;
-	bool											  data_changed;
-	bool											  paused		= false;
-	unsigned int									  number_of_sim = 0;
-	unsigned int									  num_of_obj	= 0;
-	raw::core::clock								  clock;
-	raw::unique_ptr<raw::UI, deleters::gl_buffer>	  vbo;
+	std::shared_ptr<device_types::cuda::cuda_stream> stream =
+		std::make_shared<device_types::cuda::cuda_stream>();
+	device_types::cuda::buffer<physics::space_object<T>> d_objects;
+	std::vector<physics::space_object<T>>				 c_objects;
+	size_t												 amount_of_bytes = 0;
+	raw::device_types::cuda::from_gl::buffer<glm::mat4>	 d_objects_model;
+	bool												 data_changed;
+	bool												 paused		   = false;
+	unsigned int										 number_of_sim = 0;
+	unsigned int										 num_of_obj	   = 0;
+	raw::core::clock									 clock;
+	raw::unique_ptr<raw::UI, deleters::gl_buffer>		 vbo;
 	friend class physics::space_object<T>;
 
 	void update_data() {
 		if (data_changed) {
 			d_objects.allocate(c_objects.size() * sizeof(physics::space_object<T>));
-			d_objects.memset(c_objects.data(),
-							   c_objects.size() * sizeof(physics::space_object<T>), cudaMemcpyHostToDevice);
+			d_objects.memset(c_objects.data(), c_objects.size() * sizeof(physics::space_object<T>),
+							 cudaMemcpyHostToDevice);
 		}
 		data_changed = false;
 	}
@@ -115,7 +116,7 @@ private:
 			std::cout << err << "\n";
 		}
 
-		d_objects_model = cuda_types::from_gl::buffer<glm::mat4>(&amount_of_bytes, *vbo, stream);
+		d_objects_model = device_types::cuda::from_gl::buffer<glm::mat4>(&amount_of_bytes, *vbo, stream);
 		d_objects_model.unmap();
 	}
 
@@ -183,8 +184,7 @@ public:
 	}
 
 	void setup_model(UI model_vbo) {
-		d_objects_model =
-			cuda_types::from_gl::buffer<glm::mat4>(&amount_of_bytes, model_vbo, stream);
+		d_objects_model = device_types::cuda::from_gl::buffer<glm::mat4>(&amount_of_bytes, model_vbo, stream);
 		d_objects_model.unmap();
 	}
 
