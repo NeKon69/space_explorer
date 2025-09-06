@@ -11,7 +11,7 @@
 #include "core/clock.h"
 #include "device_types/cuda/stream.h"
 #include "launch_leapfrog.h"
-#include "n_body/n_body_predef.h"
+#include "../../n_body_predef.h"
 
 namespace raw::n_body::physics {
 namespace predef {

@@ -36,8 +36,6 @@ private:
 	native_handle_variant handle;
 
 public:
-	device_ptr() = default;
-
 	explicit device_ptr(T cuda_ptr) : handle(cuda_ptr) {}
 
 	explicit device_ptr(cl_mem cl_ptr) : handle(cl_ptr) {}

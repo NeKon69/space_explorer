@@ -7,15 +7,15 @@
 
 #include <glm/glm.hpp>
 
-#include "../sphere_generation/cuda/icosahedron_data_manager.h"
+#include "../sphere_generation/cuda/sphere_resource_manager.h"
 #include "../sphere_generation/cuda/sphere_generator.h"
 #include "core/camera/camera.h"
 #include "core/camera/movement_state.h"
 #include "core/camera/player_controller.h"
 #include "core/game_state.h"
 #include "graphics/mesh.h"
-#include "n_body/interaction_system.h"
-#include "n_body/simulation_state.h"
+#include "../n_body/cuda/interaction_system.h"
+#include "../n_body/cuda/simulation_state.h"
 #include "z_unused/objects/cube.h"
 
 namespace raw::game_states {

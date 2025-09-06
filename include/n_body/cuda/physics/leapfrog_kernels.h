@@ -6,7 +6,7 @@
 #define SPACE_EXPLORER_LEAPFROG_KERNEL_H
 #include <glm/glm.hpp>
 
-#include "n_body/fwd.h"
+#include "../cuda/fwd.h"
 
 namespace raw::n_body::physics {
     template<typename T = double>

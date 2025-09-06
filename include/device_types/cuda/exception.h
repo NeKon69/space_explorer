@@ -7,15 +7,9 @@
 #include <stdexcept>
 
 namespace raw::device_types::cuda {
-class cuda_exception : public std::exception {
-private:
-	std::string message;
-
+class cuda_exception : public std::runtime_error {
 public:
-	explicit cuda_exception(std::string message) : message(std::move(message)) {}
-	[[nodiscard]] const char* what() const noexcept override {
-		return message.c_str();
-	}
+	using std::runtime_error::runtime_error;
 };
-} // namespace raw::cuda
+} // namespace raw::device_types::cuda
 #endif // SPACE_EXPLORER_CUDA_EXCEPTION_H

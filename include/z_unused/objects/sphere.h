@@ -5,8 +5,8 @@
 #ifndef SPACE_EXPLORER_SPHERE_H
 #define SPACE_EXPLORER_SPHERE_H
 #include "../z_unused/object.h"
-#include "n_body/n_body_predef.h"
-#include "../../sphere_generation/cuda/icosahedron_data_manager.h"
+#include "../../n_body/n_body_predef.h"
+#include "../../sphere_generation/cuda/sphere_resource_manager.h"
 
 namespace raw::z_unused::objects {
 class sphere {

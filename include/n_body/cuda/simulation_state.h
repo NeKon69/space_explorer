@@ -4,7 +4,7 @@
 
 #ifndef SPACE_EXPLORER_SIMULATION_STATE_H
 #define SPACE_EXPLORER_SIMULATION_STATE_H
-#include "n_body/fwd.h"
+#include "fwd.h"
 
 namespace raw {
 struct simulation_state {

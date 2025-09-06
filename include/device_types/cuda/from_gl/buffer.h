@@ -13,8 +13,6 @@
 namespace raw::device_types::cuda::from_gl {
 template<typename T>
 class buffer : public resource {
-	// Meant to be used with ```new``` (or shared-ptr) and deleted when cleanup starts
-
 private:
 	T*	   data	 = nullptr;
 	size_t bytes = 0;
@@ -26,11 +24,10 @@ public:
 	buffer(size_t* amount_of_bytes, uint32_t buffer_object, std::shared_ptr<cuda_stream> stream)
 		: resource(cudaGraphicsGLRegisterBuffer, stream, buffer_object,
 				   cudaGraphicsRegisterFlagsWriteDiscard) {
-		map();
-		CUDA_SAFE_CALL(cudaGraphicsResourceGetMappedPointer((void**)&data, &bytes, get_resource()));
+		CUDA_SAFE_CALL(
+			cudaGraphicsResourceGetMappedPointer((void**)&data, &bytes, *get_resource()));
 		if (amount_of_bytes)
 			*amount_of_bytes = bytes;
-		unmap();
 	}
 	buffer(const buffer&)			 = delete;
 	buffer& operator=(const buffer&) = delete;
@@ -57,5 +54,5 @@ public:
 
 	~buffer() override = default;
 };
-} // namespace raw::cuda::from_gl
+} // namespace raw::device_types::cuda::from_gl
 #endif // SPACE_EXPLORER_CUDA_FROM_GL_DATA_H

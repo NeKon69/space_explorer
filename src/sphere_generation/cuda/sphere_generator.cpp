@@ -3,8 +3,9 @@
 //
 #include "sphere_generation/cuda/sphere_generator.h"
 
+#include "core/clock.h"
 #include "device_types/device_ptr.h"
-#include "sphere_generation/cuda/icosahedron_data_manager.h"
+#include "sphere_generation/cuda/sphere_resource_manager.h"
 #include "sphere_generation/cuda/kernel_launcher.h"
 
 namespace raw::sphere_generation::cuda {
@@ -31,14 +32,23 @@ void sphere_generator::generate(uint32_t steps, cuda::cuda_stream& stream,
 	}
 	sync();
 	worker_thread = std::jthread([&stream, steps, source, &graphics_data] mutable {
+		core::clock												clock;
 		cudaStream_t											local_stream = stream.stream();
 		graphics::gl_context_lock<graphics::context_type::TESS> lock(graphics_data);
 		auto													context = source->create_context();
 		auto native_data = retrieve_data<device_types::backend::CUDA>(source->get_data());
+
+		auto time = clock.restart();
+		time.to_milli();
+		std::cout << "Preparation took: " << time << std::endl;
+		clock.restart();
 		std::apply(
 			launch_tessellation,
 			std::tuple_cat(std::move(native_data), std::make_tuple(std::ref(local_stream), steps)));
 		stream.sync();
+		time = clock.restart();
+		time.to_milli();
+		std::cout << "Tessellation with " << steps << " steps took: " << time << std::endl;
 	});
 }
 

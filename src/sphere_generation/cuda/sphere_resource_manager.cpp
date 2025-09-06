@@ -2,7 +2,7 @@
 // Created by progamers on 7/7/25.
 //
 
-#include "sphere_generation/cuda/icosahedron_data_manager.h"
+#include "sphere_generation/cuda/sphere_resource_manager.h"
 
 #include <numbers>
 

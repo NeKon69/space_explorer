@@ -76,7 +76,7 @@ playing_state::playing_state(graphics::graphics_data& graphics_data, glm::uvec2 
 	  camera(),
 	  controller(camera) {
 	sphere_mesh->unbind();
-	sphere_gen->generate(6, *stream.get(), sphere_manager, graphics_data);
+	sphere_gen->generate(7, *stream.get(), sphere_manager, graphics_data);
 	camera.set_window_resolution(window_size.x, window_size.y);
 	init();
 }
@@ -134,12 +134,11 @@ bool playing_state::handle_input() {
 			case SDL_SCANCODE_O:
 				if (pressed_o)
 					break;
-				if (sim_state.running) {
+				if (system.running()) {
 					system.pause();
-					sim_state.running = false;
+					system.running();
 				} else {
 					system.start();
-					sim_state.running = true;
 				}
 				break;
 			case SDL_SCANCODE_T:

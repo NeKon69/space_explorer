@@ -4,15 +4,14 @@
 
 #ifndef SPACE_EXPLORER_CUDA_RESOURCE_H
 #define SPACE_EXPLORER_CUDA_RESOURCE_H
-#include <cuda_gl_interop.h>
 #include <cuda_egl_interop.h>
+#include <cuda_gl_interop.h>
 
 #include <memory>
 
 #include "device_types/cuda/error.h"
 #include "device_types/cuda/fwd.h"
 #include "device_types/cuda/stream.h"
-
 
 namespace raw::device_types::cuda {
 /**
@@ -26,15 +25,21 @@ private:
 	bool						 mapped		= false;
 	std::shared_ptr<cuda_stream> stream;
 
-protected:
-	// I heard somewhere that this down here is better than directly accessing the protected member
-	cudaGraphicsResource_t &get_resource();
-
 private:
 	void unmap_noexcept() noexcept;
 	void cleanup() noexcept;
 
 public:
+	class mapped_resource {
+	private:
+		std::shared_ptr<cuda_stream> stream;
+		cudaGraphicsResource_t		 resource;
+
+	public:
+		mapped_resource(std::shared_ptr<cuda_stream> stream, cudaGraphicsResource_t resource);
+		~mapped_resource();
+		cudaGraphicsResource_t &operator*();
+	};
 	resource() = default;
 
 	template<typename F, typename... Args>
@@ -63,7 +68,11 @@ public:
 
 	resource &operator=(resource &&rhs) noexcept;
 	resource(resource &&rhs) noexcept;
+protected:
+	// I heard somewhere that this down here is better than directly accessing the protected member
+	mapped_resource get_resource();
 };
-} // namespace raw::cuda
+
+} // namespace raw::device_types::cuda
 
 #endif // SPACE_EXPLORER_CUDA_RESOURCE_H

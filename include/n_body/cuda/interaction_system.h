@@ -12,9 +12,9 @@
 #include "device_types/cuda/buffer.h"
 #include "device_types/cuda/from_gl/buffer.h"
 #include "device_types/cuda/stream.h"
-#include "n_body/physics/space_object.h"
+#include "n_body/cuda/physics/space_object.h"
 
-namespace raw::n_body {
+namespace raw::n_body::cuda {
 // inline void print_mat_ptr(raw::unique_ptr<glm::mat4[]> gg) {
 // 	for (int i = 0; i < 4; ++i) {
 // 		std::cout << "\t\tBEGINNING OF MATRIX " << i;
@@ -235,7 +235,7 @@ public:
 
 namespace predef {
 inline auto generate_data_for_sim() {
-	std::initializer_list<physics::space_object<float>> gg = {
+	std::initializer_list gg = {
 		physics::space_object<float>(glm::vec3(0.0f, 0.f, 0.f), physics::predef::BASIC_VELOCITY, 2,
 									 sqrt(2)),
 		physics::space_object<float>(glm::vec3(25.f)),

@@ -6,6 +6,20 @@
 #include <iostream>
 
 namespace raw::device_types::cuda {
+resource::mapped_resource::mapped_resource(std::shared_ptr<cuda_stream> stream,
+										   cudaGraphicsResource_t		resource)
+	: stream(stream), resource(resource) {
+	CUDA_SAFE_CALL(cudaGraphicsMapResources(1, &resource, stream->stream()));
+}
+
+resource::mapped_resource::~mapped_resource() {
+	CUDA_SAFE_CALL(cudaGraphicsUnmapResources(1, &resource, stream->stream()));
+}
+
+cudaGraphicsResource_t& resource::mapped_resource::operator*() {
+	return resource;
+}
+
 void resource::unmap_noexcept() noexcept {
 	if (mapped && m_resource) {
 		try {
@@ -49,8 +63,8 @@ resource::resource(resource&& rhs) noexcept
 	rhs.mapped	   = false;
 }
 
-cudaGraphicsResource_t& resource::get_resource() {
-	return m_resource;
+resource::mapped_resource resource::get_resource() {
+	return mapped_resource {stream, m_resource};
 }
 
 void resource::unmap() {
@@ -74,4 +88,4 @@ void resource::set_stream(std::shared_ptr<cuda_stream> stream_) {
 resource::~resource() {
 	cleanup();
 }
-} // namespace raw::cuda
+} // namespace raw::device_types::cuda
