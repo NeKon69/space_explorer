@@ -3,6 +3,7 @@
 //
 #include "device_types/cuda/stream.h"
 
+#include <iostream>
 #include <memory>
 
 #include "device_types/cuda/error.h"
@@ -19,7 +20,16 @@ void cuda_stream::destroy() {
 	created = false;
 }
 
+void cuda_stream::destroy_noexcept() noexcept {
+	try {
+		destroy();
+	} catch (const cuda_exception &e) {
+		std::cerr << std::format("[CRITICAL] Destroying CUDA stream failed. \n{}", e.what());
+	}
+}
+
 void cuda_stream::create() {
+	destroy();
 	if (!created)
 		CUDA_SAFE_CALL(cudaStreamCreate(&_stream));
 	created = true;
@@ -35,7 +45,7 @@ cuda_stream::cuda_stream(cuda_stream &&rhs) noexcept : _stream(rhs._stream), cre
 }
 
 cuda_stream &cuda_stream::operator=(cuda_stream &&rhs) noexcept {
-	destroy();
+	destroy_noexcept();
 	_stream		= rhs._stream;
 	created		= rhs.created;
 	rhs._stream = nullptr;
@@ -48,7 +58,6 @@ cudaStream_t &cuda_stream::stream() {
 }
 
 cuda_stream::~cuda_stream() {
-	if (created)
-		cudaStreamDestroy(_stream);
+	destroy_noexcept();
 }
 } // namespace raw::device_types::cuda

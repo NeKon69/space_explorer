@@ -15,6 +15,8 @@ private:
 	// moveable, but whatever
 	bool created;
 
+private:
+	void destroy_noexcept() noexcept;
 public:
 	cuda_stream();
 	cuda_stream(const cuda_stream& rhs)			   = delete;
