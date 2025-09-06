@@ -129,17 +129,23 @@ public:
 
 	void free() {
 		if (_size != 0) {
-			if constexpr (Side == side::device) {
-				CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
-			} else {
-				CUDA_SAFE_CALL(cudaFreeHost(ptr));
+			try {
+				if constexpr (Side == side::device) {
+					CUDA_SAFE_CALL(cudaFreeAsync(ptr, data_stream->stream()));
+				} else {
+					CUDA_SAFE_CALL(cudaFreeHost(ptr));
+				}
+			} catch (const cuda_exception &e) {
+				std::cerr << std::format("[CRITICAL] Error Occured In Free Function. \n{}",
+										 e.what())
+						  << std::endl;
 			}
 			_size = 0;
 		}
 	}
 
 	void memset(void *_ptr, size_t size, cudaMemcpyKind kind) {
-		cudaMemcpyAsync(ptr, _ptr, size, kind, data_stream->stream());
+		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr, _ptr, size, kind, data_stream->stream()));
 	}
 
 	explicit operator bool() const {
@@ -147,7 +153,7 @@ public:
 	}
 
 	void zero_data(size_t amount) const {
-		cudaMemsetAsync(ptr, 0, amount, data_stream->stream());
+		CUDA_SAFE_CALL(cudaMemsetAsync(ptr, 0, amount, data_stream->stream()));
 	}
 	void set_stream(std::shared_ptr<cuda_stream> stream) {
 		data_stream = std::move(stream);

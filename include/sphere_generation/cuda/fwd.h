@@ -17,7 +17,6 @@
 
 namespace raw::sphere_generation::cuda {
 
-
 class sphere_resource_manager;
 class sphere_generator;
 // Stores 2 indices of vertices in the sphere
@@ -39,6 +38,11 @@ struct edge : edge_base {
 	HOST_DEVICE bool operator!=(const edge& edge) const {
 		return !operator==(edge);
 	}
+	edge()									 = default;
+	HOST_DEVICE edge& operator=(edge&&)		 = default;
+	HOST_DEVICE edge& operator=(const edge&) = default;
+	HOST_DEVICE		  edge(edge&&)			 = default;
+	HOST_DEVICE		  edge(const edge&)		 = default;
 };
 } // namespace raw::sphere_generation::cuda
 #endif // SPACE_EXPLORER_SPHERE_GENERATION_CUDA_FWD_H

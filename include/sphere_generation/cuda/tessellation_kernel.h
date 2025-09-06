@@ -8,6 +8,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
 #include "sphere_generation/cuda/fwd.h"
 
 namespace raw::sphere_generation::cuda {
@@ -21,12 +22,15 @@ extern __global__ void create_unique_midpoint_vertices(
 	uint32_t *num_unique_edges, size_t num_total_edges);
 extern __device__ int find_edge(const edge *unique_edges, uint32_t num_unique_edges, edge target);
 
+extern __global__ void sort_by_key(edge *d_unique_edges, const uint32_t *p_unique_edges_count,
+								   uint32_t *edge_to_vertex);
+
 extern __global__ void create_triangles(const UI *in_indices, UI *out_indices,
 										const edge *unique_edges, const uint32_t *edge_to_vertex,
 										const uint32_t *p_num_unique_edges,
 										const size_t	num_input_triangles);
 extern __global__ void calculate_tbn_and_uv(raw::graphics::vertex *vertices,
-											uint32_t			   num_input_vertices);
+											uint32_t			  *num_input_vertices);
 
 extern __global__ void subdivide(raw::graphics::vertex *in_vertices, unsigned int *in_indices,
 								 raw::graphics::vertex *out_vertices, unsigned int *out_indices,
@@ -34,5 +38,5 @@ extern __global__ void subdivide(raw::graphics::vertex *in_vertices, unsigned in
 								 size_t num_input_triangles);
 
 extern __global__ void orthogonalize(raw::graphics::vertex *vertices, uint32_t vertex_count);
-} // namespace raw::sphere_generation
+} // namespace raw::sphere_generation::cuda
 #endif // SPACE_EXPLORER_TESSELLATION_KERNEL_H

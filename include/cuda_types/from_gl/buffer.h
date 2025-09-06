@@ -28,11 +28,12 @@ public:
 	buffer(size_t* amount_of_bytes, UI buffer_object, std::shared_ptr<cuda_stream> stream)
 		: resource(cudaGraphicsGLRegisterBuffer, stream, buffer_object,
 				   cudaGraphicsRegisterFlagsWriteDiscard) {
+		map();
 		CUDA_SAFE_CALL(cudaGraphicsResourceGetMappedPointer((void**)&data, &bytes, get_resource()));
 		if (amount_of_bytes)
 			*amount_of_bytes = bytes;
 		unmap();
-	};
+	}
 	buffer(const buffer&)			 = delete;
 	buffer& operator=(const buffer&) = delete;
 	buffer(buffer&& rhs) noexcept : resource(std::move(rhs)), data(rhs.data), bytes(rhs.bytes) {

@@ -34,6 +34,7 @@ void sphere_generator::generate(uint32_t steps, cuda_types::cuda_stream& stream,
 		std::apply(launch_tessellation,
 				   std::tuple_cat(std::move(data_for_thread),
 								  std::make_tuple(std::ref(local_stream), steps)));
+		stream.sync();
 	});
 }
 

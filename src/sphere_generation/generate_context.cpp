@@ -11,7 +11,6 @@ generation_context::generation_context(i_sphere_resource_manager* mgr, uint32_t 
 	manager->prepare(vbo, ebo);
 }
 generation_context::~generation_context() {
-	std::cout << "Clean Up is CALLED!!!\n";
 	manager->cleanup();
 }
 

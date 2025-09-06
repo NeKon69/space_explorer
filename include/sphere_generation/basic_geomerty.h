@@ -5,15 +5,17 @@
 #ifndef SPACE_EXPLORER_BASIC_GEOMERTY_H
 #define SPACE_EXPLORER_BASIC_GEOMERTY_H
 #include "graphics/vertex.h"
+#include "sphere_generation/fwd.h"
 namespace raw::sphere_generation {
 inline constexpr float GOLDEN_RATIO = std::numbers::phi_v<float>;
 inline constexpr float PI			= std::numbers::pi_v<float>;
 // Icosahedron as most things in this project sounds horrifying, but, n-body (my algorithms), this
 // thing, and tesselation are surprisingly easy things, just for some reason someone wanted give
 // them scary names
-constexpr std::array<graphics::vertex, 12> generate_icosahedron_vertices() {
-	std::array<graphics::vertex, 12> vertices;
-	int								 vertex_index = 0;
+constexpr std::array<graphics::vertex, predef::BASIC_AMOUNT_OF_VERTICES>
+generate_icosahedron_vertices() {
+	std::array<graphics::vertex, predef::BASIC_AMOUNT_OF_VERTICES> vertices;
+	int															   vertex_index = 0;
 
 	const float unscaled_dist = std::sqrt(1.0f + GOLDEN_RATIO * GOLDEN_RATIO);
 	const float scale		  = 1 / unscaled_dist;
@@ -49,7 +51,7 @@ constexpr std::array<graphics::vertex, 12> generate_icosahedron_vertices() {
 	return vertices;
 }
 
-constexpr std::array<UI, 60> generate_icosahedron_indices() {
+constexpr std::array<UI, predef::BASIC_AMOUNT_OF_INDICES> generate_icosahedron_indices() {
 	return {2, 10, 4,  2, 4,  0, 2, 0, 5, 2, 5,	 11, 2, 11, 10, 0, 4, 8, 4, 10,
 			6, 10, 11, 3, 11, 5, 7, 5, 0, 9, 1,	 8,	 6, 1,	6,	3, 1, 3, 7, 1,
 			7, 9,  1,  9, 8,  6, 8, 4, 3, 6, 10, 7,	 3, 11, 9,	7, 5, 8, 9, 0};

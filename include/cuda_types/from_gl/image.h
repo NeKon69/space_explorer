@@ -4,10 +4,6 @@
 
 #ifndef SPACE_EXPLORER_IMAGE_H
 #define SPACE_EXPLORER_IMAGE_H
-#include <cuda_gl_interop.h>
-
-#include "../error.h"
-#include "cuda_types/fwd.h"
 #include "cuda_types/resource.h"
 
 namespace raw::cuda_types::from_gl {
@@ -21,9 +17,9 @@ public:
 	// If used default constructor and didn't set the data manually you are screwed (let it be UB)
 	image() = default;
 
-	image(raw::UI texture_id);
+	image(uint32_t texture_id);
 
-	void set_data(raw::UI texture_id);
+	void set_data(uint32_t texture_id);
 
 	cudaArray_t get();
 };

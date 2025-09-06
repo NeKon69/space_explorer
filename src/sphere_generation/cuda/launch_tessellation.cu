@@ -6,6 +6,7 @@
 #include "cuda_types/buffer.h"
 #include "cuda_types/error.h"
 #include "cuda_types/stream.h"
+#include "cuda_types/exception.h"
 #include "graphics/vertex.h"
 #include "sphere_generation/basic_geomerty.h"
 #include "sphere_generation/cuda/kernel_launcher.h"
@@ -45,9 +46,12 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 								predef::MAXIMUM_AMOUNT_OF_VERTICES * sizeof(raw::graphics::vertex),
 								cudaMemcpyDeviceToDevice, stream));
 		} else {
-			CUDA_SAFE_CALL(cudaMemcpyAsync(out_vertices, in_vertices,
-										   12 * sizeof(raw::graphics::vertex),
-										   cudaMemcpyDeviceToDevice, stream));
+			// We know that at the first iteration we have least amount of vertices, so it's just a
+			// small optimization
+			CUDA_SAFE_CALL(
+				cudaMemcpyAsync(out_vertices, in_vertices,
+								predef::BASIC_AMOUNT_OF_VERTICES * sizeof(raw::graphics::vertex),
+								cudaMemcpyDeviceToDevice, stream));
 		}
 
 		CUDA_SAFE_CALL(cudaMemsetAsync(p_unique_edges_count, 0, sizeof(uint32_t), stream));
@@ -63,11 +67,7 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 			all_edges, in_vertices, out_vertices, p_vertex_count, d_unique_edges, edge_to_vertex,
 			p_unique_edges_count, *num_triangles_cpu * 3);
 
-		CUDA_SAFE_CALL(cudaMemcpyAsync(num_unique_edges_cpu.get(), p_unique_edges_count,
-									   sizeof(uint32_t), cudaMemcpyDeviceToHost, stream));
-		CUDA_SAFE_CALL(cudaStreamSynchronize(stream));
-		thrust::sort_by_key(thrust::cuda::par_nosync.on(stream), d_unique_edges,
-							d_unique_edges + *num_unique_edges_cpu, edge_to_vertex);
+		sort_by_key<<<1, 1, 0, stream>>>(d_unique_edges, p_unique_edges_count, edge_to_vertex);
 
 		blocks = (*num_triangles_cpu + threads_per_block - 1) / threads_per_block;
 
@@ -81,19 +81,19 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 	}
 	in_vertices = base_in_vertices;
 	in_indices	= base_in_indices;
-	cudaMemcpyAsync(&num_vertices_cpu, p_vertex_count, sizeof(uint32_t), cudaMemcpyDeviceToHost,
-					stream);
-	cudaStreamSynchronize(stream);
+	// we can predict how much vertices we have since it's the last step
+	// we can probably predict amount of vertices at each step but i am too lazy to test that
+	uint32_t amount_of_vertices = 10u * (1u << (2u * steps)) + 2u;
 	if (steps % 2 != 0) {
-		cudaMemcpyAsync(base_in_vertices, out_vertices, num_vertices_cpu * sizeof(graphics::vertex),
-						cudaMemcpyDeviceToDevice, stream);
+		cudaMemcpyAsync(base_in_vertices, out_vertices,
+						amount_of_vertices * sizeof(graphics::vertex), cudaMemcpyDeviceToDevice,
+						stream);
 		cudaMemcpyAsync(base_in_indices, out_indices, *num_triangles_cpu * 3 * sizeof(UI),
 						cudaMemcpyDeviceToDevice, stream);
 	}
-	blocks = (num_vertices_cpu + threads_per_block - 1) / threads_per_block;
-
-	calculate_tbn_and_uv<<<blocks, threads_per_block, 0, stream>>>(in_vertices, num_vertices_cpu);
-	CUDA_SAFE_CALL(cudaStreamSynchronize(stream));
+	blocks = (amount_of_vertices + threads_per_block - 1) / threads_per_block;
+	// But just for safe measure if we are wrong pass the actual value
+	calculate_tbn_and_uv<<<blocks, threads_per_block, 0, stream>>>(in_vertices, p_vertex_count);
 }
 
 } // namespace raw::sphere_generation::cuda

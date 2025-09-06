@@ -21,7 +21,7 @@ sphere_resource_manager::sphere_resource_manager()
 	  amount_of_edges(sizeof(uint32_t), stream) {}
 
 sphere_resource_manager::sphere_resource_manager(raw::UI vbo, raw::UI ebo,
-												  std::shared_ptr<cuda_types::cuda_stream> stream)
+												 std::shared_ptr<cuda_types::cuda_stream> stream)
 
 	: stream(stream),
 	  amount_of_triangles(sizeof(uint32_t), stream),
@@ -68,10 +68,10 @@ generation_context sphere_resource_manager::create_context() {
 }
 
 void sphere_resource_manager::cleanup() {
-	vertices_second.free();
-	indices_second.free();
 	vertices_handle.unmap();
 	indices_handle.unmap();
+	vertices_second.free();
+	indices_second.free();
 	all_edges.free();
 	d_unique_edges.free();
 	edge_to_vertex.free();

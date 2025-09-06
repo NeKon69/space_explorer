@@ -14,6 +14,8 @@ static constexpr auto BASIC_STEPS  = 4U;
 static constexpr auto MAX_STEPS	   = 8U;
 // That you can't change, all things above you can
 static constexpr uint32_t BASIC_AMOUNT_OF_TRIANGLES = 20U;
+static constexpr uint32_t BASIC_AMOUNT_OF_VERTICES	= 12U;
+static constexpr uint32_t BASIC_AMOUNT_OF_INDICES	= 60U;
 static constexpr uint32_t MAXIMUM_AMOUNT_OF_INDICES =
 	BASIC_AMOUNT_OF_TRIANGLES * (1u << (2u * MAX_STEPS)) * 3u;
 static constexpr uint32_t MAXIMUM_AMOUNT_OF_VERTICES = 10u * (1u << (2u * MAX_STEPS)) + 2u;

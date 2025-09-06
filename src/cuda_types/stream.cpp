@@ -29,13 +29,13 @@ void cuda_stream::sync() {
 	CUDA_SAFE_CALL(cudaStreamSynchronize(_stream));
 }
 
-cuda_stream::cuda_stream(raw::cuda_types::cuda_stream &&rhs) noexcept
+cuda_stream::cuda_stream(cuda_stream &&rhs) noexcept
 	: _stream(rhs._stream), created(rhs.created) {
 	rhs._stream = nullptr;
 	rhs.created = false;
 }
 
-cuda_stream &cuda_stream::operator=(raw::cuda_types::cuda_stream &&rhs) noexcept {
+cuda_stream &cuda_stream::operator=(cuda_stream &&rhs) noexcept {
 	destroy();
 	_stream		= rhs._stream;
 	created		= rhs.created;
