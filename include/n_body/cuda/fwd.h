@@ -3,13 +3,13 @@
 
 namespace raw::n_body::cuda {
 template<typename T>
-class interaction_system;
+class n_body_resource_manager;
+template<typename T>
+class n_body_simulator;
 
+namespace physics {
 template<typename T = double>
 struct space_object_data;
-namespace physics {
-template<typename T>
-class space_object;
 }
 } // namespace raw::n_body::cuda
 

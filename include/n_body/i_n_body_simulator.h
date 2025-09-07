@@ -9,7 +9,6 @@
 #include "core/clock.h"
 #include "device_types/i_queue.h"
 #include "graphics/gl_context_lock.h"
-#include "i_n_body_data_manager.h"
 #include "n_body/fwd.h"
 namespace raw::n_body {
 template<typename T>

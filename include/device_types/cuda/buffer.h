@@ -46,11 +46,6 @@ public:
 	{
 		return *ptr;
 	}
-	const __host__ T &operator*() const
-		requires(Side == side::device)
-	{
-		return *ptr;
-	}
 
 	/** @deprecated This lost its purpose with introduction of a stream to each part of project
 	 * (with gpgpu calculations)
@@ -157,7 +152,11 @@ public:
 	void set_stream(std::shared_ptr<cuda_stream> stream) {
 		data_stream = std::move(stream);
 	}
+
+	void memcpy(void* _ptr, size_t size, size_t offset, cudaMemcpyKind kind) {
+		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr + offset, _ptr, size, kind, data_stream->stream()));
+	}
 };
-} // namespace raw::cuda
+} // namespace raw::device_types::cuda
 
 #endif // SPACE_EXPLORER_CUDA_BUFFER_H

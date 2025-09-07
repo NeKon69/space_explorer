@@ -7,6 +7,8 @@
 #include <memory>
 
 #include "core/clock.h"
+#include "cuda/physics/space_object.h"
+#include "n_body/cuda/n_body_resource_manager.h"
 #include "n_body/fwd.h"
 namespace raw::n_body {
 template<typename T>
@@ -18,6 +20,8 @@ private:
 	bool										  paused = false;
 
 public:
+	interaction_system(std::vector<cuda::physics::space_object_data> objects)
+		: resource_manager(std::make_shared<cuda::n_body_resource_manager<T>>(objects)) {}
 	void update_simulation();
 	void pause();
 	void resume();
