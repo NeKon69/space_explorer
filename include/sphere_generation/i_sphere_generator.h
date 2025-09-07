@@ -19,7 +19,7 @@ protected:
 	std::jthread worker_thread;
 
 public:
-	virtual void generate(uint32_t steps, device_types::cuda::cuda_stream& stream,
+	virtual void generate(uint32_t steps, std::shared_ptr<device_types::i_queue> stream,
 						  std::shared_ptr<i_sphere_resource_manager> source,
 						  graphics::graphics_data&					 data) = 0;
 	void		 sync();

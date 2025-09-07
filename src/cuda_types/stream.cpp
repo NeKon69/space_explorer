@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "device_types/cuda/error.h"
+#include "raw/helper.h"
 
 namespace raw::device_types::cuda {
 cuda_stream::cuda_stream() : created(std::make_shared<bool>(false)) {
@@ -55,6 +56,9 @@ cuda_stream &cuda_stream::operator=(cuda_stream &&rhs) noexcept {
 
 cudaStream_t &cuda_stream::stream() {
 	return _stream;
+}
+std::unique_ptr<i_bare_queue> cuda_stream::get_queue() const {
+	return std::make_unique<bare_stream>(_stream);
 }
 
 cuda_stream::~cuda_stream() {

@@ -184,7 +184,7 @@ __global__ void calculate_tbn_and_uv(raw::graphics::vertex *vertices,
 /**
  *  @deprecated
  */
-__device__ void calc_tex_coords(glm::vec2 *writing_ptr, glm::vec3 &normalized_pos) {
+__device__ void calc_tex_coords(glm::vec2 *writing_ptr, const glm::vec3 &normalized_pos) {
 	float u		 = atan2f(normalized_pos.z, normalized_pos.x) / (2.0f * CUDART_PI_F) + 0.5f;
 	float v		 = 0.5f - asinf(normalized_pos.y) / CUDART_PI_F;
 	*writing_ptr = glm::vec2 {u, v};
@@ -296,7 +296,9 @@ __global__ void subdivide(raw::graphics::vertex *in_vertices, unsigned int *in_i
 		atomicAdd(&v_c->bitangent.z, bitangent.z);
 	}
 }
-
+/**
+ * @deprecated
+ */
 __global__ void orthogonalize(raw::graphics::vertex *vertices, uint32_t vertex_count) {
 	const unsigned int x = blockIdx.x * blockDim.x + threadIdx.x;
 	if (x > vertex_count) {

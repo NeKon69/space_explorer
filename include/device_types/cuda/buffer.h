@@ -39,7 +39,7 @@ private:
 	}
 
 public:
-	buffer() : data_stream(std::make_shared<cuda_stream>()) {}
+	buffer(std::shared_ptr<cuda_stream> stream) : data_stream(stream) {}
 
 	__host__ T &operator*()
 		requires(Side == side::host)

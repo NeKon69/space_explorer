@@ -5,6 +5,8 @@
 #ifndef SPACE_EXPLORER_SPHERE_GENERATION_FWD_H
 #define SPACE_EXPLORER_SPHERE_GENERATION_FWD_H
 #include <cstdint>
+
+#include "common/fwd.h"
 namespace raw::sphere_generation {
 namespace predef {
 // Oh and btw, turns out, even after 4 steps our sphere gets nearly perfect (even on 2k monitor,
@@ -23,12 +25,12 @@ static constexpr uint32_t MAXIMUM_AMOUNT_OF_TRIANGLES =
 	BASIC_AMOUNT_OF_TRIANGLES * (1u << (2u * MAX_STEPS));
 } // namespace predef
 
-class generation_context;
 class i_sphere_resource_manager;
 struct edge_base {
 	uint32_t v0;
 	uint32_t v1;
 };
+using generation_context = common::scoped_resource_handle<i_sphere_resource_manager>;
 } // namespace raw::sphere_generation
 
 #endif // SPACE_EXPLORER_SPHERE_GENERATION_FWD_H

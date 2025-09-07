@@ -48,6 +48,13 @@ gl_window::gl_window(const std::string &window_name) {
 			std::string(SDL_GetError()) + " in " + std::string(__FILE__) + " on " +
 			std::to_string(__LINE__) + " line");
 	}
+	data.n_body_context = SDL_GL_CreateContext(data.window);
+	if (!data.n_body_context) {
+		throw std::runtime_error("N-Body OpenGL context could not be created! SDL_Error: " +
+								 std::string(SDL_GetError()) + " in " + std::string(__FILE__) +
+								 " on " + std::to_string(__LINE__) + " line");
+	}
+
 	gl::VIEW(0, 0, 2560, 1440);
 	SDL_GL_MakeCurrent(data.window, data.main_context);
 }

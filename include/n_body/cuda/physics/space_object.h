@@ -8,10 +8,10 @@
 
 #include <glm/glm.hpp>
 
+#include "../../n_body_predef.h"
 #include "core/clock.h"
 #include "device_types/cuda/stream.h"
 #include "launch_leapfrog.h"
-#include "../../n_body_predef.h"
 
 namespace raw::n_body::physics {
 namespace predef {
@@ -37,38 +37,6 @@ struct space_object_data {
 	explicit space_object_data(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
 							   double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
 		: position(_position), velocity(_velocity), mass(_mass), radius(_radius) {}
-};
-
-template<typename T>
-class space_object {
-private:
-	friend struct space_object_data<T>;
-	friend class interaction_system<T>;
-
-public:
-	space_object_data<T> object_data;
-
-	__device__ __host__ space_object_data<T> &get() {
-		return object_data;
-	}
-
-	space_object(const space_object &object) = default;
-
-	space_object &operator=(const space_object &object) = default;
-
-	space_object() : object_data(glm::vec<3, T>(1.0)) {}
-
-	explicit space_object(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
-						  double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
-		: object_data(_position, _velocity, _mass, _radius) {}
-
-	static void update_position(
-		space_object *data, glm::mat4 *data_model, raw::core::time since_last_upd,
-		unsigned int count, const std::shared_ptr<raw::device_types::cuda::cuda_stream> &stream) {
-		since_last_upd.to_milli();
-		launch_leapfrog<T>(data, data_model, since_last_upd.val, count, n_body::predef::G,
-						   stream->stream());
-	};
 };
 } // namespace raw::n_body::physics
 

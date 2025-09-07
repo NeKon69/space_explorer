@@ -6,12 +6,15 @@
 #define SPACE_EXPLORER_LAUNCH_LEAPFROG_H
 #include <glm/glm.hpp>
 
-#include "../cuda/fwd.h"
+#include "graphics/instanced_data.h"
+#include "n_body/cuda/fwd.h"
 
-namespace raw::n_body::physics {
+namespace raw::n_body::cuda::physics {
 template<typename T>
-void launch_leapfrog(space_object<T> *objects, glm::mat4 *objects_model, T time, uint16_t count,
-					 double g, cudaStream_t stream);
-} // namespace raw::n_body::physics
+extern void launch_leapfrog(graphics::instanced_data* data, space_object_data<T>* objects,
+							uint16_t count, double time, double g, double epsilon,
+							cudaStream_t stream);
+
+} // namespace raw::n_body::cuda::physics
 
 #endif // SPACE_EXPLORER_LAUNCH_LEAPFROG_H

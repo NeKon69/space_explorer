@@ -14,7 +14,7 @@ namespace raw::sphere_generation::cuda {
 class sphere_generator : public i_sphere_generator {
 public:
 	sphere_generator() = default;
-	void generate(uint32_t steps, device_types::cuda::cuda_stream& stream,
+	void generate(uint32_t steps, std::shared_ptr<device_types::i_queue> stream,
 				  std::shared_ptr<i_sphere_resource_manager> source,
 				  graphics::graphics_data&					 data) override;
 };

@@ -10,7 +10,7 @@
 #include <glm/glm.hpp>
 // clang-format off
 
-#include "sphere_generation/generation_context.h"
+#include "../../common/scoped_resource_handle.h"
 #include "sphere_generation/i_sphere_resource_manager.h"
 #include "device_types/cuda/buffer.h"
 #include "device_types/cuda/from_gl/buffer.h"
@@ -28,21 +28,21 @@ using cuda_tessellation_data =
 class sphere_resource_manager : public i_sphere_resource_manager {
 private:
 	cuda::from_gl::buffer<raw::graphics::vertex> vertices_handle;
-	cuda::from_gl::buffer<UI>					   indices_handle;
-	std::shared_ptr<cuda::cuda_stream>		   stream;
+	cuda::from_gl::buffer<UI>					 indices_handle;
+	std::shared_ptr<cuda::cuda_stream>			 stream;
 
 	UI _vbo;
 	UI _ebo;
 
 	cuda::buffer<raw::graphics::vertex> vertices_second;
-	cuda::buffer<UI>					   indices_second;
+	cuda::buffer<UI>					indices_second;
 
 	cuda::buffer<uint32_t> amount_of_triangles;
 	cuda::buffer<uint32_t> amount_of_vertices;
 	cuda::buffer<uint32_t> amount_of_edges;
 
-	cuda::buffer<edge>	  all_edges;
-	cuda::buffer<edge>	  d_unique_edges;
+	cuda::buffer<edge>	   all_edges;
+	cuda::buffer<edge>	   d_unique_edges;
 	cuda::buffer<uint32_t> edge_to_vertex;
 
 	size_t vertices_bytes = 0;
@@ -53,7 +53,7 @@ private:
 
 	bool inited = false;
 
-	friend class sphere_generation::generation_context;
+	friend generation_context;
 	// Called once when the object is created (or generate function called first time)
 	void init(UI vbo, UI ebo);
 
@@ -70,14 +70,13 @@ public:
 
 	generation_context create_context() override;
 
-
-
 	[[nodiscard]] tessellation_data get_data() const override {
-		return std::make_tuple(device_ptr(vertices_handle.get_data()), device_ptr(indices_handle.get_data()),
-							   device_ptr(all_edges.get()), device_ptr(vertices_second.get()),
-							   device_ptr(indices_second.get()), device_ptr(d_unique_edges.get()),
-							   device_ptr(edge_to_vertex.get()), device_ptr(amount_of_vertices.get()),
-							   device_ptr(amount_of_triangles.get()), device_ptr(amount_of_edges.get()));
+		return std::make_tuple(
+			device_ptr(vertices_handle.get_data()), device_ptr(indices_handle.get_data()),
+			device_ptr(all_edges.get()), device_ptr(vertices_second.get()),
+			device_ptr(indices_second.get()), device_ptr(d_unique_edges.get()),
+			device_ptr(edge_to_vertex.get()), device_ptr(amount_of_vertices.get()),
+			device_ptr(amount_of_triangles.get()), device_ptr(amount_of_edges.get()));
 	}
 };
 } // namespace raw::sphere_generation::cuda

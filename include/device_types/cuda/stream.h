@@ -7,8 +7,9 @@
 #include <cuda_runtime.h>
 
 #include "device_types/cuda/fwd.h"
+#include "device_types/i_queue.h"
 namespace raw::device_types::cuda {
-class cuda_stream {
+class cuda_stream : i_queue {
 private:
 	cudaStream_t _stream = nullptr;
 	// Yea yea, it's used to not delete same stream twice. I could've made "cuda_stream" object only
@@ -17,18 +18,20 @@ private:
 
 private:
 	void destroy_noexcept() noexcept;
+
 public:
 	cuda_stream();
 	cuda_stream(const cuda_stream& rhs)			   = delete;
 	cuda_stream& operator=(const cuda_stream& rhs) = delete;
 	cuda_stream(cuda_stream&& rhs) noexcept;
-	cuda_stream&  operator=(cuda_stream&& rhs) noexcept;
-	void		  sync();
-	void		  destroy();
-	void		  create();
-	cudaStream_t& stream();
+	cuda_stream&				  operator=(cuda_stream&& rhs) noexcept;
+	void						  sync() override;
+	void						  destroy();
+	void						  create();
+	cudaStream_t&				  stream();
+	[[nodiscard]] std::unique_ptr<i_bare_queue> get_queue() const override;
 	~cuda_stream();
 };
-} // namespace raw::cuda
+} // namespace raw::device_types::cuda
 
 #endif // SPACE_EXPLORER_STREAM_H

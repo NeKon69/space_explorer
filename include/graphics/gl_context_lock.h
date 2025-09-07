@@ -11,7 +11,7 @@
 #include "window/fwd.h"
 
 namespace raw::graphics {
-enum class context_type { MAIN, TESS, TEX_GEN };
+enum class context_type { MAIN, TESS, N_BODY, TEX_GEN };
 
 struct graphics_data {
 	SDL_Window*	  window;
@@ -21,6 +21,8 @@ struct graphics_data {
 	SDL_GLContext tessellation_context;
 	std::mutex	  texture_gen_mutex;
 	SDL_GLContext texture_gen_context;
+	std::mutex	  n_body_mutex;
+	SDL_GLContext n_body_context;
 };
 template<context_type ctx_type>
 class gl_context_lock {
@@ -36,6 +38,8 @@ private:
 		} else if constexpr (ctx_type == TESS) {
 			result = SDL_GL_MakeCurrent(window, data.tessellation_context);
 		} else if constexpr (ctx_type == TEX_GEN) {
+			result = SDL_GL_MakeCurrent(window, data.texture_gen_context);
+		} else if constexpr (ctx_type == N_BODY) {
 			result = SDL_GL_MakeCurrent(window, data.texture_gen_context);
 		}
 		if (result == false) {
@@ -58,6 +62,11 @@ public:
 	explicit gl_context_lock(graphics_data& data)
 		requires(ctx_type == context_type::TEX_GEN)
 		: lock(data.texture_gen_mutex), window(data.window) {
+		set_current_context(data);
+	}
+	explicit gl_context_lock(graphics_data& data)
+		requires(ctx_type == context_type::N_BODY)
+		: lock(data.n_body_mutex), window(data.window) {
 		set_current_context(data);
 	}
 	~gl_context_lock() {

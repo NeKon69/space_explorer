@@ -4,20 +4,21 @@
 
 #ifndef SPACE_EXPLORER_ICOSAHEDRON_SOURCE_H
 #define SPACE_EXPLORER_ICOSAHEDRON_SOURCE_H
-#include <cstdint>
-#include <tuple>
 
+#include "cuda/fwd.h"
+#include "device_types/device_ptr.h"
 #include "graphics/mesh.h"
 #include "sphere_generation/fwd.h"
-#include "device_types/device_ptr.h"
 using namespace raw::device_types;
 namespace raw::sphere_generation {
 using tessellation_data =
-	std::tuple<device_ptr<graphics::vertex*>, device_ptr<unsigned*>, device_ptr<cuda::edge*>, device_ptr<graphics::vertex*>, device_ptr<unsigned*>, device_ptr<cuda::edge*>,
-			   device_ptr<unsigned*>, device_ptr<unsigned*>, device_ptr<unsigned*>, device_ptr<unsigned*>>;
+	std::tuple<device_ptr<graphics::vertex*>, device_ptr<unsigned*>, device_ptr<cuda::edge*>,
+			   device_ptr<graphics::vertex*>, device_ptr<unsigned*>, device_ptr<cuda::edge*>,
+			   device_ptr<unsigned*>, device_ptr<unsigned*>, device_ptr<unsigned*>,
+			   device_ptr<unsigned*>>;
 class i_sphere_resource_manager {
 protected:
-	friend class generation_context;
+	friend generation_context;
 
 	virtual void cleanup()							 = 0;
 	virtual void prepare(uint32_t vbo, uint32_t ebo) = 0;

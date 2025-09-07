@@ -1,26 +1,28 @@
 //
 // Created by progamers on 7/21/25.
 //
-#include "n_body/physics/launch_leapfrog.h"
-#include "n_body/physics/leapfrog_kernels.h"
-#include "n_body/physics/space_object.h"
+#include "n_body/cuda/physics/launch_leapfrog.h"
+#include "n_body/cuda/physics/leapfrog_kernels.h"
+#include "n_body/cuda/physics/space_object.h"
 
-namespace raw::n_body::physics {
-    template void launch_leapfrog<double>(space_object<double> *, glm::mat4 *objects_model, double,
-                                          uint16_t, double, cudaStream_t stream);
+namespace raw::n_body::cuda::physics {
+template void launch_leapfrog<double>(graphics::instanced_data*	 data,
+									  space_object_data<double>* objects, uint16_t count,
+									  double time, double g, double epsilon, cudaStream_t stream);
 
-    template void launch_leapfrog<float>(space_object<float> *, glm::mat4 *objects_model, float,
-                                         unsigned short, double, cudaStream_t stream);
-
-    template<typename T>
-    void launch_leapfrog(space_object<T> *objects, glm::mat4 *objects_model, T time, uint16_t count,
-                         double g, cudaStream_t stream) {
-        auto threads_per_block = 256;
-        auto blocks = (count + threads_per_block - 1) / 256;
-        if (count < 512) {
-            threads_per_block = count % 32 == 0 ? count : (count / 32 + 1) * 32;
-        }
-        compute_leapfrog<T><<<blocks, threads_per_block, 0, stream>>>(objects, objects_model, count,
-                                                                      time, static_cast<T>(g));
-    }
-} // namespace raw::n_body::physics
+template void launch_leapfrog<float>(graphics::instanced_data* data,
+									 space_object_data<float>* objects, uint16_t count, double time,
+									 double g, double epsilon, cudaStream_t stream);
+template<typename T>
+void launch_leapfrog(graphics::instanced_data* data, space_object_data<T>* objects, uint16_t count,
+					 double time, double g, double epsilon, cudaStream_t stream) {
+	auto threads_per_block = 1024;
+	auto blocks			   = (count + threads_per_block - 1) / 256;
+	if (count < 1024) {
+		threads_per_block = count % 32 == 0 ? count : (count / 32 + 1) * 32;
+	}
+	// this is stupid algorithm. probably one day in the future should do O(n log n)
+	compute_kd<<<blocks, threads_per_block, 0, stream>>>(objects, count, time, g, epsilon);
+	compute_k<<<blocks, threads_per_block, 0, stream>>>(data, objects, count, time, g, epsilon);
+}
+} // namespace raw::n_body::cuda::physics
