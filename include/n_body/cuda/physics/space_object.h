@@ -20,6 +20,7 @@ struct space_object_data {
 	glm::vec<3, T> velocity;
 	T			   mass;
 	T			   radius;
+	uint32_t	   id;
 
 	space_object_data()
 		: position(0.0),

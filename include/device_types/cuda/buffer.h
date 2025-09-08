@@ -156,6 +156,9 @@ public:
 	void memcpy(void* _ptr, size_t size, size_t offset, cudaMemcpyKind kind) {
 		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr + offset, _ptr, size, kind, data_stream->stream()));
 	}
+	size_t get_size() const {
+		return _size;
+	}
 };
 } // namespace raw::device_types::cuda
 

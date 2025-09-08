@@ -4,6 +4,7 @@
 
 #ifndef SPACE_EXPLORER_CUDA_N_BODY_SIMULATOR_H
 #define SPACE_EXPLORER_CUDA_N_BODY_SIMULATOR_H
+#include "common/to_raw_data.h"
 #include "device_types/device_ptr.h"
 #include "n_body/i_n_body_resource_manager.h"
 #include "n_body/i_n_body_simulator.h"
@@ -12,21 +13,43 @@ namespace raw::n_body::cuda {
 template<typename T>
 class n_body_simulator : public i_n_body_simulator<T> {
 public:
+	n_body_simulator() {
+		this->worker_thread = std::jthread([this](std::stop_token token) {
+			while (!token.stop_requested()) {
+				task<T> curr_task;
+				{
+					std::unique_lock lock(this->mutex);
+					this->condition.wait(lock, [this, token] {
+						return !this->task_queue.empty() || token.stop_requested();
+					});
+					if (token.stop_requested() && this->task_queue.empty()) {
+						break;
+					}
+					curr_task = this->task_queue.front();
+					this->task_queue.pop();
+				}
+				auto& cuda_q = dynamic_cast<device_types::cuda::cuda_stream&>(*curr_task.queue);
+				auto  local_stream = cuda_q.stream();
+				graphics::gl_context_lock<graphics::context_type::N_BODY> lock(
+					curr_task.graphics_data);
+				auto context	 = curr_task.manager->create_context();
+				auto native_data = common::retrieve_data<device_types::backend::CUDA>(
+					curr_task.manager->get_data());
+				std::apply(n_body::cuda::physics::launch_leapfrog<T>, native_data, curr_task.delta_time,
+						   curr_task.g, curr_task.epsilon, local_stream);
+			}
+		});
+	}
 	void step(core::time delta_time, std::shared_ptr<device_types::i_queue> queue,
 			  std::shared_ptr<i_n_body_resource_manager<T>> source, double g, double epsilon,
 			  graphics::graphics_data& graphics_data) override {
-		sync();
 		delta_time.to_sec();
-		double sec			= delta_time.val;
-		this->worker_thread = std::jthread([sec, queue, source, &graphics_data, g, epsilon]() {
-			auto& cuda_q	   = dynamic_cast<device_types::cuda::cuda_stream&>(*queue);
-			auto  local_stream = cuda_q.stream();
-			graphics::gl_context_lock<graphics::context_type::N_BODY> lock(graphics_data);
-			auto context	 = source->create_context();
-			auto native_data = retrieve_data<device_types::backend::CUDA>(source->get_data());
-			std::apply(n_body::cuda::physics::launch_leapfrog<T>, native_data, sec, g, epsilon,
-					   local_stream);
-		});
+		{
+			double			sec = delta_time.val;
+			std::lock_guard lock(this->mutex);
+			this->task_queue.emplace(sec, queue, source, g, epsilon, graphics_data);
+		}
+		this->condition.notify_one();
 	}
 };
 } // namespace raw::n_body::cuda
