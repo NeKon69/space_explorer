@@ -7,7 +7,7 @@
 #include <glm/glm.hpp>
 
 #include "graphics/instanced_data.h"
-#include "n_body/cuda/fwd.h"
+#include "n_body/fwd.h"
 
 namespace raw::n_body::cuda::physics {
 template<typename T>

@@ -4,29 +4,41 @@
 
 #include "sphere_generation/cuda/sphere_resource_manager.h"
 
-#include <numbers>
+#include <memory>
 
 #include "core/clock.h"
 #include "device_types/cuda/buffer.h"
-#include "sphere_generation/cuda/kernel_launcher.h"
+#include "device_types/i_queue.h"
 
 namespace raw::sphere_generation::cuda {
 
 sphere_resource_manager::sphere_resource_manager()
 	: stream(std::make_shared<device_types::cuda::cuda_stream>()),
-	  _vbo(0),
-	  _ebo(0),
+	  vertices_second(stream),
+	  indices_second(stream),
 	  amount_of_triangles(sizeof(uint32_t), stream),
 	  amount_of_vertices(sizeof(uint32_t), stream),
-	  amount_of_edges(sizeof(uint32_t), stream) {}
+	  amount_of_edges(sizeof(uint32_t), stream),
+	  all_edges(stream),
+	  d_unique_edges(stream),
+	  edge_to_vertex(stream) {}
 
 sphere_resource_manager::sphere_resource_manager(raw::UI vbo, raw::UI ebo,
-												 std::shared_ptr<device_types::cuda::cuda_stream> stream)
+												 std::shared_ptr<i_queue> queue)
 
-	: stream(stream),
+	: stream(std::dynamic_pointer_cast<device_types::cuda::cuda_stream>(queue)),
+	  vertices_second(stream),
+	  indices_second(stream),
 	  amount_of_triangles(sizeof(uint32_t), stream),
 	  amount_of_vertices(sizeof(uint32_t), stream),
-	  amount_of_edges(sizeof(uint32_t), stream) {
+	  amount_of_edges(sizeof(uint32_t), stream),
+	  all_edges(stream),
+	  d_unique_edges(stream),
+	  edge_to_vertex(stream) {
+	if (stream == nullptr) {
+		throw std::runtime_error(
+			"sphere_resource_manager: stream was created for wrong context or wasn't created!");
+	}
 	init(vbo, ebo);
 }
 
@@ -64,7 +76,7 @@ void sphere_resource_manager::prepare(raw::UI vbo, raw::UI ebo) {
 	d_unique_edges.allocate(predef::MAXIMUM_AMOUNT_OF_TRIANGLES * sizeof(edge));
 }
 generation_context sphere_resource_manager::create_context() {
-	return generation_context {this, _vbo, _ebo};
+	return generation_context(this, _vbo, _ebo);
 }
 
 void sphere_resource_manager::cleanup() {

@@ -4,13 +4,9 @@
 
 #ifndef SPACE_EXPLORER_MESH_GENERATOR_H
 #define SPACE_EXPLORER_MESH_GENERATOR_H
-#include <raw_memory.h>
-
-#include <array>
-#include <glm/glm.hpp>
 // clang-format off
 
-#include "../../common/scoped_resource_handle.h"
+#include "common/scoped_resource_handle.h"
 #include "sphere_generation/i_sphere_resource_manager.h"
 #include "device_types/cuda/buffer.h"
 #include "device_types/cuda/from_gl/buffer.h"
@@ -27,12 +23,12 @@ using cuda_tessellation_data =
 // icosahedron
 class sphere_resource_manager : public i_sphere_resource_manager {
 private:
+	std::shared_ptr<cuda::cuda_stream>			 stream;
 	cuda::from_gl::buffer<raw::graphics::vertex> vertices_handle;
 	cuda::from_gl::buffer<UI>					 indices_handle;
-	std::shared_ptr<cuda::cuda_stream>			 stream;
 
-	UI _vbo;
-	UI _ebo;
+	UI _vbo = 0;
+	UI _ebo = 0;
 
 	cuda::buffer<raw::graphics::vertex> vertices_second;
 	cuda::buffer<UI>					indices_second;
@@ -66,7 +62,7 @@ private:
 public:
 	sphere_resource_manager();
 
-	sphere_resource_manager(UI vbo, UI ebo, std::shared_ptr<cuda::cuda_stream> stream);
+	sphere_resource_manager(UI vbo, UI ebo, std::shared_ptr<i_queue> stream);
 
 	generation_context create_context() override;
 

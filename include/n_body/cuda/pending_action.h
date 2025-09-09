@@ -30,7 +30,7 @@ struct pending_action {
 		action.id_to_remove = id_to_remove;
 		return action;
 	}
-}
+};
 } // namespace raw::n_body::cuda
 
 #endif // SPACE_EXPLORER_PENDING_ACTION_H

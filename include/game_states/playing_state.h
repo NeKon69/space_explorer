@@ -7,15 +7,14 @@
 
 #include <glm/glm.hpp>
 
-#include "../sphere_generation/cuda/sphere_resource_manager.h"
-#include "../sphere_generation/cuda/sphere_generator.h"
 #include "core/camera/camera.h"
 #include "core/camera/movement_state.h"
 #include "core/camera/player_controller.h"
 #include "core/game_state.h"
 #include "graphics/mesh.h"
-#include "../n_body/cuda/interaction_system.h"
-#include "../n_body/cuda/simulation_state.h"
+#include "n_body/n_body_factory.h"
+#include "sphere_generation/cuda/sphere_generator.h"
+#include "sphere_generation/cuda/sphere_resource_manager.h"
 #include "z_unused/objects/cube.h"
 
 namespace raw::game_states {
@@ -31,13 +30,13 @@ private:
 	raw::z_unused::objects::cube light_cube;
 
 	// For now let's just store the stream locally
-	std::shared_ptr<device_types::cuda::cuda_stream>					   stream;
-	std::shared_ptr<graphics::mesh>									   sphere_mesh;
+	std::shared_ptr<device_types::i_queue>			  stream;
+	std::shared_ptr<graphics::mesh>								  sphere_mesh;
 	std::shared_ptr<sphere_generation::i_sphere_resource_manager> sphere_manager;
-	std::shared_ptr<sphere_generation::i_sphere_generator>		   sphere_gen;
-	bool															   dir_light = false;
-	raw::simulation_state											   sim_state;
-	raw::n_body::interaction_system<float>							   system;
+	std::shared_ptr<sphere_generation::i_sphere_generator>		  sphere_gen;
+	bool														  dir_light = false;
+	graphics::instanced_data_buffer								  render_buffer;
+	raw::n_body::interaction_system<float>						  interaction_system;
 
 	bool pressed_o = false;
 

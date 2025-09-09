@@ -5,6 +5,7 @@
 #ifndef SPACE_EXPLORER_GENERATION_CONTEST_H
 #define SPACE_EXPLORER_GENERATION_CONTEST_H
 namespace raw::common {
+#include <functional>
 template<typename T, typename... Args>
 concept IsResourceManager = requires(T t, Args... args) {
 	{ t.prepare(args...) } -> std::same_as<void>;
@@ -20,7 +21,6 @@ private:
 public:
 	template<typename... Ts>
 	explicit scoped_resource_handle(TResourceManager* mgr, Ts&&... args)
-		requires IsResourceManager<TResourceManager, Ts...>
 		: manager(mgr) {
 		manager->prepare(std::forward<Ts>(args)...);
 	}

@@ -55,7 +55,9 @@ public:
 		CUDA_SAFE_CALL(func(&m_resource, std::forward<Args &&>(args)...));
 	}
 
-	void unmap();
+	mapped_resource get_resource();
+
+	void			unmap();
 
 	void map();
 
@@ -68,9 +70,8 @@ public:
 
 	resource &operator=(resource &&rhs) noexcept;
 	resource(resource &&rhs) noexcept;
+
 protected:
-	// I heard somewhere that this down here is better than directly accessing the protected member
-	mapped_resource get_resource();
 };
 
 } // namespace raw::device_types::cuda

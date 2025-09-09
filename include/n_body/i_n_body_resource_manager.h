@@ -4,9 +4,6 @@
 
 #ifndef SPACE_EXPLORER_I_N_BODY_DATA_MANAGER_H
 #define SPACE_EXPLORER_I_N_BODY_DATA_MANAGER_H
-#include <cstdint>
-#include <glm/glm.hpp>
-
 #include "device_types/device_ptr.h"
 #include "graphics/instanced_data.h"
 #include "graphics/mesh.h"
@@ -16,7 +13,7 @@ namespace raw::n_body {
 using namespace raw::device_types;
 template<typename T>
 using n_body_data = std::tuple<device_ptr<graphics::instanced_data>,
-							   device_ptr<cuda::physics::space_object_data<T>*>, uint16_t>;
+							   device_ptr<space_object_data<T>*>, uint16_t>;
 template<typename T>
 using n_body_context = common::scoped_resource_handle<i_n_body_resource_manager<T>>;
 template<typename T>
@@ -27,7 +24,7 @@ protected:
 
 public:
 	virtual ~i_n_body_resource_manager()	   = default;
-	virtual n_body_data<T>	  get_data() = 0;
+	virtual n_body_data<T>	  get_data()	   = 0;
 	virtual n_body_context<T> create_context() = 0;
 };
 } // namespace raw::n_body

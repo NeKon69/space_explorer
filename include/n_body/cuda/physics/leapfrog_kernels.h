@@ -9,18 +9,15 @@
 #include <glm/glm.hpp>
 
 #include "graphics/instanced_data.h"
-#include "n_body/cuda/fwd.h"
+#include "n_body/fwd.h"
 
 namespace raw::n_body::cuda::physics {
 template<typename T = double>
-extern __device__ void compute_kick(space_object<T> *objects, uint16_t count, uint16_t current, T g,
-									T epsilon, T dt);
+extern __device__ void compute_kick(space_object_data<T> *objects, uint16_t count, uint16_t current,
+									T g, T epsilon, T dt);
 
-template<typename T = double>
-extern __global__ void compute_leapfrog(space_object<T> *objects, glm::mat4 *objects_model,
-										uint16_t count, T dt, T g);
 template<typename T>
-extern __global__ void compute_kd(space_object_data<T> *objects, uint16_t count, T dt, T g,
+extern __global__ void compute_kd(graphics::instanced_data *data, space_object_data<T> *objects, uint16_t count, T dt, T g,
 								  T epsilon);
 
 template<typename T>

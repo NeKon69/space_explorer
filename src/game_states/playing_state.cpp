@@ -70,9 +70,8 @@ playing_state::playing_state(graphics::graphics_data& graphics_data, glm::uvec2 
 	  sphere_manager(std::make_shared<sphere_generation::cuda::sphere_resource_manager>(
 		  sphere_mesh->get_vbo(), sphere_mesh->get_ebo(), stream)),
 	  sphere_gen(std::make_shared<sphere_generation::cuda::sphere_generator>()),
-	  sim_state {true, 5},
-	  system(n_body::predef::generate_data_for_sim(), sphere_mesh->get_vao(),
-			 sphere_mesh->attr_num()),
+render_buffer(sphere_mesh->get_vao(), sphere_mesh->attr_num(), 1000),
+	  interaction_system(n_body::n_body_factory<float, backend::CUDA>::create(render_buffer, )),
 	  camera(),
 	  controller(camera) {
 	sphere_mesh->unbind();
