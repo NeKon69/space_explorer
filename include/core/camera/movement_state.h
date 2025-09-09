@@ -2,8 +2,7 @@
 // Created by progamers on 7/24/25.
 //
 
-#ifndef SPACE_EXPLORER_MOVEMENT_STATE_H
-#define SPACE_EXPLORER_MOVEMENT_STATE_H
+#pragma once
 namespace raw::core::camera {
 struct movement_state {
 	bool forward  = false;
@@ -14,4 +13,3 @@ struct movement_state {
 	bool down	  = false;
 };
 } // namespace raw::core::camera
-#endif // SPACE_EXPLORER_MOVEMENT_STATE_H

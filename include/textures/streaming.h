@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_STREAMING_H
-#define SPACE_EXPLORER_STREAMING_H
+#pragma once
 #include <glad/glad.h>
 #include <raw_memory.h>
 
@@ -68,4 +67,3 @@ public:
 };
 } // namespace raw::textures
 
-#endif // SPACE_EXPLORER_STREAMING_H

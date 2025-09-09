@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_SURFACE_H
-#define SPACE_EXPLORER_SURFACE_H
+#pragma once
 #include <cuda_gl_interop.h>
 
 #include "common/fwd.h"
@@ -45,4 +44,3 @@ public:
 	}
 };
 } // namespace raw::device_types::cuda
-#endif // SPACE_EXPLORER_SURFACE_H

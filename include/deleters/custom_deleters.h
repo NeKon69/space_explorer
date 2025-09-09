@@ -2,8 +2,7 @@
 // Created by progamers on 7/23/25.
 //
 
-#ifndef SPACE_EXPLORER_CUSTOM_DELETERS_H
-#define SPACE_EXPLORER_CUSTOM_DELETERS_H
+#pragma once
 #include <cuda_runtime.h>
 
 #include "common/fwd.h"
@@ -29,4 +28,3 @@ struct cuda_gl_data {
 };
 } // namespace raw::deleters
 
-#endif // SPACE_EXPLORER_CUSTOM_DELETERS_H

@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_CUDA_RESOURCE_H
-#define SPACE_EXPLORER_CUDA_RESOURCE_H
+#pragma once
 #include <cuda_egl_interop.h>
 #include <cuda_gl_interop.h>
 
@@ -76,4 +75,3 @@ protected:
 
 } // namespace raw::device_types::cuda
 
-#endif // SPACE_EXPLORER_CUDA_RESOURCE_H

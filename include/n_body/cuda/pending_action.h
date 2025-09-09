@@ -2,8 +2,7 @@
 // Created by progamers on 9/8/25.
 //
 
-#ifndef SPACE_EXPLORER_PENDING_ACTION_H
-#define SPACE_EXPLORER_PENDING_ACTION_H
+#pragma once
 #include <cstdint>
 
 #include "n_body/cuda/fwd.h"
@@ -33,4 +32,3 @@ struct pending_action {
 };
 } // namespace raw::n_body::cuda
 
-#endif // SPACE_EXPLORER_PENDING_ACTION_H

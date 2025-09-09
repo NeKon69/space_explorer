@@ -2,8 +2,7 @@
 // Created by progamers on 7/7/25.
 //
 
-#ifndef SPACE_EXPLORER_MESH_GENERATOR_H
-#define SPACE_EXPLORER_MESH_GENERATOR_H
+#pragma once
 // clang-format off
 
 #include "common/scoped_resource_handle.h"
@@ -76,4 +75,3 @@ public:
 	}
 };
 } // namespace raw::sphere_generation::cuda
-#endif // SPACE_EXPLORER_MESH_GENERATOR_H

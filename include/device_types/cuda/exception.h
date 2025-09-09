@@ -2,8 +2,7 @@
 // Created by progamers on 9/6/25.
 //
 
-#ifndef SPACE_EXPLORER_CUDA_EXCEPTION_H
-#define SPACE_EXPLORER_CUDA_EXCEPTION_H
+#pragma once
 #include <stdexcept>
 
 namespace raw::device_types::cuda {
@@ -12,4 +11,3 @@ public:
 	using std::runtime_error::runtime_error;
 };
 } // namespace raw::device_types::cuda
-#endif // SPACE_EXPLORER_CUDA_EXCEPTION_H

@@ -2,8 +2,7 @@
 // Created by progamers on 7/24/25.
 //
 
-#ifndef SPACE_EXPLORER_INPUT_MANAGER_H
-#define SPACE_EXPLORER_INPUT_MANAGER_H
+#pragma once
 
 #include <raw_memory.h>
 
@@ -30,4 +29,3 @@ public:
 };
 } // namespace raw
 
-#endif // SPACE_EXPLORER_INPUT_MANAGER_H

@@ -2,8 +2,7 @@
 // Created by progamers on 8/26/25.
 //
 
-#ifndef SPACE_EXPLORER_ERROR_H
-#define SPACE_EXPLORER_ERROR_H
+#pragma once
 #include <format>
 #include <source_location>
 #include <stdexcept>
@@ -22,4 +21,3 @@
 		}                                                                                               \
 	} while (0)
 
-#endif // SPACE_EXPLORER_ERROR_H

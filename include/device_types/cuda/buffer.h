@@ -2,8 +2,7 @@
 // Created by progamers on 7/18/25.
 //
 
-#ifndef SPACE_EXPLORER_CUDA_BUFFER_H
-#define SPACE_EXPLORER_CUDA_BUFFER_H
+#pragma once
 
 #include <cuda/std/__ranges/data.h>
 #include <cuda_runtime.h>
@@ -162,4 +161,3 @@ public:
 };
 } // namespace raw::device_types::cuda
 
-#endif // SPACE_EXPLORER_CUDA_BUFFER_H

@@ -2,8 +2,7 @@
 // Created by progamers on 6/4/25.
 //
 
-#ifndef SPACE_EXPLORER_SHADER_H
-#define SPACE_EXPLORER_SHADER_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <unordered_map>
@@ -52,4 +51,3 @@ public:
 };
 } // namespace raw::rendering::shader
 
-#endif // SPACE_EXPLORER_SHADER_H

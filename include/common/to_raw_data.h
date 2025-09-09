@@ -2,8 +2,7 @@
 // Created by progamers on 9/7/25.
 //
 
-#ifndef SPACE_EXPLORER_TO_RAW_DATA_H
-#define SPACE_EXPLORER_TO_RAW_DATA_H
+#pragma once
 #include "common/fwd.h"
 #include "device_types/device_ptr.h"
 namespace raw::common {
@@ -20,4 +19,3 @@ auto retrieve_data(const SourceTuple& source) {
 	return get_native_pointers<B>(source, std::make_index_sequence<tuple_size> {});
 }
 }
-#endif //SPACE_EXPLORER_TO_RAW_DATA_H

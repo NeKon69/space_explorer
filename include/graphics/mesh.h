@@ -2,8 +2,7 @@
 // Created by progamers on 7/23/25.
 //
 
-#ifndef SPACE_EXPLORER_MESH_H
-#define SPACE_EXPLORER_MESH_H
+#pragma once
 #include <glad/glad.h>
 #include <raw_memory.h>
 
@@ -84,4 +83,3 @@ public:
 };
 } // namespace raw::graphics
 
-#endif // SPACE_EXPLORER_MESH_H

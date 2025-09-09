@@ -2,8 +2,7 @@
 // Created by progamers on 7/4/25.
 //
 
-#ifndef SPACE_EXPLORER_RENDERER_H
-#define SPACE_EXPLORER_RENDERER_H
+#pragma once
 
 #include "core/fwd.h"
 #include "rendering/fwd.h"
@@ -28,4 +27,3 @@ public:
 };
 } // namespace raw::rendering
 
-#endif // SPACE_EXPLORER_RENDERER_H

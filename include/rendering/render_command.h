@@ -2,8 +2,7 @@
 // Created by progamers on 7/24/25.
 //
 
-#ifndef SPACE_EXPLORER_RENDER_COMMAND_H
-#define SPACE_EXPLORER_RENDER_COMMAND_H
+#pragma once
 #include <raw_memory.h>
 
 #include "../graphics/mesh.h"
@@ -23,4 +22,3 @@ struct command {
 };
 } // namespace raw::rendering
 
-#endif // SPACE_EXPLORER_RENDER_COMMAND_H

@@ -2,8 +2,7 @@
 // Created by progamers on 7/21/25.
 //
 
-#ifndef SPACE_EXPLORER_LAUNCH_LEAPFROG_H
-#define SPACE_EXPLORER_LAUNCH_LEAPFROG_H
+#pragma once
 #include <glm/glm.hpp>
 
 #include "graphics/instanced_data.h"
@@ -17,4 +16,3 @@ extern void launch_leapfrog(graphics::instanced_data* data, space_object_data<T>
 
 } // namespace raw::n_body::cuda::physics
 
-#endif // SPACE_EXPLORER_LAUNCH_LEAPFROG_H

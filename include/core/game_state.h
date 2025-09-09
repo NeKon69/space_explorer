@@ -2,8 +2,7 @@
 // Created by progamers on 7/24/25.
 //
 
-#ifndef SPACE_EXPLORER_GAME_STATE_H
-#define SPACE_EXPLORER_GAME_STATE_H
+#pragma once
 
 #include "common/fwd.h"
 #include "rendering/fwd.h"
@@ -22,4 +21,3 @@ public:
 };
 } // namespace raw::core
 
-#endif // SPACE_EXPLORER_GAME_STATE_H

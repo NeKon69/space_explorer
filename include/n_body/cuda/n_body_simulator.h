@@ -2,8 +2,7 @@
 // Created by progamers on 9/7/25.
 //
 
-#ifndef SPACE_EXPLORER_CUDA_N_BODY_SIMULATOR_H
-#define SPACE_EXPLORER_CUDA_N_BODY_SIMULATOR_H
+#pragma once
 #include "common/to_raw_data.h"
 #include "device_types/device_ptr.h"
 #include "n_body/i_n_body_resource_manager.h"
@@ -53,4 +52,3 @@ public:
 	}
 };
 } // namespace raw::n_body::cuda
-#endif // SPACE_EXPLORER_CUDA_N_BODY_SIMULATOR_H

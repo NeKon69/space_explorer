@@ -2,8 +2,7 @@
 // Created by progamers on 9/5/25.
 //
 
-#ifndef SPACE_EXPLORER_BASIC_GEOMERTY_H
-#define SPACE_EXPLORER_BASIC_GEOMERTY_H
+#pragma once
 #include "graphics/vertex.h"
 #include "sphere_generation/fwd.h"
 namespace raw::sphere_generation {
@@ -58,4 +57,3 @@ constexpr std::array<UI, predef::BASIC_AMOUNT_OF_INDICES> generate_icosahedron_i
 }
 } // namespace raw::sphere_generation
 
-#endif // SPACE_EXPLORER_BASIC_GEOMERTY_H

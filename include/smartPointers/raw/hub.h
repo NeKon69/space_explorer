@@ -2,8 +2,7 @@
 // Created by progamers on 5/27/25.
 //
 
-#ifndef SMARTPOINTERS_HUB_H
-#define SMARTPOINTERS_HUB_H
+#pragma once
 
 #include <atomic>
 #include <cstddef>
@@ -127,4 +126,3 @@ public:
 
 } // namespace raw
 
-#endif // SMARTPOINTERS_HUB_H

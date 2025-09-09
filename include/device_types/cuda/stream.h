@@ -2,8 +2,7 @@
 // Created by progamers on 7/20/25.
 //
 
-#ifndef SPACE_EXPLORER_STREAM_H
-#define SPACE_EXPLORER_STREAM_H
+#pragma once
 #include <cuda_runtime.h>
 
 #include "device_types/cuda/fwd.h"
@@ -34,4 +33,3 @@ public:
 };
 } // namespace raw::device_types::cuda
 
-#endif // SPACE_EXPLORER_STREAM_H

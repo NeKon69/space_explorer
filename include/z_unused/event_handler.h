@@ -2,8 +2,7 @@
 // Created by progamers on 7/4/25.
 //
 
-#ifndef SPACE_EXPLORER_EVENT_HANDLER_H
-#define SPACE_EXPLORER_EVENT_HANDLER_H
+#pragma once
 
 #include <SDL3/SDL.h>
 #include <raw_memory.h>
@@ -70,4 +69,3 @@ private:
 };
 } // namespace raw
 
-#endif // SPACE_EXPLORER_EVENT_HANDLER_H

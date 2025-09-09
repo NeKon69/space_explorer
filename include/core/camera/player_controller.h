@@ -2,8 +2,7 @@
 // Created by progamers on 7/24/25.
 //
 
-#ifndef SPACE_EXPLORER_PLAYER_CONTROLLER_H
-#define SPACE_EXPLORER_PLAYER_CONTROLLER_H
+#pragma once
 #include <glm/glm.hpp>
 
 #include "core/fwd.h"
@@ -26,4 +25,3 @@ public:
 	void update(const core::camera::movement_state &state, float delta_time);
 };
 } // namespace raw::core::camera
-#endif // SPACE_EXPLORER_PLAYER_CONTROLLER_H

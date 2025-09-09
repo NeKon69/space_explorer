@@ -2,8 +2,7 @@
 // Created by progamers on 8/26/25.
 //
 
-#ifndef SPACE_EXPLORER_COMMON_FWD_H
-#define SPACE_EXPLORER_COMMON_FWD_H
+#pragma once
 #include <chrono>
 #include <vector>
 
@@ -17,4 +16,3 @@ template<typename TResourceManager>
 class scoped_resource_handle;
 }
 } // namespace raw
-#endif // SPACE_EXPLORER_COMMON_FWD_H

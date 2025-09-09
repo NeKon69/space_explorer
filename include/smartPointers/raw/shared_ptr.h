@@ -2,8 +2,7 @@
 // Created by progamers on 5/30/25.
 //
 
-#ifndef SMARTPOINTERS_SHARED_PTR_H
-#define SMARTPOINTERS_SHARED_PTR_H
+#pragma once
 
 #include "helper.h"
 #include "smart_ptr_base.h"
@@ -219,4 +218,3 @@ namespace raw {
     };
 } // namespace raw
 
-#endif // SMARTPOINTERS_SHARED_PTR_H

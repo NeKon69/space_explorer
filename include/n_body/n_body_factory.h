@@ -2,8 +2,7 @@
 // Created by progamers on 9/9/25.
 //
 
-#ifndef SPACE_EXPLORER_N_BODY_FACTORY_H
-#define SPACE_EXPLORER_N_BODY_FACTORY_H
+#pragma once
 #include <memory>
 
 #include "graphics/instanced_data_buffer.h"
@@ -34,4 +33,3 @@ struct n_body_factory {
 	}
 };
 } // namespace raw::n_body
-#endif // SPACE_EXPLORER_N_BODY_FACTORY_H

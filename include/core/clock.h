@@ -2,8 +2,7 @@
 // Created by progamers on 6/19/25.
 //
 
-#ifndef SPACE_EXPLORER_CLOCK_H
-#define SPACE_EXPLORER_CLOCK_H
+#pragma once
 #include <cmath>
 
 #include "common/fwd.h"
@@ -92,4 +91,3 @@ public:
 };
 } // namespace raw::core
 
-#endif // SPACE_EXPLORER_CLOCK_H

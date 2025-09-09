@@ -2,8 +2,7 @@
 // Created by progamers on 8/26/25.
 //
 
-#ifndef SPACE_EXPLORER_SPHERE_GENERATION_CUDA_FWD_H
-#define SPACE_EXPLORER_SPHERE_GENERATION_CUDA_FWD_H
+#pragma once
 #include <cmath>
 
 #include "common/fwd.h"
@@ -45,4 +44,3 @@ struct edge : edge_base {
 	HOST_DEVICE		  edge(const edge&)		 = default;
 };
 } // namespace raw::sphere_generation::cuda
-#endif // SPACE_EXPLORER_SPHERE_GENERATION_CUDA_FWD_H

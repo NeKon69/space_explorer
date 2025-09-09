@@ -2,8 +2,7 @@
 // Created by progamers on 5/27/25.
 //
 
-#ifndef SMARTPOINTERS_HELPER_H
-#define SMARTPOINTERS_HELPER_H
+#pragma once
 
 #include <algorithm>
 #include <cstddef>
@@ -171,4 +170,3 @@ namespace raw {
     }
 } // namespace raw
 
-#endif // SMARTPOINTERS_HELPER_H

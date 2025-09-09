@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_PLANET_DNA_H
-#define SPACE_EXPLORER_PLANET_DNA_H
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -44,4 +43,3 @@ struct pbr_material {
 	u_char	  emissive;
 };
 } // namespace raw::textures
-#endif // SPACE_EXPLORER_PLANET_DNA_H

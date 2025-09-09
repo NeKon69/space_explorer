@@ -2,8 +2,7 @@
 // Created by progamers on 6/29/25.
 //
 
-#ifndef SPACE_EXPLORER_GL_LOADER_H
-#define SPACE_EXPLORER_GL_LOADER_H
+#pragma once
 
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
@@ -24,4 +23,3 @@ inline void init_glad() {
 }
 } // namespace raw::window
 
-#endif // SPACE_EXPLORER_GL_LOADER_H

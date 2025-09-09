@@ -2,8 +2,7 @@
 // Created by progamers on 9/4/25.
 //
 
-#ifndef SPACE_EXPLORER_SPHERE_GENERATION_FWD_H
-#define SPACE_EXPLORER_SPHERE_GENERATION_FWD_H
+#pragma once
 #include <cstdint>
 
 #include "common/fwd.h"
@@ -33,4 +32,3 @@ struct edge_base {
 using generation_context = common::scoped_resource_handle<i_sphere_resource_manager>;
 } // namespace raw::sphere_generation
 
-#endif // SPACE_EXPLORER_SPHERE_GENERATION_FWD_H

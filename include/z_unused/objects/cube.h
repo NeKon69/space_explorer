@@ -2,8 +2,7 @@
 // Created by progamers on 7/1/25.
 //
 
-#ifndef SPACE_EXPLORER_CUBE_H
-#define SPACE_EXPLORER_CUBE_H
+#pragma once
 #include <glm/glm.hpp>
 
 #include "../z_unused/object.h"
@@ -54,4 +53,3 @@ public:
 };
 } // namespace raw::z_unused::objects
 
-#endif // SPACE_EXPLORER_CUBE_H

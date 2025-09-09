@@ -2,8 +2,7 @@
 // Created by progamers on 9/9/25.
 //
 
-#ifndef SPACE_EXPLORER_INSTANCED_DATA_BUFFER_H
-#define SPACE_EXPLORER_INSTANCED_DATA_BUFFER_H
+#pragma once
 #include <glad/glad.h>
 
 #include "deleters/custom_deleters.h"
@@ -60,4 +59,3 @@ public:
 };
 } // namespace raw::graphics
 
-#endif // SPACE_EXPLORER_INSTANCED_DATA_BUFFER_H

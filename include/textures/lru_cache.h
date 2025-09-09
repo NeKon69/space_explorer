@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_LRU_CACHE_H
-#define SPACE_EXPLORER_LRU_CACHE_H
+#pragma once
 
 #include <raw_memory.h>
 
@@ -60,4 +59,3 @@ public:
 };
 } // namespace raw::textures
 
-#endif // SPACE_EXPLORER_LRU_CACHE_H

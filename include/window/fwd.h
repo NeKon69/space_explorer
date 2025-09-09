@@ -2,8 +2,7 @@
 // Created by progamers on 8/26/25.
 //
 
-#ifndef SPACE_EXPLORER_WINDOW_FWD_H
-#define SPACE_EXPLORER_WINDOW_FWD_H
+#pragma once
 
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
@@ -31,4 +30,3 @@ class sdl_video;
 class gl_window;
 } // namespace raw::window
 
-#endif // SPACE_EXPLORER_WINDOW_FWD_H

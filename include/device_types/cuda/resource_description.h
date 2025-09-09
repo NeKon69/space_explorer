@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_RESOURCE_DESCRIPTION_H
-#define SPACE_EXPLORER_RESOURCE_DESCRIPTION_H
+#pragma once
 #include <cuda_runtime.h>
 
 #include <cstring>
@@ -33,4 +32,3 @@ public:
 };
 } // namespace raw::device_types::cuda_types
 
-#endif // SPACE_EXPLORER_RESOURCE_DESCRIPTION_H

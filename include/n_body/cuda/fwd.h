@@ -1,5 +1,4 @@
-#ifndef SPACE_EXPLORER_N_BODY_CUDA_FWD_H
-#define SPACE_EXPLORER_N_BODY_CUDA_FWD_H
+#pragma once
 
 namespace raw::n_body::cuda {
 template<typename T>
@@ -25,4 +24,3 @@ struct is_in_set {
 };
 } // namespace raw::n_body::cuda
 
-#endif // SPACE_EXPLORER_N_BODY_CUDA_FWD_H

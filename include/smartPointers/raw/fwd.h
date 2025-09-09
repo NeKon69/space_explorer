@@ -2,8 +2,7 @@
 // Created by progamers on 5/27/25.
 //
 
-#ifndef SMARTPOINTERS_FWD_H
-#define SMARTPOINTERS_FWD_H
+#pragma once
 
 namespace raw {
 
@@ -26,4 +25,3 @@ class weak_ptr;
 
 } // namespace raw
 
-#endif // SMARTPOINTERS_FWD_H

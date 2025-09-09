@@ -2,8 +2,7 @@
 // Created by progamers on 6/29/25.
 //
 
-#ifndef SPACE_EXPLORER_GL_WINDOW_H
-#define SPACE_EXPLORER_GL_WINDOW_H
+#pragma once
 
 #include <SDL3/SDL.h>
 
@@ -61,4 +60,3 @@ public:
 };
 } // namespace raw::window
 
-#endif // SPACE_EXPLORER_GL_WINDOW_H

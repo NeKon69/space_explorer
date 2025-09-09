@@ -2,8 +2,7 @@
 // Created by progamers on 9/4/25.
 //
 
-#ifndef SPACE_EXPLORER_ICOSAHEDRON_SOURCE_H
-#define SPACE_EXPLORER_ICOSAHEDRON_SOURCE_H
+#pragma once
 
 #include "cuda/fwd.h"
 #include "device_types/device_ptr.h"
@@ -30,4 +29,3 @@ public:
 };
 } // namespace raw::sphere_generation
 
-#endif // SPACE_EXPLORER_ICOSAHEDRON_SOURCE_H

@@ -2,8 +2,7 @@
 // Created by progamers on 5/31/25.
 //
 
-#ifndef SMARTPOINTERS_WEAK_PTR_H
-#define SMARTPOINTERS_WEAK_PTR_H
+#pragma once
 
 #include "helper.h"
 #include "smart_ptr_base.h"
@@ -177,4 +176,3 @@ public:
 
 } // namespace raw
 
-#endif // SMARTPOINTERS_WEAK_PTR_H

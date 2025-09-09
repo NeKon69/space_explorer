@@ -2,8 +2,7 @@
 // Created by progamers on 8/28/25.
 //
 
-#ifndef SPACE_EXPLORER_SPHERE_GENERATOR_H
-#define SPACE_EXPLORER_SPHERE_GENERATOR_H
+#pragma once
 #include <thread>
 
 #include "device_types/cuda/stream.h"
@@ -20,4 +19,3 @@ public:
 };
 } // namespace raw::sphere_generation::cuda
 
-#endif // SPACE_EXPLORER_SPHERE_GENERATOR_H

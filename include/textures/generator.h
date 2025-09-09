@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_GENERATOR_H
-#define SPACE_EXPLORER_GENERATOR_H
+#pragma once
 #include <glm/glm.hpp>
 
 #include "common/fwd.h"
@@ -17,4 +16,3 @@ void generate(raw::textures::data output_data, raw::textures::planet_dna planet_
 			  glm::uvec2 texture_size);
 } // namespace raw::textures
 
-#endif // SPACE_EXPLORER_GENERATOR_H

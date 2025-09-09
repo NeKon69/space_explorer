@@ -2,8 +2,7 @@
 // Created by progamers on 7/4/25.
 //
 
-#ifndef SPACE_EXPLORER_PLAYING_STATE_H
-#define SPACE_EXPLORER_PLAYING_STATE_H
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -67,4 +66,3 @@ public:
 };
 
 } // namespace raw::game_states
-#endif // SPACE_EXPLORER_PLAYING_STATE_H

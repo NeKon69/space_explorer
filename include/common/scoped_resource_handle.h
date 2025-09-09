@@ -2,8 +2,7 @@
 // Created by progamers on 8/28/25.
 //
 
-#ifndef SPACE_EXPLORER_GENERATION_CONTEST_H
-#define SPACE_EXPLORER_GENERATION_CONTEST_H
+#pragma once
 namespace raw::common {
 #include <functional>
 template<typename T, typename... Args>
@@ -34,4 +33,3 @@ public:
 	scoped_resource_handle& operator=(scoped_resource_handle&& other) noexcept = default;
 };
 } // namespace raw::common
-#endif // SPACE_EXPLORER_GENERATION_CONTEST_H

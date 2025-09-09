@@ -2,8 +2,7 @@
 // Created by progamers on 9/7/25.
 //
 
-#ifndef SPACE_EXPLORER_CUDA_N_BODY_RESOURCE_MANAGER_H
-#define SPACE_EXPLORER_CUDA_N_BODY_RESOURCE_MANAGER_H
+#pragma once
 #include <glad/glad.h>
 #include <raw_memory.h>
 #include <thrust/remove.h>
@@ -139,4 +138,3 @@ public:
 };
 } // namespace raw::n_body::cuda
 
-#endif // SPACE_EXPLORER_CUDA_N_BODY_RESOURCE_MANAGER_H

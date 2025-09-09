@@ -2,8 +2,7 @@
 // Created by progamers on 6/30/25.
 //
 
-#ifndef SPACE_EXPLORER_BUTTON_H
-#define SPACE_EXPLORER_BUTTON_H
+#pragma once
 
 #include <functional>
 
@@ -53,4 +52,3 @@ public:
 };
 } // namespace raw
 
-#endif // SPACE_EXPLORER_BUTTON_H

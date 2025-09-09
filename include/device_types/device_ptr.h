@@ -2,8 +2,7 @@
 // Created by progamers on 9/6/25.
 //
 
-#ifndef SPACE_EXPLORER_DEVICE_PTR_H
-#define SPACE_EXPLORER_DEVICE_PTR_H
+#pragma once
 #include <CL/cl.h>
 
 #include <stdexcept>
@@ -58,4 +57,3 @@ public:
 };
 } // namespace raw::device_types
 
-#endif // SPACE_EXPLORER_DEVICE_PTR_H

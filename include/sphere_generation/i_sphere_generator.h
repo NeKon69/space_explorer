@@ -2,8 +2,7 @@
 // Created by progamers on 9/5/25.
 //
 
-#ifndef SPACE_EXPLORER_I_SPHERE_GENERATOR_H
-#define SPACE_EXPLORER_I_SPHERE_GENERATOR_H
+#pragma once
 
 #include <memory>
 #include <thread>
@@ -29,4 +28,3 @@ public:
 
 } // namespace raw::sphere_generation
 
-#endif // SPACE_EXPLORER_I_SPHERE_GENERATOR_H

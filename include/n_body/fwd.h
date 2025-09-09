@@ -2,8 +2,7 @@
 // Created by progamers on 9/6/25.
 //
 
-#ifndef SPACE_EXPLORER_N_BODY_FWD_H
-#define SPACE_EXPLORER_N_BODY_FWD_H
+#pragma once
 
 #include <glm/glm.hpp>
 namespace raw::n_body {
@@ -38,4 +37,3 @@ struct space_object_data {
 		: position(_position), velocity(_velocity), mass(_mass), radius(_radius) {}
 };
 } // namespace raw::n_body
-#endif // SPACE_EXPLORER_N_BODY_FWD_H

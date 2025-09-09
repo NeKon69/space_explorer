@@ -2,8 +2,7 @@
 // Created by progamers on 9/7/25.
 //
 
-#ifndef SPACE_EXPLORER_I_N_BODY_SIMULATOR_H
-#define SPACE_EXPLORER_I_N_BODY_SIMULATOR_H
+#pragma once
 #include <oneapi/tbb/detail/_task.h>
 
 #include <condition_variable>
@@ -40,4 +39,3 @@ public:
 };
 } // namespace raw::n_body
 
-#endif // SPACE_EXPLORER_I_N_BODY_SIMULATOR_H

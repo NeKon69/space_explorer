@@ -2,8 +2,7 @@
 // Created by progamers on 9/6/25.
 //
 
-#ifndef SPACE_EXPLORER_I_N_BODY_DATA_MANAGER_H
-#define SPACE_EXPLORER_I_N_BODY_DATA_MANAGER_H
+#pragma once
 #include "device_types/device_ptr.h"
 #include "graphics/instanced_data.h"
 #include "graphics/mesh.h"
@@ -28,4 +27,3 @@ public:
 	virtual n_body_context<T> create_context() = 0;
 };
 } // namespace raw::n_body
-#endif // SPACE_EXPLORER_I_N_BODY_DATA_MANAGER_H

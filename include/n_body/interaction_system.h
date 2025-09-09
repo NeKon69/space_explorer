@@ -2,8 +2,7 @@
 // Created by progamers on 9/7/25.
 //
 
-#ifndef SPACE_EXPLORER_INTERACTION_SYSTEM_H
-#define SPACE_EXPLORER_INTERACTION_SYSTEM_H
+#pragma once
 #include <memory>
 
 #include "core/clock.h"
@@ -49,4 +48,3 @@ public:
 	// TODO: add some other methods like "add_object" and so on
 };
 } // namespace raw::n_body
-#endif // SPACE_EXPLORER_INTERACTION_SYSTEM_H

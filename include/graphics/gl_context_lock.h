@@ -2,8 +2,7 @@
 // Created by progamers on 9/1/25.
 //
 
-#ifndef SPACE_EXPLORER_GL_CONTEXT_LOCK_H
-#define SPACE_EXPLORER_GL_CONTEXT_LOCK_H
+#pragma once
 #include <format>
 #include <mutex>
 #include <stdexcept>
@@ -80,4 +79,3 @@ public:
 };
 } // namespace raw::graphics
 
-#endif // SPACE_EXPLORER_GL_CONTEXT_LOCK_H

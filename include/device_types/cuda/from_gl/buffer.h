@@ -2,8 +2,7 @@
 // Created by progamers on 7/18/25.
 //
 
-#ifndef SPACE_EXPLORER_CUDA_FROM_GL_DATA_H
-#define SPACE_EXPLORER_CUDA_FROM_GL_DATA_H
+#pragma once
 #include <cuda_gl_interop.h>
 
 #include "device_types/cuda/error.h"
@@ -55,4 +54,3 @@ public:
 	~buffer() override = default;
 };
 } // namespace raw::device_types::cuda::from_gl
-#endif // SPACE_EXPLORER_CUDA_FROM_GL_DATA_H

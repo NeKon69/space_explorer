@@ -2,8 +2,7 @@
 // Created by progamers on 7/24/25.
 //
 
-#ifndef SPACE_EXPLORER_GAME_H
-#define SPACE_EXPLORER_GAME_H
+#pragma once
 
 #include <memory>
 #include <stack>
@@ -29,4 +28,3 @@ public:
 };
 } // namespace raw::core
 
-#endif // SPACE_EXPLORER_GAME_H

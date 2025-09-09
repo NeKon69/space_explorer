@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_FWD_H
-#define SPACE_EXPLORER_FWD_H
+#pragma once
 
 #include <cuda_gl_interop.h>
 
@@ -37,4 +36,3 @@ namespace raw::textures {
 struct pbr_material;
 struct planet_dna;
 } // namespace raw::textures
-#endif // SPACE_EXPLORER_FWD_H

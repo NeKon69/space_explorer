@@ -2,8 +2,7 @@
 // Created by progamers on 7/18/25.
 //
 
-#ifndef SPACE_EXPLORER_KERNEL_LAUNCHER_H
-#define SPACE_EXPLORER_KERNEL_LAUNCHER_H
+#pragma once
 #include <cuda_runtime.h>
 #include "fwd.h"
 
@@ -16,4 +15,3 @@ extern void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indic
 
 } // namespace raw::sphere_generation
 
-#endif // SPACE_EXPLORER_KERNEL_LAUNCHER_H

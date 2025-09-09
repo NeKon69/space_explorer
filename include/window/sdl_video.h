@@ -2,8 +2,7 @@
 // Created by progamers on 6/26/25.
 //
 
-#ifndef SPACE_EXPLORER_SDL_VIDEO_H
-#define SPACE_EXPLORER_SDL_VIDEO_H
+#pragma once
 
 #include "window/fwd.h"
 
@@ -20,4 +19,3 @@ public:
 };
 } // namespace raw::window
 
-#endif // SPACE_EXPLORER_SDL_VIDEO_H

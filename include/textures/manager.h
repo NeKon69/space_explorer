@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_MANAGER_H
-#define SPACE_EXPLORER_MANAGER_H
+#pragma once
 #include "textures/fwd.h"
 
 namespace raw::textures {
@@ -25,4 +24,3 @@ public:
 	planet_id get_seed();
 };
 } // namespace raw::textures
-#endif // SPACE_EXPLORER_MANAGER_H

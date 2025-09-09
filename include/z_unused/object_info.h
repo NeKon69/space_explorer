@@ -2,8 +2,7 @@
 // Created by progamers on 7/6/25.
 //
 
-#ifndef SPACE_EXPLORER_OBJECT_INFO_H
-#define SPACE_EXPLORER_OBJECT_INFO_H
+#pragma once
 
 #include "object.h"
 
@@ -38,4 +37,3 @@ public:
 };
 } // namespace raw::z_unused
 
-#endif // SPACE_EXPLORER_OBJECT_INFO_H

@@ -2,8 +2,7 @@
 // Created by progamers on 5/28/25.
 //
 
-#ifndef SMARTPOINTERS_UNIQUE_PTR_H
-#define SMARTPOINTERS_UNIQUE_PTR_H
+#pragma once
 
 #include "smart_ptr_base.h"
 
@@ -143,4 +142,3 @@ public:
 };
 } // namespace raw
 
-#endif // SMARTPOINTERS_UNIQUE_PTR_H

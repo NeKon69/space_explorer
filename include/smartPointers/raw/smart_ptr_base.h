@@ -2,8 +2,7 @@
 // Created by progamers on 5/27/25.
 //
 
-#ifndef SMARTPOINTERS_SMART_PTR_BASE_H
-#define SMARTPOINTERS_SMART_PTR_BASE_H
+#pragma once
 
 #include <iostream>
 
@@ -131,4 +130,3 @@ namespace raw {
     };
 } // namespace raw
 
-#endif // SMARTPOINTERS_SMART_PTR_BASE_H

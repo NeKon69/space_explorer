@@ -2,8 +2,7 @@
 // Created by progamers on 7/1/25.
 //
 
-#ifndef SPACE_EXPLORER_OBJECT_H
-#define SPACE_EXPLORER_OBJECT_H
+#pragma once
 
 // I really wonder right now, what should I better do? wrap all opengl calls like  glDeleteBuffers,
 // glBindBuffer, etc... in some class, and check for the errors, or leave it as it is, and hope
@@ -182,4 +181,3 @@ protected:
 };
 } // namespace raw::z_unused
 
-#endif // SPACE_EXPLORER_OBJECT_H

@@ -2,8 +2,7 @@
 // Created by progamers on 9/7/25.
 //
 
-#ifndef SPACE_EXPLORER_I_QUEUE_H
-#define SPACE_EXPLORER_I_QUEUE_H
+#pragma once
 #include <CL/cl.h>
 #include <memory>
 
@@ -33,4 +32,3 @@ public:
 };
 } // namespace raw::device_types
 
-#endif // SPACE_EXPLORER_I_QUEUE_H

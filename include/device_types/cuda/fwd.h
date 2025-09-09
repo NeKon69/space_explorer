@@ -1,5 +1,4 @@
-#ifndef SPACE_EXPLORER_CUDA_TYPES_FWD_H
-#define SPACE_EXPLORER_CUDA_TYPES_FWD_H
+#pragma once
 
 namespace raw::device_types::cuda {
 enum class side { host, device };
@@ -19,4 +18,3 @@ class resource_description;
 enum class cudaMemcpyOrder { cudaMemcpy1to2, cudaMemcpy2to1 };
 } // namespace raw::cuda
 
-#endif // SPACE_EXPLORER_CUDA_TYPES_FWD_H

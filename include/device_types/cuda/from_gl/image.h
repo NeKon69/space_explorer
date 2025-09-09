@@ -2,8 +2,7 @@
 // Created by progamers on 8/5/25.
 //
 
-#ifndef SPACE_EXPLORER_IMAGE_H
-#define SPACE_EXPLORER_IMAGE_H
+#pragma once
 #include "device_types/cuda/resource.h"
 
 namespace raw::device_types::cuda::from_gl {
@@ -25,4 +24,3 @@ public:
 };
 } // namespace raw::cuda::from_gl
 
-#endif // SPACE_EXPLORER_IMAGE_H
