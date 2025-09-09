@@ -6,9 +6,11 @@
 #include <memory>
 
 #include "core/clock.h"
+#include "device_types/i_queue.h"
 #include "graphics/gl_context_lock.h"
-#include "n_body/cuda/n_body_resource_manager.h"
 #include "n_body/fwd.h"
+#include "n_body/i_n_body_resource_manager.h"
+#include "n_body/i_n_body_simulator.h"
 #include "n_body/n_body_predef.h"
 namespace raw::n_body {
 template<typename T>
@@ -42,9 +44,14 @@ public:
 	void resume() {
 		paused = false;
 	}
+	[[nodiscard]] bool running() const {
+		return !paused;
+	}
 	void add(space_object_data<T> object) {
 		resource_manager->add(object);
 	}
-	// TODO: add some other methods like "add_object" and so on
+	[[nodiscard]] uint32_t get_amount() const {
+		return resource_manager->get_amount();
+	}
 };
 } // namespace raw::n_body

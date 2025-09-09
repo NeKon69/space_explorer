@@ -3,8 +3,9 @@
 //
 
 #pragma once
+#include <concepts>
+#include <utility>
 namespace raw::common {
-#include <functional>
 template<typename T, typename... Args>
 concept IsResourceManager = requires(T t, Args... args) {
 	{ t.prepare(args...) } -> std::same_as<void>;
@@ -19,8 +20,7 @@ private:
 
 public:
 	template<typename... Ts>
-	explicit scoped_resource_handle(TResourceManager* mgr, Ts&&... args)
-		: manager(mgr) {
+	explicit scoped_resource_handle(TResourceManager* mgr, Ts&&... args) : manager(mgr) {
 		manager->prepare(std::forward<Ts>(args)...);
 	}
 	~scoped_resource_handle() {

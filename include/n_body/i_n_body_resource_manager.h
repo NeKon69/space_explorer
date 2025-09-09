@@ -11,19 +11,21 @@
 namespace raw::n_body {
 using namespace raw::device_types;
 template<typename T>
-using n_body_data = std::tuple<device_ptr<graphics::instanced_data>,
-							   device_ptr<space_object_data<T>*>, uint16_t>;
+using n_body_data =
+	std::tuple<device_ptr<graphics::instanced_data*>, device_ptr<space_object_data<T>*>, uint16_t>;
 template<typename T>
 using n_body_context = common::scoped_resource_handle<i_n_body_resource_manager<T>>;
 template<typename T>
 class i_n_body_resource_manager {
 protected:
+	friend n_body_context<T>;
 	virtual void prepare(uint32_t vbo) = 0;
 	virtual void cleanup()			   = 0;
 
 public:
-	virtual ~i_n_body_resource_manager()	   = default;
-	virtual n_body_data<T>	  get_data()	   = 0;
-	virtual n_body_context<T> create_context() = 0;
+	virtual ~i_n_body_resource_manager()			  = default;
+	virtual n_body_data<T>		   get_data()		  = 0;
+	virtual n_body_context<T>	   create_context()	  = 0;
+	[[nodiscard]] virtual uint32_t get_amount() const = 0;
 };
 } // namespace raw::n_body

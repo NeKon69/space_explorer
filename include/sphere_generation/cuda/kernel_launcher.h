@@ -4,7 +4,10 @@
 
 #pragma once
 #include <cuda_runtime.h>
-#include "fwd.h"
+
+#include "graphics/vertex.h"
+#include "sphere_generation/cuda/fwd.h"
+#include "sphere_generation/fwd.h"
 
 namespace raw::sphere_generation::cuda {
 extern void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edge *all_edges,
@@ -13,5 +16,4 @@ extern void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indic
 								uint32_t *p_vertex_count, uint32_t *p_triangle_count,
 								uint32_t *p_edges_cound, cudaStream_t &stream, uint32_t steps);
 
-} // namespace raw::sphere_generation
-
+} // namespace raw::sphere_generation::cuda

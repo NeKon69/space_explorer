@@ -70,12 +70,13 @@ playing_state::playing_state(graphics::graphics_data& graphics_data, glm::uvec2 
 	  sphere_manager(std::make_shared<sphere_generation::cuda::sphere_resource_manager>(
 		  sphere_mesh->get_vbo(), sphere_mesh->get_ebo(), stream)),
 	  sphere_gen(std::make_shared<sphere_generation::cuda::sphere_generator>()),
-render_buffer(sphere_mesh->get_vao(), sphere_mesh->attr_num(), 1000),
-	  interaction_system(n_body::n_body_factory<float, backend::CUDA>::create(render_buffer, )),
+	  render_buffer(sphere_mesh->get_vao(), sphere_mesh->attr_num(), 1000),
+	  interaction_system(n_body::n_body_factory<float, backend::CUDA>::create(
+		  render_buffer, stream, 1000, n_body::predef::generate_data_for_sim(), graphics_data)),
 	  camera(),
 	  controller(camera) {
 	sphere_mesh->unbind();
-	sphere_gen->generate(7, *stream.get(), sphere_manager, graphics_data);
+	sphere_gen->generate(7, stream, sphere_manager, graphics_data);
 	camera.set_window_resolution(window_size.x, window_size.y);
 	init();
 }
@@ -84,17 +85,17 @@ raw::rendering::queue playing_state::build_rendering_queue() const {
 	raw::rendering::queue queue;
 	{
 		raw::rendering::command cmd;
-		cmd.shader = object_shader;
-		cmd.mesh   = sphere_mesh;
-		cmd.inst_data =
-			raw::rendering::instance_data {system.get_vbo(), static_cast<int>(system.amount())};
+		cmd.shader	  = object_shader;
+		cmd.mesh	  = sphere_mesh;
+		cmd.inst_data = raw::rendering::instance_data {
+			render_buffer.get_vbo(), static_cast<int>(interaction_system->get_amount())};
 		queue.push_back(cmd);
 	}
 	return queue;
 }
 
 void playing_state::update(const raw::core::time& delta_time) {
-	system.update_sim();
+	interaction_system->update_simulation();
 	controller.update(move_state, delta_time.val);
 }
 
@@ -133,11 +134,10 @@ bool playing_state::handle_input() {
 			case SDL_SCANCODE_O:
 				if (pressed_o)
 					break;
-				if (system.running()) {
-					system.pause();
-					system.running();
+				if (interaction_system->running()) {
+					interaction_system->pause();
 				} else {
-					system.start();
+					interaction_system->resume();
 				}
 				break;
 			case SDL_SCANCODE_T:

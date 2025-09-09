@@ -8,7 +8,7 @@
 #include "device_types/cuda/fwd.h"
 #include "device_types/i_queue.h"
 namespace raw::device_types::cuda {
-class cuda_stream : i_queue {
+class cuda_stream : public i_queue {
 private:
 	cudaStream_t _stream = nullptr;
 	// Yea yea, it's used to not delete same stream twice. I could've made "cuda_stream" object only

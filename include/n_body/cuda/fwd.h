@@ -1,5 +1,6 @@
 #pragma once
 
+#include "n_body/fwd.h"
 namespace raw::n_body::cuda {
 template<typename T>
 class n_body_resource_manager;
@@ -11,9 +12,9 @@ struct pending_action;
 
 template<typename T>
 struct is_in_set {
-	uint32_t*	  ids_begin;
-	uint32_t*	  ids_end;
-	__host__ bool operator()(const space_object_data<T>& object) const {
+	uint32_t*		ids_begin;
+	uint32_t*		ids_end;
+	__device__ bool operator()(const space_object_data<T>& object) const {
 		for (uint32_t* it = ids_begin; it != ids_end; ++it) {
 			if (*it == object.id) {
 				return true;
@@ -23,4 +24,3 @@ struct is_in_set {
 	}
 };
 } // namespace raw::n_body::cuda
-

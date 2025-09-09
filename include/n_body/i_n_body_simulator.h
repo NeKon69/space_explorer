@@ -21,7 +21,7 @@ struct task {
 	std::shared_ptr<i_n_body_resource_manager<T>> manager;
 	double										  g;
 	double										  epsilon;
-	graphics::graphics_data&					  graphics_data;
+	graphics::graphics_data*					  graphics_data;
 };
 template<typename T>
 class i_n_body_simulator {
@@ -38,4 +38,3 @@ public:
 	virtual ~i_n_body_simulator()											  = default;
 };
 } // namespace raw::n_body
-

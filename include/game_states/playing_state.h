@@ -29,13 +29,13 @@ private:
 	raw::z_unused::objects::cube light_cube;
 
 	// For now let's just store the stream locally
-	std::shared_ptr<device_types::i_queue>			  stream;
+	std::shared_ptr<device_types::i_queue>						  stream;
 	std::shared_ptr<graphics::mesh>								  sphere_mesh;
 	std::shared_ptr<sphere_generation::i_sphere_resource_manager> sphere_manager;
 	std::shared_ptr<sphere_generation::i_sphere_generator>		  sphere_gen;
 	bool														  dir_light = false;
 	graphics::instanced_data_buffer								  render_buffer;
-	raw::n_body::interaction_system<float>						  interaction_system;
+	std::unique_ptr<raw::n_body::interaction_system<float> >	  interaction_system;
 
 	bool pressed_o = false;
 

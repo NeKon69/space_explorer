@@ -26,14 +26,15 @@ struct space_object_data {
 	T			   radius;
 	uint32_t	   id = 0;
 
-	space_object_data()
+	__host__ __device__ constexpr space_object_data()
 		: position(0.0),
 		  velocity(predef::BASIC_VELOCITY),
 		  mass(predef::PLANET_MASS),
 		  radius(predef::RADIUS) {}
 
-	explicit space_object_data(glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
-							   double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
+	__host__ __device__ constexpr explicit space_object_data(
+		glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
+		double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
 		: position(_position), velocity(_velocity), mass(_mass), radius(_radius) {}
 };
 } // namespace raw::n_body
