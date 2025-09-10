@@ -7,8 +7,8 @@ layout(location = 3) in vec3 a_tangent;
 layout(location = 4) in vec3 a_bitangent;
 // Instancing (one for each instance)
 layout(location = 5) in mat4 a_model;
-layout(location = 9) in uint64_t texture_location1;
-layout(location = 10) in uint64_t texture_location2;
+//layout(location = 9) in uint64_t texture_location1;
+//layout(location = 10) in uint64_t texture_location2;
 
 uniform mat4 view;
 uniform mat4 projection;

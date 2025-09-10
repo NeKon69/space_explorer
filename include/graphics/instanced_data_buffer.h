@@ -22,7 +22,7 @@ public:
 		// this sets up first instanced data (models), textures should be set up somewhere different
 		glGenBuffers(1, vbo.get());
 		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
-		std::vector<graphics::instanced_data> vec(max_objects, {1.0f, 0, 0});
+		std::vector<graphics::instanced_data> vec(max_objects, {1.0f});
 		;
 		stride						= sizeof(instanced_data);
 		constexpr int single_stride = sizeof(glm::vec4);
@@ -58,4 +58,3 @@ public:
 	}
 };
 } // namespace raw::graphics
-

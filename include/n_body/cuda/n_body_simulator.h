@@ -55,7 +55,6 @@ public:
 					}
 				}
 				++i;
-				std::cout << "I FINISHED TASK WITH N-BODY!!!!!!!!!\n";
 			}
 		});
 	}

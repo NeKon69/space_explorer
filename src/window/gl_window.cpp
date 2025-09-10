@@ -127,11 +127,13 @@ gl_window::gl_window(const std::string &window_name) {
 			" in " + std::string(__FILE__) + " on " + std::to_string(__LINE__) + " line");
 	}
 	init_glad();
+#ifdef SPACE_EXPLORER_DEBUG
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 	glEnable(GL_DEBUG_OUTPUT);
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(GLDebugMessageCallback, nullptr);
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+#endif
 	SDL_GL_MakeCurrent(data.window, data.main_context);
 	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 	data.tessellation_context = SDL_GL_CreateContext(data.window);

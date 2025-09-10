@@ -33,11 +33,9 @@ private:
 protected:
 	void prepare(uint32_t vbo_) override {
 		instance_data.map();
-		std::cout << "NO ONE CAN USE RESOURCES NOW!!\n";
 	}
 	void cleanup() override {
 		instance_data.unmap();
-		std::cout << "ANYONE CAN USE RESOURCES NOW!!\n";
 	}
 
 public:
