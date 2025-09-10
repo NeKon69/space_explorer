@@ -1,6 +1,7 @@
 //
 // Created by progamers on 7/21/25.
 //
+#include "device_types/cuda/error.h"
 #include "n_body/cuda/physics/launch_leapfrog.h"
 #include "n_body/cuda/physics/leapfrog_kernels.h"
 #include "n_body/fwd.h"
@@ -22,7 +23,9 @@ void launch_leapfrog(graphics::instanced_data* data, space_object_data<T>* objec
 		threads_per_block = count % 32 == 0 ? count : (count / 32 + 1) * 32;
 	}
 	// this is stupid algorithm. probably one day in the future should do O(n log n)
-	compute_kd<T><<<blocks, threads_per_block, 0, stream>>>(data, objects, count, time, g, epsilon);
 	compute_k<T><<<blocks, threads_per_block, 0, stream>>>(data, objects, count, time, g, epsilon);
+	compute_d<T><<<blocks, threads_per_block, 0, stream>>>(objects, count, time);
+	compute_k_final<T>
+		<<<blocks, threads_per_block, 0, stream>>>(data, objects, count, time, g, epsilon);
 }
 } // namespace raw::n_body::cuda::physics

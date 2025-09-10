@@ -26,15 +26,29 @@ struct task {
 template<typename T>
 class i_n_body_simulator {
 protected:
-	std::jthread			worker_thread;
 	std::condition_variable condition;
+	std::condition_variable sync_condition;
+	std::jthread			worker_thread;
 	std::mutex				mutex;
 	std::queue<task<T>>		task_queue;
+	size_t					tasks_in_queue = 0;
 
 public:
 	virtual void step(core::time delta_time, std::shared_ptr<device_types::i_queue> queue,
 					  std::shared_ptr<i_n_body_resource_manager<T>> source, double g,
 					  double epsilon, graphics::graphics_data& graphics_data) = 0;
-	virtual ~i_n_body_simulator()											  = default;
+	void		 sync() {
+		std::unique_lock locker(this->mutex);
+		this->sync_condition.wait(locker, [this] {
+			return this->tasks_in_queue == 0;
+		});
+	}
+	virtual ~i_n_body_simulator() {
+		worker_thread.request_stop();
+		condition.notify_one();
+		if (worker_thread.joinable()) {
+			worker_thread.join();
+		}
+	}
 };
 } // namespace raw::n_body

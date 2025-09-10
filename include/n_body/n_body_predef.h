@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include <vector>
+
 #include "n_body/fwd.h"
 namespace raw::n_body::predef {
 static constexpr auto G = 0.001;

@@ -103,6 +103,7 @@ bool playing_state::handle_input() {
 	// Yew
 	SDL_Event event;
 	while (SDL_PollEvent(&event)) {
+		std::cout << "Pulled event!!\n";
 		if (event.type == SDL_EVENT_KEY_DOWN) {
 			const auto& scancode = event.key.scancode;
 			// I have no idea tf am I doing with my life, but what i do know, that this should be
@@ -185,8 +186,10 @@ bool playing_state::handle_input() {
 }
 
 void playing_state::draw(raw::rendering::renderer& renderer) {
-	auto queue = build_rendering_queue();
 	sphere_gen->sync();
+	interaction_system->sync();
+	auto queue = build_rendering_queue();
+	std::cout << "I AM ABOUT TO DRAW SOMETHING HIDE EVERYONE!!\n";
 	renderer.render(queue, camera);
 }
 

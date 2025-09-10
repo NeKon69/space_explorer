@@ -39,7 +39,7 @@ private:
 		} else if constexpr (ctx_type == TEX_GEN) {
 			result = SDL_GL_MakeCurrent(window, data.texture_gen_context);
 		} else if constexpr (ctx_type == N_BODY) {
-			result = SDL_GL_MakeCurrent(window, data.texture_gen_context);
+			result = SDL_GL_MakeCurrent(window, data.n_body_context);
 		}
 		if (result == false) {
 			throw std::runtime_error(std::format(
@@ -48,6 +48,7 @@ private:
 	}
 
 public:
+	gl_context_lock() {}
 	explicit gl_context_lock(graphics_data& data)
 		requires(ctx_type == context_type::MAIN)
 		: lock(data.main_mutex), window(data.window) {
@@ -78,4 +79,3 @@ public:
 	gl_context_lock& operator=(gl_context_lock&&)	   = default;
 };
 } // namespace raw::graphics
-

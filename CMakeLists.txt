@@ -4,7 +4,6 @@ project(space_explorer VERSION 1.0 LANGUAGES C CXX CUDA)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_CUDA_CREATE_STATIC_LIBRARY OFF)
 set(CMAKE_CUDA_ARCHITECTURES "120")
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -36,6 +35,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 
         $<$<CONFIG:Release>:-O3>
         $<$<AND:$<CONFIG:Release>,$<CXX_COMPILER_ID:MSVC>>:/Ox>
+
 
         $<$<AND:$<CONFIG:RelWithDebInfo>,$<CXX_COMPILER_ID:GNU>>:-O2 -g>
         $<$<AND:$<CONFIG:RelWithDebInfo>,$<CXX_COMPILER_ID:Clang>>:-O2 -g>

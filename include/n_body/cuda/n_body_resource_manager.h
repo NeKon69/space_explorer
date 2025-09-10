@@ -29,30 +29,21 @@ private:
 
 private:
 	void update_data();
-	void init(std::vector<space_object_data<T>> objects) {
-		this->objects = objects;
-		instance_data = device_types::cuda::from_gl::buffer<graphics::instanced_data>(&bytes, vbo,
-																					  local_stream);
-		device_types::cuda::resource::mapped_resource guard = instance_data.get_resource();
-
-		physics_data = device_types::cuda::buffer<space_object_data<T>>(bytes, local_stream);
-		if (!objects.empty()) {
-			physics_data.memcpy(objects.data(), objects.size(), 0, cudaMemcpyHostToDevice);
-		}
-	}
 
 protected:
 	void prepare(uint32_t vbo_) override {
 		instance_data.map();
+		std::cout << "NO ONE CAN USE RESOURCES NOW!!\n";
 	}
 	void cleanup() override {
 		instance_data.unmap();
+		std::cout << "ANYONE CAN USE RESOURCES NOW!!\n";
 	}
 
 public:
 	n_body_resource_manager(uint32_t vbo, size_t bytes, uint32_t maximum_objects,
 							std::shared_ptr<i_queue>		  stream,
-							std::vector<space_object_data<T>> initial_objects = nullptr)
+							std::vector<space_object_data<T>> initial_objects)
 		: local_stream(std::dynamic_pointer_cast<device_types::cuda::cuda_stream>(stream)),
 		  physics_data(local_stream),
 		  vbo(vbo),
@@ -63,7 +54,19 @@ public:
 			throw std::invalid_argument(
 				"Stream passed was not created or created for another backend!");
 		}
-		init(objects);
+		instance_data = device_types::cuda::from_gl::buffer<graphics::instanced_data>(
+			&this->bytes, this->vbo, this->local_stream);
+		std::cout << "[DEBUG] VBO size reported by CUDA: " << this->bytes << " bytes.\n";
+		std::cout << "[DEBUG] Manager max capacity: " << this->capacity << " objects.\n";
+		std::cout << "[DEBUG] Expected VBO size: "
+				  << this->capacity * sizeof(graphics::instanced_data) << " bytes.\n";
+		physics_data =
+			device_types::cuda::buffer<space_object_data<T>>(this->bytes, this->local_stream);
+		if (!this->objects.empty()) {
+			physics_data.memcpy(this->objects.data(),
+								this->objects.size() * sizeof(space_object_data<T>), 0,
+								cudaMemcpyHostToDevice);
+		}
 	}
 
 	n_body_context<T> create_context() override {

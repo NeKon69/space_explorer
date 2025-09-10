@@ -22,7 +22,7 @@ public:
 
 	buffer(size_t* amount_of_bytes, uint32_t buffer_object, std::shared_ptr<cuda_stream> stream)
 		: resource(cudaGraphicsGLRegisterBuffer, stream, buffer_object,
-				   cudaGraphicsRegisterFlagsWriteDiscard) {
+				   cudaGraphicsRegisterFlagsNone) {
 		CUDA_SAFE_CALL(
 			cudaGraphicsResourceGetMappedPointer((void**)&data, &bytes, *get_resource()));
 		if (amount_of_bytes)

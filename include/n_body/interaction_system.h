@@ -53,5 +53,8 @@ public:
 	[[nodiscard]] uint32_t get_amount() const {
 		return resource_manager->get_amount();
 	}
+	void sync() {
+		simulator->sync();
+	}
 };
 } // namespace raw::n_body

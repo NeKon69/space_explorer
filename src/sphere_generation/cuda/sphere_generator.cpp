@@ -20,7 +20,7 @@ void sphere_generator::generate(uint32_t steps, std::shared_ptr<i_queue> stream,
 			predef::MAX_STEPS, steps));
 	}
 	sync();
-	worker_thread = std::jthread([&stream, steps, source, &graphics_data] mutable {
+	worker_thread = std::jthread([stream, steps, source, &graphics_data] mutable {
 		core::clock clock;
 		auto&		cuda_q		 = dynamic_cast<cuda_stream&>(*stream);
 		auto		local_stream = cuda_q.stream();
