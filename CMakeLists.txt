@@ -16,12 +16,26 @@ find_package(Freetype REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(CUDAToolkit REQUIRED)
 find_package(OpenCL CONFIG REQUIRED)
-#I so unbelievably dont care, I dont wanna add each file my own, vim sucks for that
+
+include(FetchContent)
+FetchContent_Declare(
+        fastnoiselightcuda
+        GIT_REPOSITORY https://github.com/NeKon69/FastNoiseLightCUDA.git
+        GIT_TAG main
+)
+FetchContent_MakeAvailable(fastnoiselightcuda)
+
+set(NOISE_HEADER_SOURCE ${fastnoiselightcuda_SOURCE_DIR}/include)
+set(NOISE_HEADER_DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/include/texture_generation/cuda/noise/)
+
+file(MAKE_DIRECTORY ${NOISE_HEADER_DESTINATION})
+file(COPY ${NOISE_HEADER_SOURCE} DESTINATION ${NOISE_HEADER_DESTINATION})
+
 file(GLOB_RECURSE CPP_SOURCES src/*.cpp)
 file(GLOB_RECURSE CUDA_SOURCES src/*.cu)
 
 add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${CUDA_SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE include include/smartPointers)
+target_include_directories(${PROJECT_NAME} PRIVATE include include/smartPointers include/texture_generation/cuda/noise/include)
 
 target_compile_options(${PROJECT_NAME} PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wall -Wextra -Wpedantic>

@@ -6,8 +6,8 @@
 #include "common/to_raw_data.h"
 #include "core/clock.h"
 #include "device_types/device_ptr.h"
-#include "sphere_generation/cuda/kernel_launcher.h"
 #include "sphere_generation/cuda/sphere_resource_manager.h"
+#include "sphere_generation/cuda/tessellation_launcher.h"
 
 namespace raw::sphere_generation::cuda {
 

@@ -7,8 +7,8 @@
 #include "device_types/cuda/error.h"
 #include "graphics/vertex.h"
 #include "sphere_generation/basic_geomerty.h"
-#include "sphere_generation/cuda/kernel_launcher.h"
 #include "sphere_generation/cuda/tessellation_kernel.h"
+#include "sphere_generation/cuda/tessellation_launcher.h"
 
 namespace raw::sphere_generation::cuda {
 using namespace device_types::cuda;
