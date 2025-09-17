@@ -6,10 +6,10 @@
 #include <glad/glad.h>
 #include <raw_memory.h>
 
-#include "device_types/cuda/from_gl/image.h"
+#include "../texture_generation/lru_cache.h"
 #include "deleters/custom_deleters.h"
+#include "device_types/cuda/from_gl/image.h"
 #include "textures/data_type/compressed_cpu_texture.h"
-#include "textures/lru_cache.h"
 #include "textures/manager.h"
 
 namespace raw::textures {
@@ -66,4 +66,3 @@ public:
 	streaming_manager(uint32_t gpu_cache_size, uint32_t cpu_cache_size);
 };
 } // namespace raw::textures
-

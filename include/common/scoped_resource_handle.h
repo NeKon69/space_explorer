@@ -8,8 +8,8 @@
 namespace raw::common {
 template<typename T, typename... Args>
 concept IsResourceManager = requires(T t, Args... args) {
-	{ t.prepare(args...) } -> std::same_as<void>;
-	{ t.cleanup() } -> std::same_as<void>;
+	{ t.prepare() || t.prepare(args...) } -> std::same_as<void>;
+	{ t.cleanup() || t.cleanup(args...) } -> std::same_as<void>;
 };
 
 template<typename TResourceManager>

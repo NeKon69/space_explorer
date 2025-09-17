@@ -6,12 +6,13 @@
 
 #include <raw_memory.h>
 
+#include <functional>
 #include <list>
 #include <unordered_map>
 
-#include "textures/fwd.h"
+#include "texture_generation/fwd.h"
 
-namespace raw::textures {
+namespace raw::texture_generation {
 template<typename K, typename V>
 class lru_cache {
 private:
@@ -20,9 +21,12 @@ private:
 
 	std::list<std::pair<K, V> >								 list;
 	std::unordered_map<K, typename decltype(list)::iterator> map;
+	std::function<void(const K &, const V &)>				 eviction_callback;
 
 public:
-	explicit lru_cache(uint32_t cap) : capacity(cap) {}
+	lru_cache() = default;
+	explicit lru_cache(uint32_t cap, decltype(eviction_callback) on_evict = nullptr)
+		: capacity(cap), eviction_callback(on_evict) {}
 
 	std::shared_ptr<V> get(const K &key) {
 		auto it = map.find(key);
@@ -41,7 +45,7 @@ public:
 		auto it = map.find(key);
 		if (it != map.end()) {
 			// Update the value and put it to the hottest cache
-			it->second->second = value;
+			it->second->second = std::move(value);
 			list.splice(list.begin(), list, it->second);
 			return;
 		}
@@ -49,6 +53,9 @@ public:
 		if (list.size() == capacity) {
 			// Reached the cache capacity, delete last used element
 			auto &last_node = list.back();
+			if (eviction_callback) {
+				eviction_callback(last_node.first, last_node.second);
+			}
 			map.erase(last_node.first);
 			list.pop_back();
 		}
@@ -56,6 +63,9 @@ public:
 		list.emplace_front(key, value);
 		map[key] = list.begin();
 	}
+	lru_cache(const lru_cache &)			= delete;
+	lru_cache &operator=(const lru_cache &) = delete;
+	lru_cache(lru_cache &&)					= default;
+	lru_cache &operator=(lru_cache &&)		= default;
 };
-} // namespace raw::textures
-
+} // namespace raw::texture_generation

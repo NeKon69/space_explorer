@@ -9,17 +9,18 @@
 #include "device_types/cuda/error.h"
 #include "device_types/cuda/resource_description.h"
 
-namespace raw::devic_types::cuda {
-template<typename T>
+namespace raw::device_types::cuda {
 class surface {
 private:
 	cudaSurfaceObject_t surface_object = 0;
 	bool				created		   = false;
 
 public:
+	template<typename T>
 	explicit surface(resource_description<T> &description) {
 		create(description);
 	}
+	template<typename T>
 
 	void create(resource_description<T> &description) {
 		if (!created) {

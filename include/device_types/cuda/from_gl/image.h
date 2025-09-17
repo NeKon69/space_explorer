@@ -16,7 +16,7 @@ public:
 	// If used default constructor and didn't set the data manually you are screwed (let it be UB)
 	image() = default;
 
-	image(uint32_t texture_id);
+	explicit image(uint32_t texture_id);
 
 	void set_data(uint32_t texture_id);
 

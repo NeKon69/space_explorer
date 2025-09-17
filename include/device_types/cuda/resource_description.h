@@ -9,7 +9,7 @@
 
 #include "device_types/cuda/fwd.h"
 
-namespace raw::devic_types::cuda_types {
+namespace raw::device_types::cuda {
 namespace resource_types {
 struct array {
 	cudaResourceType res_type = cudaResourceTypeArray;
@@ -30,5 +30,4 @@ public:
 		description.res.array.array = array;
 	}
 };
-} // namespace raw::device_types::cuda_types
-
+} // namespace raw::device_types::cuda
