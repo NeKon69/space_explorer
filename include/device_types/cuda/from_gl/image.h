@@ -6,9 +6,9 @@
 #include "device_types/cuda/resource.h"
 
 namespace raw::device_types::cuda::from_gl {
-class image : resource {
+class image : public resource {
 private:
-	cudaArray_t array;
+	cudaArray_t array = nullptr;
 
 public:
 	using resource::resource;
@@ -20,7 +20,7 @@ public:
 
 	void set_data(uint32_t texture_id);
 
-	cudaArray_t get();
+	cudaArray_t& get();
 };
 } // namespace raw::cuda::from_gl
 

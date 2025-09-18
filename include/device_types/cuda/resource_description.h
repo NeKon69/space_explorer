@@ -20,13 +20,14 @@ template<typename T>
 class resource_description {
 private:
 	cudaResourceDesc description;
+	friend class surface;
 
 public:
 	resource_description() {
 		std::memset(&description, 0, sizeof(description));
 		description.resType = T::res_type;
 	}
-	std::enable_if_t<std::is_same_v<T, resource_types::array>, void> set_array(cudaArray_t& array) {
+	std::enable_if_t<std::is_same_v<T, resource_types::array>, void> set_array(const cudaArray_t& array) {
 		description.res.array.array = array;
 	}
 };

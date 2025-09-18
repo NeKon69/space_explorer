@@ -16,6 +16,7 @@ private:
 	bool				created		   = false;
 
 public:
+	surface() = default;
 	template<typename T>
 	explicit surface(resource_description<T> &description) {
 		create(description);
@@ -24,7 +25,7 @@ public:
 
 	void create(resource_description<T> &description) {
 		if (!created) {
-			CUDA_SAFE_CALL(cudaCreateSurfaceObject(surface_object, description));
+			cudaCreateSurfaceObject(&surface_object, &description.description);
 		}
 		created = true;
 	}
@@ -43,5 +44,10 @@ public:
 	cudaSurfaceObject_t &get() {
 		return surface_object;
 	}
+
+	surface(const surface &)			= delete;
+	surface &operator=(const surface &) = delete;
+	surface(surface &&)					= default;
+	surface &operator=(surface &&)		= default;
 };
 } // namespace raw::device_types::cuda

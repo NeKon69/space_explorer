@@ -3,9 +3,9 @@
 //
 
 #pragma once
+#include <raw/unique_ptr.h>
 #include <surface_types.h>
 
-#include <cstdint>
 #include <glm/vec2.hpp>
 #include <queue>
 #include <tuple>
@@ -27,7 +27,6 @@ struct texture_data {
 
 using texture_generation_data	 = std::tuple<device_types::device_ptr<cudaSurfaceObject_t>,
 											  device_types::device_ptr<cudaSurfaceObject_t>>;
-using texture_generation_context = common::scoped_resource_handle<i_planet_resource_manager>;
 
 struct gl_textures {
 	unique_ptr<uint32_t, deleters::gl_texture> albedo_metallic =
@@ -39,6 +38,15 @@ struct gl_textures {
 struct texture_pool {
 	std::vector<gl_textures> textures;
 	std::queue<size_t>		 free_indices;
+};
+
+class i_planet_source {
+public:
+	virtual void prepare() = 0;
+	virtual void cleanup() = 0;
+
+public:
+	virtual ~i_planet_source() = default;
 };
 
 namespace LOD {
@@ -69,5 +77,5 @@ inline glm::uvec2 get_lod_size(const LOD_LEVEL level) {
 		throw std::invalid_argument("Invalid LOD_LEVEL");
 	}
 }
-
+using texture_generation_context = common::scoped_resource_handle<i_planet_source>;
 } // namespace raw::texture_generation

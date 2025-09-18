@@ -6,6 +6,8 @@
 #include <GL/glext.h>
 #include "texture_generation/cuda/planet_resource_manager.h"
 
+#include "texture_generation/cuda/planet_source.h"
+
 // clang-format on
 
 namespace raw::texture_generation::cuda {
@@ -22,7 +24,7 @@ auto detail::create_lod_caches(const std::array<size_t, NUM_LOD_LEVELS>& pool_si
 		for (auto i = 0; i < NUM_LOD_LEVELS; ++i) {
 			caches_temp[i] = lru_cache<planet_id, planet_source>(
 				pool_sizes[i], [manager, i](const planet_id& id, const planet_source& binding) {
-					manager->get_pools()[i].free_indices.push(binding.pool_index);
+					manager->get_pools()[i].free_indices.push(binding.get_pool_index());
 				});
 		}
 		return caches_temp;
@@ -63,17 +65,32 @@ auto detail::create_lod_pools(const std::array<size_t, NUM_LOD_LEVELS>& pool_siz
 		return pools;
 	}();
 }
-planet_resource_manager::planet_resource_manager(std::array<size_t, NUM_LOD_LEVELS> pool_sizes)
+
+void detail::init_cuda_caches(
+	std::array<lru_cache<planet_id, planet_source>, NUM_LOD_LEVELS>& lod_caches,
+	std::array<texture_pool, NUM_LOD_LEVELS>&						 lod_pools,
+	std::shared_ptr<device_types::cuda::cuda_stream>				 stream) {
+	for (size_t i = 0; i < NUM_LOD_LEVELS; ++i) {
+		auto& lod_cache = lod_caches[i];
+		for (size_t j =0; j < lod_cache.get_capacity(); ++j) {
+		}
+	}
+}
+
+planet_resource_manager::planet_resource_manager(
+	std::array<size_t, NUM_LOD_LEVELS>				 pool_sizes,
+	std::shared_ptr<device_types::cuda::cuda_stream> stream)
 	: lod_caches(detail::create_lod_caches(pool_sizes, this)),
 	  lod_pools(detail::create_lod_pools(pool_sizes)) {}
 
-void planet_resource_manager::prepare(planet_id id, LOD_LEVEL lod_level) {
-	lod_caches[std::to_underlying(lod_level)].put(id, planet_source());
-}
-
 texture_generation_context planet_resource_manager::create_context(planet_id id,
 																   LOD_LEVEL lod_level) {
-	return texture_generation_context(this, id, lod_level);
+	return texture_generation_context(lod_caches[static_cast<uint32_t>(lod_level)].get(id).get());
+}
+texture_generation_data planet_resource_manager::get_data(planet_id id, LOD_LEVEL lod_level) {
+	const auto& surfaces = lod_caches[static_cast<uint32_t>(lod_level)].get(id)->get_surfaces();
+	return {device_types::device_ptr(std::get<0>(surfaces)),
+			device_types::device_ptr(std::get<1>(surfaces))};
 }
 
 } // namespace raw::texture_generation::cuda

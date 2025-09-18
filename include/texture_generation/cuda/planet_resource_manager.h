@@ -1,10 +1,9 @@
 //
 // Created by progamers on 9/12/25.
 //
-#pragma once
-#include <unordered_map>
 
-#include "texture_generation/cuda/fwd.h"
+#pragma once
+#include "texture_generation/cuda/planet_source.h"
 #include "texture_generation/i_planet_resource_manager.h"
 #include "texture_generation/lru_cache.h"
 
@@ -14,8 +13,12 @@ static std::array<lru_cache<planet_id, planet_source>, NUM_LOD_LEVELS> create_lo
 	const std::array<size_t, NUM_LOD_LEVELS>& pool_sizes, planet_resource_manager* manager);
 static std::array<texture_pool, NUM_LOD_LEVELS> create_lod_pools(
 	const std::array<size_t, NUM_LOD_LEVELS>& pool_sizes);
-void setup_textures(uint32_t* texture, const glm::uvec2& texture_size, uint32_t quality,
-					float max_anisotropy_level);
+void		setup_textures(uint32_t* texture, const glm::uvec2& texture_size, uint32_t quality,
+						   float max_anisotropy_level);
+static void init_cuda_caches(
+	std::array<lru_cache<planet_id, planet_source>, NUM_LOD_LEVELS>& lod_caches,
+	std::array<texture_pool, NUM_LOD_LEVELS>&						 lod_pools,
+	std::shared_ptr<device_types::cuda::cuda_stream>				 stream);
 } // namespace detail
 class planet_resource_manager : public i_planet_resource_manager {
 private:
@@ -61,13 +64,10 @@ private:
 	// This is allocated at the creation of this class and lasts until class is deleted
 	std::array<texture_pool, NUM_LOD_LEVELS> lod_pools;
 
-protected:
-	void prepare(planet_id id, LOD_LEVEL lod_level) override;
-	void cleanup() override;
-
 public:
 	std::array<texture_pool, NUM_LOD_LEVELS>& get_pools();
-	planet_resource_manager(std::array<size_t, NUM_LOD_LEVELS> pool_size);
+	planet_resource_manager(std::array<size_t, NUM_LOD_LEVELS>				 pool_size,
+							std::shared_ptr<device_types::cuda::cuda_stream> stream);
 	texture_generation_data	   get_data(planet_id planet_id, LOD_LEVEL lod_level) override;
 	texture_generation_context create_context(planet_id id, LOD_LEVEL lod_level) override;
 };

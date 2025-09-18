@@ -16,7 +16,7 @@ void image::set_data(uint32_t texture_id) {
 	CUDA_SAFE_CALL(cudaGraphicsSubResourceGetMappedArray(&array, *get_resource(), 0, 0));
 }
 
-cudaArray_t image::get() {
+cudaArray_t& image::get() {
 	map();
 	return array;
 }

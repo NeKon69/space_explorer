@@ -17,9 +17,6 @@ namespace raw::texture_generation {
 class i_planet_resource_manager {
 protected:
 	friend texture_generation_context;
-	virtual void prepare(planet_id id, LOD_LEVEL lod_level) = 0;
-	virtual void cleanup()									= 0;
-
 public:
 	virtual texture_generation_data	   get_data(planet_id id, LOD_LEVEL lod_level) = 0;
 	virtual texture_generation_context create_context(planet_id id, LOD_LEVEL lod_level);

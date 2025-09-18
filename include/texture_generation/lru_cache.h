@@ -17,9 +17,9 @@ template<typename K, typename V>
 class lru_cache {
 private:
 	// Maximum amount of items that can be stored
-	size_t capacity;
+	size_t capacity = 0;
 
-	std::list<std::pair<K, V> >								 list;
+	std::list<std::pair<K, std::shared_ptr<V>>>				 list;
 	std::unordered_map<K, typename decltype(list)::iterator> map;
 	std::function<void(const K &, const V &)>				 eviction_callback;
 
@@ -38,14 +38,14 @@ public:
 
 		// Put the found element into the hot (first) cache (means it was just requested)
 		list.splice(list.begin(), list, it->second);
-		return std::make_shared<V>(it->second->second);
+		return it->second->second;
 	}
 
-	void put(const K &key, V value) {
+	void put(const K &key, V&& value) {
 		auto it = map.find(key);
 		if (it != map.end()) {
 			// Update the value and put it to the hottest cache
-			it->second->second = std::move(value);
+			*(it->second->second) = std::forward<V>(value);
 			list.splice(list.begin(), list, it->second);
 			return;
 		}
@@ -54,15 +54,17 @@ public:
 			// Reached the cache capacity, delete last used element
 			auto &last_node = list.back();
 			if (eviction_callback) {
-				eviction_callback(last_node.first, last_node.second);
+				eviction_callback(last_node.first, *last_node.second);
 			}
 			map.erase(last_node.first);
 			list.pop_back();
 		}
 		// Put new element
-		list.emplace_front(key, value);
+		list.emplace_front(key, std::make_shared<V>(std::forward<V>(value)));
 		map[key] = list.begin();
 	}
+
+	size_t get_capacity() const { return capacity; }
 	lru_cache(const lru_cache &)			= delete;
 	lru_cache &operator=(const lru_cache &) = delete;
 	lru_cache(lru_cache &&)					= default;
