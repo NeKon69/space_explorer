@@ -72,7 +72,7 @@ void detail::init_cuda_caches(
 	std::shared_ptr<device_types::cuda::cuda_stream>				 stream) {
 	for (size_t i = 0; i < NUM_LOD_LEVELS; ++i) {
 		auto& lod_cache = lod_caches[i];
-		for (size_t j =0; j < lod_cache.get_capacity(); ++j) {
+		for (size_t j = 0; j < lod_cache.get_capacity(); ++j) {
 		}
 	}
 }

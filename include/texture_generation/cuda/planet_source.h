@@ -41,7 +41,7 @@ public:
 	void   set_pool_index(size_t index);
 	size_t get_pool_index() const;
 
-	std::tuple<cudaSurfaceObject_t, cudaSurfaceObject_t> get_surfaces() ;
+	std::tuple<cudaSurfaceObject_t, cudaSurfaceObject_t> get_surfaces();
 };
 } // namespace raw::texture_generation::cuda
 #endif // SPACE_EXPLORER_PLANET_SOURCE_H

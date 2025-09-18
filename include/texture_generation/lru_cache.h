@@ -41,7 +41,7 @@ public:
 		return it->second->second;
 	}
 
-	void put(const K &key, V&& value) {
+	void put(const K &key, V &&value) {
 		auto it = map.find(key);
 		if (it != map.end()) {
 			// Update the value and put it to the hottest cache
@@ -64,7 +64,9 @@ public:
 		map[key] = list.begin();
 	}
 
-	size_t get_capacity() const { return capacity; }
+	size_t get_capacity() const {
+		return capacity;
+	}
 	lru_cache(const lru_cache &)			= delete;
 	lru_cache &operator=(const lru_cache &) = delete;
 	lru_cache(lru_cache &&)					= default;
