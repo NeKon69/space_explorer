@@ -26,9 +26,8 @@ static constexpr uint32_t MAXIMUM_AMOUNT_OF_TRIANGLES =
 
 class i_sphere_resource_manager;
 struct edge_base {
-	uint32_t v0;
-	uint32_t v1;
+	uint32_t v0 = 0;
+	uint32_t v1 = 0;
 };
 using generation_context = common::scoped_resource_handle<i_sphere_resource_manager>;
 } // namespace raw::sphere_generation
-

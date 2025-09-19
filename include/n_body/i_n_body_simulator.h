@@ -16,12 +16,12 @@
 namespace raw::n_body {
 template<typename T>
 struct task {
-	double										  delta_time;
+	double										  delta_time {};
 	std::shared_ptr<device_types::i_queue>		  queue;
 	std::shared_ptr<i_n_body_resource_manager<T>> manager;
-	double										  g;
-	double										  epsilon;
-	graphics::graphics_data*					  graphics_data;
+	double										  g {};
+	double										  epsilon {};
+	graphics::graphics_data*					  graphics_data {};
 };
 template<typename T>
 class i_n_body_simulator {
@@ -34,7 +34,7 @@ protected:
 	size_t					tasks_in_queue = 0;
 
 public:
-	virtual void step(core::time delta_time, std::shared_ptr<device_types::i_queue> queue,
+	virtual void step(core::time delta_time, std::shared_ptr<i_queue> queue,
 					  std::shared_ptr<i_n_body_resource_manager<T>> source, double g,
 					  double epsilon, graphics::graphics_data& graphics_data) = 0;
 	void		 sync() {

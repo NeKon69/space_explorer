@@ -19,22 +19,5 @@ static constexpr auto PLANET_MASS		 = 1.0;
 static constexpr auto RADIUS			 = 1.0;
 } // namespace predef
 template<typename T>
-struct space_object_data {
-	glm::vec<3, T> position;
-	glm::vec<3, T> velocity;
-	T			   mass;
-	T			   radius;
-	uint32_t	   id = 0;
-
-	__host__ __device__ constexpr space_object_data()
-		: position(0.0),
-		  velocity(predef::BASIC_VELOCITY),
-		  mass(predef::PLANET_MASS),
-		  radius(predef::RADIUS) {}
-
-	__host__ __device__ constexpr explicit space_object_data(
-		glm::dvec3 _position, glm::dvec3 _velocity = predef::BASIC_VELOCITY,
-		double _mass = predef::PLANET_MASS, double _radius = predef::RADIUS)
-		: position(_position), velocity(_velocity), mass(_mass), radius(_radius) {}
-};
+struct physics_component;
 } // namespace raw::n_body

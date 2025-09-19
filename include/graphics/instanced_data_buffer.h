@@ -23,7 +23,6 @@ public:
 		glGenBuffers(1, vbo.get());
 		glBindBuffer(GL_ARRAY_BUFFER, *vbo);
 		std::vector<graphics::instanced_data> vec(max_objects, {1.0f});
-		;
 		stride						= sizeof(instanced_data);
 		constexpr int single_stride = sizeof(glm::vec4);
 		glBufferData(GL_ARRAY_BUFFER, stride * max_objects, vec.data(), GL_DYNAMIC_DRAW);

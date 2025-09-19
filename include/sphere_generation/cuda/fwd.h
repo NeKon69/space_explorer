@@ -8,11 +8,6 @@
 #include "common/fwd.h"
 #include "sphere_generation/fwd.h"
 
-#ifdef __CUDACC__
-#define HOST_DEVICE __host__ __device__
-#else
-#define HOST_DEVICE
-#endif
 
 namespace raw::sphere_generation::cuda {
 

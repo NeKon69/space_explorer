@@ -25,8 +25,8 @@ struct texture_data {
 	cudaSurfaceObject_t normal_roughness_ao;
 };
 
-using texture_generation_data	 = std::tuple<device_types::device_ptr<cudaSurfaceObject_t>,
-											  device_types::device_ptr<cudaSurfaceObject_t>>;
+using texture_generation_data = std::tuple<device_types::device_ptr<cudaSurfaceObject_t>,
+										   device_types::device_ptr<cudaSurfaceObject_t>>;
 
 struct gl_textures {
 	unique_ptr<uint32_t, deleters::gl_texture> albedo_metallic =
@@ -77,5 +77,6 @@ inline glm::uvec2 get_lod_size(const LOD_LEVEL level) {
 		throw std::invalid_argument("Invalid LOD_LEVEL");
 	}
 }
+struct generation_recipe_component;
 using texture_generation_context = common::scoped_resource_handle<i_planet_source>;
 } // namespace raw::texture_generation

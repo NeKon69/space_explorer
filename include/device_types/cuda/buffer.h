@@ -137,7 +137,7 @@ public:
 		}
 	}
 
-	void memset(void *_ptr, size_t size, cudaMemcpyKind kind) {
+	void memset(const void *_ptr, size_t size, cudaMemcpyKind kind) {
 		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr, _ptr, size, kind, data_stream->stream()));
 	}
 

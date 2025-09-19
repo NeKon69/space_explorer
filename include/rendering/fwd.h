@@ -8,6 +8,7 @@
 namespace raw::rendering {
 struct instance_data;
 struct command;
-using queue = std::vector<raw::rendering::command>;
 class renderer;
+struct visual_component;
+using queue = std::vector<raw::rendering::command>;
 } // namespace raw::rendering

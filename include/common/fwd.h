@@ -14,5 +14,10 @@ using UI		= unsigned int;
 namespace common {
 template<typename TResourceManager>
 class scoped_resource_handle;
-}
+#ifdef __CUDACC__
+#define HOST_DEVICE __host__ __device__
+#else
+#define HOST_DEVICE
+#endif
+} // namespace common
 } // namespace raw

@@ -8,14 +8,14 @@
 
 namespace raw::n_body::cuda::physics {
 template void launch_leapfrog<double>(graphics::instanced_data*	 data,
-									  space_object_data<double>* objects, uint16_t count,
+									  physics_component<double>* objects, uint16_t count,
 									  double time, double g, double epsilon, cudaStream_t stream);
 
 template void launch_leapfrog<float>(graphics::instanced_data* data,
-									 space_object_data<float>* objects, uint16_t count, double time,
+									 physics_component<float>* objects, uint16_t count, double time,
 									 double g, double epsilon, cudaStream_t stream);
 template<typename T>
-void launch_leapfrog(graphics::instanced_data* data, space_object_data<T>* objects, uint16_t count,
+void launch_leapfrog(graphics::instanced_data* data, physics_component<T>* objects, uint16_t count,
 					 double time, double g, double epsilon, cudaStream_t stream) {
 	auto threads_per_block = 1024;
 	auto blocks			   = (count + threads_per_block - 1) / 256;

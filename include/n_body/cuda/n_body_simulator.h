@@ -4,6 +4,7 @@
 
 #pragma once
 #include "common/to_raw_data.h"
+#include "device_types/cuda/stream.h"
 #include "device_types/device_ptr.h"
 #include "n_body/i_n_body_resource_manager.h"
 #include "n_body/i_n_body_simulator.h"

@@ -9,18 +9,4 @@ class n_body_simulator;
 enum class pending_action_type { ADD, REMOVE };
 template<typename T>
 struct pending_action;
-
-template<typename T>
-struct is_in_set {
-	uint32_t*		ids_begin;
-	uint32_t*		ids_end;
-	__device__ bool operator()(const space_object_data<T>& object) const {
-		for (uint32_t* it = ids_begin; it != ids_end; ++it) {
-			if (*it == object.id) {
-				return true;
-			}
-		}
-		return false;
-	}
-};
 } // namespace raw::n_body::cuda

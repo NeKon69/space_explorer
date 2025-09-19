@@ -17,7 +17,7 @@ struct n_body_factory {
 	static std::unique_ptr<interaction_system<T>> create(
 		const graphics::instanced_data_buffer& render_buffer,
 		std::shared_ptr<device_types::i_queue> gpu_queue, uint32_t max_objects,
-		std::vector<space_object_data<T>> objects, graphics::graphics_data& graphics)
+		std::vector<physics_component<T>> objects, graphics::graphics_data& graphics)
 		requires(Backend == backend::CUDA)
 	{
 		std::shared_ptr<i_n_body_resource_manager<T>> resource_manager =

@@ -7,7 +7,8 @@
 
 #include "entity_management/entity_id.h"
 namespace raw::entity_management {
-entity_id entity_manager::create_entity() {
+template<typename T>
+entity_id entity_manager<T>::create_entity() {
 	uint64_t new_index = 0;
 	if (free_indices.empty()) {
 		new_index = generations.size();
@@ -19,7 +20,9 @@ entity_id entity_manager::create_entity() {
 
 	return entity_id {new_index, generations[new_index]};
 }
-void entity_manager::destroy_entity(entity_id entity) {
+
+template<typename T>
+void entity_manager<T>::destroy_entity(entity_id entity) {
 	if (!is_valid(entity)) {
 		return;
 	}
@@ -29,7 +32,8 @@ void entity_manager::destroy_entity(entity_id entity) {
 	free_indices.push(entity.id);
 }
 
-bool entity_manager::is_valid(entity_id entity) const {
+template<typename T>
+bool entity_manager<T>::is_valid(entity_id entity) const {
 	if (entity.id < generations.size()) {
 		return entity.generation == generations[entity.id];
 	}
