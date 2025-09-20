@@ -11,6 +11,7 @@
 // clang-format on
 
 namespace raw::texture_generation::cuda {
+
 std::array<texture_pool, NUM_LOD_LEVELS>& planet_resource_manager::get_pools() {
 	return lod_pools;
 }

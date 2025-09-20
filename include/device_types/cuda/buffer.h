@@ -152,10 +152,10 @@ public:
 		data_stream = std::move(stream);
 	}
 
-	void memcpy(void* _ptr, size_t size, size_t offset, cudaMemcpyKind kind) {
+	void memcpy(const void *_ptr, size_t size, size_t offset, cudaMemcpyKind kind) {
 		CUDA_SAFE_CALL(cudaMemcpyAsync(ptr + offset, _ptr, size, kind, data_stream->stream()));
 	}
-	size_t get_size() const {
+	[[nodiscard]] size_t get_size() const {
 		return _size;
 	}
 };

@@ -26,9 +26,40 @@ private:
 		generation_recipe_components;
 
 public:
-	entity_id create_entity();
-	void	  destroy_entity(entity_id id);
-	bool	  is_valid(entity_id id) const;
+	template<typename ComponentType>
+	explicit entity_manager(std::vector<ComponentType> starting_components) {
+		for (const auto& component : starting_components) {
+			entity_id new_entity = create_entity();
+			add_component(new_entity, component);
+		}
+	}
+	entity_id create_entity() {
+		uint64_t new_index = 0;
+		if (free_indices.empty()) {
+			new_index = generations.size();
+			generations.push_back(0);
+		} else {
+			new_index = free_indices.front();
+			free_indices.pop();
+		}
+
+		return entity_id {new_index, generations[new_index]};
+	}
+	void destroy_entity(entity_id entity) {
+		if (!is_valid(entity)) {
+			return;
+		}
+
+		// means it's new generation
+		generations[entity.generation]++;
+		free_indices.push(entity.id);
+	}
+	bool is_valid(entity_id entity) const {
+		if (entity.id < generations.size()) {
+			return entity.generation == generations[entity.id];
+		}
+		return false;
+	}
 
 	template<typename ComponentType>
 	void add_component(entity_id id, ComponentType component) noexcept
@@ -59,7 +90,7 @@ public:
 	}
 
 	template<typename ComponentType>
-	ComponentType get_component(entity_id id) noexcept
+	ComponentType& get_component(entity_id id) noexcept
 		requires(components::IsComponent<ComponentType>)
 	{
 		if (!is_valid(id)) {

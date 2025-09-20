@@ -31,10 +31,13 @@ private:
 public:
 	interaction_system(std::shared_ptr<i_n_body_resource_manager<T>> resource_manager,
 					   std::shared_ptr<i_n_body_simulator<T>>		 simulator,
-					   const std::shared_ptr<i_queue> queue, graphics::graphics_data& graphics_data)
+					   const std::shared_ptr<i_queue>				 queue,
+					   std::vector<physics_component<T>>			 starting_data,
+					   graphics::graphics_data&						 graphics_data)
 		: resource_manager(resource_manager),
 		  simulator(simulator),
 		  queue(queue),
+		  entity_manager(std::make_shared<entity_management::entity_manager<T>>(starting_data)),
 		  graphics_data(graphics_data) {}
 	void update_simulation() {
 		if (!paused) {

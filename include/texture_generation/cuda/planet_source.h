@@ -44,4 +44,3 @@ public:
 	std::tuple<cudaSurfaceObject_t, cudaSurfaceObject_t> get_surfaces();
 };
 } // namespace raw::texture_generation::cuda
-#endif // SPACE_EXPLORER_PLANET_SOURCE_H

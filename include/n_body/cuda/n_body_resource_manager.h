@@ -35,8 +35,8 @@ private:
 private:
 	template<typename Cont1, typename Cont2>
 	bool validate_bounds(const Cont1& cont1, const Cont2& cont2) {
-		if (!(cont1.size() > physics_data_gpu.get_size() / sizeof(physics_component<T>) ||
-			  cont2.size() > entity_ids_gpu.get_size() / sizeof(entity_management::entity_id))) {
+		if ((cont1.size() > physics_data_gpu.get_size() / sizeof(physics_component<T>) ||
+			 cont2.size() > entity_ids_gpu.get_size() / sizeof(entity_management::entity_id))) {
 			return false;
 		}
 		return true;
@@ -63,8 +63,11 @@ public:
 			throw std::invalid_argument(
 				"Stream passed was not created or created for another backend!");
 		}
+
 		instance_data = device_types::cuda::from_gl::buffer<graphics::instanced_data>(
 			&this->bytes, this->vbo, this->local_stream);
+		physics_data_gpu.allocate(maximum_objects * sizeof(physics_component<T>));
+		entity_ids_gpu.allocate(maximum_objects * sizeof(entity_management::entity_id));
 	}
 
 	n_body_context<T> create_context() override {
@@ -82,30 +85,35 @@ public:
 	void sync_data(const std::vector<physics_component<T>>&			cpu_physics_data,
 				   const std::vector<entity_management::entity_id>& cpu_entity_ids) override {
 		if (validate_bounds(cpu_physics_data, cpu_entity_ids)) {
-			physics_data_gpu.memset(cpu_physics_data.data(),
-									cpu_physics_data.size() * sizeof(physics_component<T>),
+			physics_data_gpu.memcpy(cpu_physics_data.data(),
+									cpu_physics_data.size() * sizeof(physics_component<T>), 0,
 									cudaMemcpyHostToDevice);
-			entity_ids_gpu.memset(cpu_entity_ids.data(),
-								  cpu_entity_ids.size() * sizeof(entity_management::entity_id),
+
+			entity_ids_gpu.memcpy(cpu_entity_ids.data(),
+								  cpu_entity_ids.size() * sizeof(entity_management::entity_id), 0,
 								  cudaMemcpyHostToDevice);
 		} else {
 			std::cerr
 				<< "[ERROR] Failed to synchronize properly, falling back to copying maximum available size\n";
-			physics_data_gpu.memset(cpu_physics_data.data(), physics_data_gpu.get_size(),
+			physics_data_gpu.memcpy(cpu_physics_data.data(),
+									cpu_physics_data.size() * sizeof(physics_component<T>), 0,
 									cudaMemcpyHostToDevice);
-			entity_ids_gpu.memset(cpu_entity_ids.data(), entity_ids_gpu.get_size(),
+
+			entity_ids_gpu.memcpy(cpu_entity_ids.data(),
+								  cpu_entity_ids.size() * sizeof(entity_management::entity_id), 0,
 								  cudaMemcpyHostToDevice);
 		}
-		current_object_amount = cpu_physics_data.get_size();
+		current_object_amount = cpu_physics_data.size();
 	}
 
 	std::unordered_map<entity_management::entity_id, uint32_t> build_id_to_index_map() {
 		std::vector<entity_management::entity_id>				   host_ids(current_object_amount);
 		std::unordered_map<entity_management::entity_id, uint32_t> host_map(current_object_amount);
 
-		CUDA_SAFE_CALL(cudaMemcpyAsync(host_ids.data(), physics_data_gpu.get(),
-									   current_object_amount * sizeof(physics_component<T>),
-									   cudaMemcpyDeviceToHost));
+		entity_ids_gpu.memcpy(host_ids.data(),
+							  current_object_amount * sizeof(entity_management::entity_id), 0,
+							  cudaMemcpyDeviceToHost);
+		local_stream->sync();
 		for (uint32_t i = 0; i < current_object_amount; i++) {
 			host_map[host_ids[i]] = i;
 		}

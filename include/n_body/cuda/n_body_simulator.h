@@ -37,8 +37,8 @@ public:
 							*curr_task.graphics_data);
 				}
 				auto& cuda_q = dynamic_cast<device_types::cuda::cuda_stream&>(*curr_task.queue);
-				auto  local_stream = cuda_q.stream();
 				{
+					auto local_stream = cuda_q.stream();
 					auto context	 = curr_task.manager->create_context();
 					auto native_data = common::retrieve_data<device_types::backend::CUDA>(
 						curr_task.manager->get_data());
@@ -49,7 +49,7 @@ public:
 				}
 				cuda_q.sync();
 				{
-					std::lock_guard lock(this->mutex);
+					std::lock_guard locker(this->mutex);
 					--this->tasks_in_queue;
 					if (this->tasks_in_queue == 0) {
 						this->sync_condition.notify_one();

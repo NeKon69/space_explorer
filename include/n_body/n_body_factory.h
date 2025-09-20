@@ -22,12 +22,11 @@ struct n_body_factory {
 	{
 		std::shared_ptr<i_n_body_resource_manager<T>> resource_manager =
 			std::make_shared<cuda::n_body_resource_manager<T>>(
-				render_buffer.get_vbo(), render_buffer.get_size(), max_objects, gpu_queue,
-				std::move(objects));
+				render_buffer.get_vbo(), render_buffer.get_size(), max_objects, gpu_queue);
 		std::shared_ptr<i_n_body_simulator<T>> n_body_simulator =
 			std::make_shared<cuda::n_body_simulator<T>>();
 		return std::make_unique<interaction_system<T>>(resource_manager, n_body_simulator,
-													   gpu_queue, graphics);
+													   gpu_queue, objects, graphics);
 	}
 };
 } // namespace raw::n_body
