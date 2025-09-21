@@ -48,7 +48,8 @@ public:
 		  entity_ids_gpu(maximum_objects * sizeof(entity_management::entity_id), local_stream),
 		  bytes(bytes),
 		  capacity(maximum_objects),
-		  vbo(vbo) {
+		  vbo(vbo),
+		  current_object_amount(starting_objects.size()) {
 		if (!local_stream) {
 			throw std::invalid_argument(
 				"Stream passed was not created or created for another backend!");

@@ -14,10 +14,22 @@
 		if (error != cudaSuccess) {                                                                     \
 			const char* msg		 = cudaGetErrorName(error);                                             \
 			const char* msg_name = cudaGetErrorString(error);                                           \
-			throw raw::device_types::cuda::cuda_exception(std::format(                                                     \
+			throw raw::device_types::cuda::cuda_exception(std::format(                                  \
 				"[Error] Function {} failed with error: {} and description: {} in file: {} on line {}", \
 				#call, msg, msg_name, std::source_location::current().file_name(),                      \
 				std::source_location::current().line()));                                               \
 		}                                                                                               \
 	} while (0)
 
+#define CHECK_CUDA_ERROR()                                                                                         \
+	do {                                                                                                           \
+		cudaError_t error = cudaGetLastError();                                                                    \
+		if (error != cudaSuccess) {                                                                                \
+			const char* msg		 = cudaGetErrorName(error);                                                        \
+			const char* msg_name = cudaGetErrorString(error);                                                      \
+			throw raw::device_types::cuda::cuda_exception(std::format(                                             \
+				"[Error] Previous function call failed with error: {} and description: {} in file: {} on line {}", \
+				msg, msg_name, std::source_location::current().file_name(),                                        \
+				std::source_location::current().line() - 1));                                                      \
+		}                                                                                                          \
+	} while (0)

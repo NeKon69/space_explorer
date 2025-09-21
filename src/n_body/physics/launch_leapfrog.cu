@@ -1,6 +1,9 @@
 //
 // Created by progamers on 7/21/25.
 //
+#include <iostream>
+#include <ostream>
+
 #include "device_types/cuda/error.h"
 #include "n_body/cuda/physics/launch_leapfrog.h"
 #include "n_body/cuda/physics/leapfrog_kernels.h"

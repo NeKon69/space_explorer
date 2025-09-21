@@ -72,9 +72,9 @@ __global__ void compute_k_final(graphics::instanced_data *data, space_object_dat
 
 	data[x].model = glm::mat4(1.0f);
 
-	// data[x].model =
-	// glm::scale(glm::translate(glm::mat4(1.0f), static_cast<glm::vec3>(objects[x].position)),
-	// glm::vec3(objects[x].radius));
+	data[x].model =
+	glm::scale(glm::translate(glm::mat4(1.0f), static_cast<glm::vec3>(objects[x].position)),
+	glm::vec3(objects[x].radius));
 }
 
 template __global__ void compute_k<float>(graphics::instanced_data *data,
