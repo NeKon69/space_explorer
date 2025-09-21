@@ -63,7 +63,7 @@ resource::resource(resource&& rhs) noexcept
 	rhs.mapped	   = false;
 }
 
-resource::mapped_resource resource::get_resource() {
+resource::mapped_resource resource::get_resource() const {
 	return mapped_resource {stream, m_resource};
 }
 

@@ -54,7 +54,7 @@ public:
 		CUDA_SAFE_CALL(func(&m_resource, std::forward<Args &&>(args)...));
 	}
 
-	mapped_resource get_resource();
+	mapped_resource get_resource() const;
 
 	void			unmap();
 
