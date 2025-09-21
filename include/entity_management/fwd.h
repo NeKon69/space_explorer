@@ -6,6 +6,5 @@
 
 namespace raw::entity_management {
 struct entity_id;
-template<typename T>
 class entity_manager;
 } // namespace raw::entity_management

@@ -18,6 +18,7 @@ static constexpr auto BASIC_ACCELERATION = glm::vec3(0.0f);
 static constexpr auto PLANET_MASS		 = 1.0;
 static constexpr auto RADIUS			 = 1.0;
 } // namespace predef
-template<typename T>
 struct physics_component;
+template<typename T>
+struct space_object_data;
 } // namespace raw::n_body

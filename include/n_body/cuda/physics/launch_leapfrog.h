@@ -10,9 +10,8 @@
 
 namespace raw::n_body::cuda::physics {
 template<typename T>
-extern void launch_leapfrog(graphics::instanced_data* data, physics_component<T>* objects,
+extern void launch_leapfrog(graphics::instanced_data* data, space_object_data<T>* objects,
 							uint16_t count, double time, double g, double epsilon,
 							cudaStream_t stream);
 
 } // namespace raw::n_body::cuda::physics
-

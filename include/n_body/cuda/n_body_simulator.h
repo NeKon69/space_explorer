@@ -39,9 +39,9 @@ public:
 				auto& cuda_q = dynamic_cast<device_types::cuda::cuda_stream&>(*curr_task.queue);
 				{
 					auto local_stream = cuda_q.stream();
-					auto context	 = curr_task.manager->create_context();
-					auto native_data = common::retrieve_data<device_types::backend::CUDA>(
-						curr_task.manager->get_data());
+					auto context	  = curr_task.manager->create_context();
+					auto native_data =
+						common::retrieve_data<backend::CUDA>(curr_task.manager->get_data());
 					std::apply(n_body::cuda::physics::launch_leapfrog<T>,
 							   std::tuple_cat(native_data,
 											  std::make_tuple(curr_task.delta_time, curr_task.g,

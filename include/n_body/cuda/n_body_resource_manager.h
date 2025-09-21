@@ -5,7 +5,7 @@
 #pragma once
 #include <raw_memory.h>
 // clang-format off
-#include <c++/15.2.1/unordered_map>
+#include <unordered_map>
 
 
 #include "n_body/i_n_body_resource_manager.h"
@@ -13,7 +13,6 @@
 #include "device_types/cuda/from_gl/buffer.h"
 #include "entity_management/entity_id.h"
 #include "graphics/instanced_data.h"
-#include "n_body/cuda/pending_action.h"
 // clang-format on
 namespace raw::n_body::cuda {
 using namespace raw::device_types;
@@ -22,7 +21,7 @@ class n_body_resource_manager : public i_n_body_resource_manager<T> {
 private:
 	std::shared_ptr<device_types::cuda::cuda_stream>			  local_stream;
 	device_types::cuda::from_gl::buffer<graphics::instanced_data> instance_data;
-	device_types::cuda::buffer<physics_component<T>>			  physics_data_gpu;
+	device_types::cuda::buffer<space_object_data<T>>			  physics_data_gpu;
 	device_types::cuda::buffer<entity_management::entity_id>	  entity_ids_gpu;
 
 	uint32_t n_body_id = 0;
@@ -31,16 +30,6 @@ private:
 	uint32_t vbo	   = 0;
 
 	size_t current_object_amount = 0;
-
-private:
-	template<typename Cont1, typename Cont2>
-	bool validate_bounds(const Cont1& cont1, const Cont2& cont2) {
-		if ((cont1.size() > physics_data_gpu.get_size() / sizeof(physics_component<T>) ||
-			 cont2.size() > entity_ids_gpu.get_size() / sizeof(entity_management::entity_id))) {
-			return false;
-		}
-		return true;
-	}
 
 protected:
 	void prepare(uint32_t vbo_) override {
@@ -52,10 +41,11 @@ protected:
 
 public:
 	n_body_resource_manager(uint32_t vbo, size_t bytes, uint32_t maximum_objects,
-							std::shared_ptr<i_queue> stream)
+							std::vector<space_object_data<T>> starting_objects,
+							std::shared_ptr<i_queue>		  stream)
 		: local_stream(std::dynamic_pointer_cast<device_types::cuda::cuda_stream>(stream)),
-		  physics_data_gpu(local_stream),
-		  entity_ids_gpu(local_stream),
+		  physics_data_gpu(maximum_objects * sizeof(space_object_data<T>), local_stream),
+		  entity_ids_gpu(maximum_objects * sizeof(entity_management::entity_id), local_stream),
 		  bytes(bytes),
 		  capacity(maximum_objects),
 		  vbo(vbo) {
@@ -66,8 +56,9 @@ public:
 
 		instance_data = device_types::cuda::from_gl::buffer<graphics::instanced_data>(
 			&this->bytes, this->vbo, this->local_stream);
-		physics_data_gpu.allocate(maximum_objects * sizeof(physics_component<T>));
-		entity_ids_gpu.allocate(maximum_objects * sizeof(entity_management::entity_id));
+		physics_data_gpu.memcpy(starting_objects.data(),
+								starting_objects.size() * sizeof(space_object_data<T>), 0,
+								cudaMemcpyHostToDevice);
 	}
 
 	n_body_context<T> create_context() override {
@@ -80,30 +71,6 @@ public:
 	}
 	[[nodiscard]] uint32_t get_amount() const override {
 		return current_object_amount;
-	}
-
-	void sync_data(const std::vector<physics_component<T>>&			cpu_physics_data,
-				   const std::vector<entity_management::entity_id>& cpu_entity_ids) override {
-		if (validate_bounds(cpu_physics_data, cpu_entity_ids)) {
-			physics_data_gpu.memcpy(cpu_physics_data.data(),
-									cpu_physics_data.size() * sizeof(physics_component<T>), 0,
-									cudaMemcpyHostToDevice);
-
-			entity_ids_gpu.memcpy(cpu_entity_ids.data(),
-								  cpu_entity_ids.size() * sizeof(entity_management::entity_id), 0,
-								  cudaMemcpyHostToDevice);
-		} else {
-			std::cerr
-				<< "[ERROR] Failed to synchronize properly, falling back to copying maximum available size\n";
-			physics_data_gpu.memcpy(cpu_physics_data.data(),
-									cpu_physics_data.size() * sizeof(physics_component<T>), 0,
-									cudaMemcpyHostToDevice);
-
-			entity_ids_gpu.memcpy(cpu_entity_ids.data(),
-								  cpu_entity_ids.size() * sizeof(entity_management::entity_id), 0,
-								  cudaMemcpyHostToDevice);
-		}
-		current_object_amount = cpu_physics_data.size();
 	}
 
 	std::unordered_map<entity_management::entity_id, uint32_t> build_id_to_index_map() {

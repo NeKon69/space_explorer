@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#include <thrust/detail/internal_functional.h>
 
 #include <memory>
 
@@ -18,43 +17,29 @@ namespace raw::n_body {
 template<typename T>
 class interaction_system {
 private:
-	std::shared_ptr<i_n_body_resource_manager<T>>		  resource_manager;
-	std::shared_ptr<i_n_body_simulator<T>>				  simulator;
-	std::shared_ptr<i_queue>							  queue;
-	std::shared_ptr<entity_management::entity_manager<T>> entity_manager;
-	core::clock											  clock;
-	graphics::graphics_data&							  graphics_data;
-	double												  g		  = predef::G;
-	double												  epsilon = 1;
-	bool												  paused  = false;
+	std::shared_ptr<i_n_body_resource_manager<T>>	   resource_manager;
+	std::shared_ptr<i_n_body_simulator<T>>			   simulator;
+	std::shared_ptr<i_queue>						   queue;
+	std::shared_ptr<entity_management::entity_manager> entity_manager;
+	core::clock										   clock;
+	graphics::graphics_data&						   graphics_data;
+	double											   g	   = predef::G;
+	double											   epsilon = 1;
+	bool											   paused  = false;
 
 public:
-	interaction_system(std::shared_ptr<i_n_body_resource_manager<T>> resource_manager,
-					   std::shared_ptr<i_n_body_simulator<T>>		 simulator,
-					   const std::shared_ptr<i_queue>				 queue,
-					   std::vector<physics_component<T>>			 starting_data,
-					   graphics::graphics_data&						 graphics_data)
+	interaction_system(std::shared_ptr<i_n_body_resource_manager<T>>	  resource_manager,
+					   std::shared_ptr<i_n_body_simulator<T>>			  simulator,
+					   const std::shared_ptr<i_queue>					  queue,
+					   std::shared_ptr<entity_management::entity_manager> manager,
+					   graphics::graphics_data&							  graphics_data)
 		: resource_manager(resource_manager),
 		  simulator(simulator),
 		  queue(queue),
-		  entity_manager(std::make_shared<entity_management::entity_manager<T>>(starting_data)),
+		  entity_manager(manager),
 		  graphics_data(graphics_data) {}
 	void update_simulation() {
 		if (!paused) {
-			std::vector<physics_component<T>>		  cpu_physics_data;
-			std::vector<entity_management::entity_id> cpu_entity_ids;
-			const size_t							  num_objects =
-				entity_manager->template get_component_count<physics_component<T>>();
-			cpu_physics_data.reserve(num_objects);
-			cpu_entity_ids.reserve(num_objects);
-
-			const auto& components =
-				entity_manager->template get_components<physics_component<T>>();
-			for (const auto& [entity, component] : components) {
-				cpu_physics_data.push_back(component);
-				cpu_entity_ids.push_back(entity);
-			}
-			resource_manager->sync_data(cpu_physics_data, cpu_entity_ids);
 			simulator->step(clock.restart(), queue, resource_manager, g, epsilon, graphics_data);
 		}
 	}

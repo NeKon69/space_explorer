@@ -10,8 +10,9 @@
 namespace raw::n_body::predef {
 static constexpr auto G = 100;
 
-inline constexpr std::vector<physics_component<float>> generate_data_for_sim() {
-	std::vector<physics_component<float>> data;
+inline constexpr decltype(auto) generate_data_for_sim() {
+	std::vector<space_object_data<float>> data;
+	std::vector<physics_component>		  components;
 	data.reserve(3);
 
 	data.emplace_back(glm::vec3(5.0));
@@ -20,6 +21,6 @@ inline constexpr std::vector<physics_component<float>> generate_data_for_sim() {
 
 	data.emplace_back(glm::vec3(7.5, 0.0f, 0.0f));
 
-	return data;
+	return std::tuple {data, components};
 }
 } // namespace raw::n_body::predef

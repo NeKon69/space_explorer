@@ -15,17 +15,26 @@
 #include "rendering/visual_component.h"
 #include "texture_generation/generation_recipe_component.h"
 namespace raw::entity_management {
-template<typename T>
 class entity_manager {
 private:
-	std::vector<uint64_t>										generations;
-	std::queue<uint64_t>										free_indices;
-	std::unordered_map<entity_id, n_body::physics_component<T>> physics_components;
-	std::unordered_map<entity_id, rendering::visual_component>	visual_components;
+	std::vector<uint64_t>									   generations;
+	std::queue<uint64_t>									   free_indices;
+	std::unordered_map<entity_id, n_body::physics_component>   physics_components;
+	std::unordered_map<entity_id, rendering::visual_component> visual_components;
 	std::unordered_map<entity_id, texture_generation::generation_recipe_component>
 		generation_recipe_components;
 
 public:
+	entity_manager() = default;
+	template<typename ComponentType>
+	static entity_manager create(const size_t size) {
+		entity_manager man;
+		for (size_t i = 0; i < size; i++) {
+			entity_id new_entity = man.create_entity();
+			man.add_component(new_entity, ComponentType {});
+		}
+		return man;
+	}
 	template<typename ComponentType>
 	explicit entity_manager(std::vector<ComponentType> starting_components) {
 		for (const auto& component : starting_components) {
@@ -65,7 +74,7 @@ public:
 	void add_component(entity_id id, ComponentType component) noexcept
 		requires(components::IsComponent<ComponentType>)
 	{
-		if constexpr (std::is_same_v<ComponentType, n_body::physics_component<T>>) {
+		if constexpr (std::is_same_v<ComponentType, n_body::physics_component>) {
 			physics_components[id] = component;
 		} else if constexpr (std::is_same_v<ComponentType, rendering::visual_component>) {
 			visual_components[id] = component;
@@ -79,7 +88,7 @@ public:
 	void remove_component(entity_id id) noexcept
 		requires(components::IsComponent<ComponentType>)
 	{
-		if constexpr (std::is_same_v<ComponentType, n_body::physics_component<T>>) {
+		if constexpr (std::is_same_v<ComponentType, n_body::physics_component>) {
 			physics_components.erase(id);
 		} else if constexpr (std::is_same_v<ComponentType, rendering::visual_component>) {
 			visual_components.erase(id);
@@ -96,7 +105,7 @@ public:
 		if (!is_valid(id)) {
 			throw std::invalid_argument("Invalid entity ID");
 		}
-		if constexpr (std::is_same_v<ComponentType, n_body::physics_component<T>>) {
+		if constexpr (std::is_same_v<ComponentType, n_body::physics_component>) {
 			return physics_components[id];
 		} else if constexpr (std::is_same_v<ComponentType, rendering::visual_component>) {
 			return visual_components[id];
@@ -110,7 +119,7 @@ public:
 
 	template<typename ComponentType>
 	[[nodiscard]] size_t get_component_count() const noexcept {
-		if constexpr (std::is_same_v<ComponentType, n_body::physics_component<T>>) {
+		if constexpr (std::is_same_v<ComponentType, n_body::physics_component>) {
 			return physics_components.size();
 		} else if constexpr (std::is_same_v<ComponentType, rendering::visual_component>) {
 			return visual_components.size();
@@ -124,7 +133,7 @@ public:
 
 	template<typename ComponentType>
 	const std::unordered_map<entity_id, ComponentType>& get_components() const noexcept {
-		if constexpr (std::is_same_v<ComponentType, n_body::physics_component<T>>) {
+		if constexpr (std::is_same_v<ComponentType, n_body::physics_component>) {
 			return physics_components;
 		} else if constexpr (std::is_same_v<ComponentType, rendering::visual_component>) {
 			return visual_components;

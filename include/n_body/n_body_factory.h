@@ -17,16 +17,17 @@ struct n_body_factory {
 	static std::unique_ptr<interaction_system<T>> create(
 		const graphics::instanced_data_buffer& render_buffer,
 		std::shared_ptr<device_types::i_queue> gpu_queue, uint32_t max_objects,
-		std::vector<physics_component<T>> objects, graphics::graphics_data& graphics)
+		std::shared_ptr<entity_management::entity_manager> man,
+		std::vector<space_object_data<T>> objects, graphics::graphics_data& graphics)
 		requires(Backend == backend::CUDA)
 	{
 		std::shared_ptr<i_n_body_resource_manager<T>> resource_manager =
 			std::make_shared<cuda::n_body_resource_manager<T>>(
-				render_buffer.get_vbo(), render_buffer.get_size(), max_objects, gpu_queue);
+				render_buffer.get_vbo(), render_buffer.get_size(), max_objects, objects, gpu_queue);
 		std::shared_ptr<i_n_body_simulator<T>> n_body_simulator =
 			std::make_shared<cuda::n_body_simulator<T>>();
 		return std::make_unique<interaction_system<T>>(resource_manager, n_body_simulator,
-													   gpu_queue, objects, graphics);
+													   gpu_queue, man, graphics);
 	}
 };
 } // namespace raw::n_body

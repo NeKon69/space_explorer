@@ -4,6 +4,8 @@
 // clang-format off
 #include <glad/glad.h>
 #include <GL/glext.h>
+
+#include <utility>
 #include "texture_generation/cuda/planet_resource_manager.h"
 
 #include "texture_generation/cuda/planet_source.h"
@@ -89,7 +91,8 @@ texture_generation_context planet_resource_manager::create_context(planet_id id,
 	return texture_generation_context(lod_caches[static_cast<uint32_t>(lod_level)].get(id).get());
 }
 texture_generation_data planet_resource_manager::get_data(planet_id id, LOD_LEVEL lod_level) {
-	const auto& surfaces = lod_caches[static_cast<uint32_t>(lod_level)].get(id)->get_surfaces();
+	const auto& surfaces =
+		lod_caches[static_cast<uint32_t>(std::to_underlying(lod_level))].get(id)->get_surfaces();
 	return {device_types::device_ptr(std::get<0>(surfaces)),
 			device_types::device_ptr(std::get<1>(surfaces))};
 }

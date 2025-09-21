@@ -33,6 +33,7 @@ private:
 	std::shared_ptr<graphics::mesh>								  sphere_mesh;
 	std::shared_ptr<sphere_generation::i_sphere_resource_manager> sphere_manager;
 	std::shared_ptr<sphere_generation::i_sphere_generator>		  sphere_gen;
+	std::shared_ptr<entity_management::entity_manager>			  entity_manager;
 	bool														  dir_light = false;
 	graphics::instanced_data_buffer								  render_buffer;
 	std::unique_ptr<raw::n_body::interaction_system<float> >	  interaction_system;
