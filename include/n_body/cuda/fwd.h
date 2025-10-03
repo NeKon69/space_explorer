@@ -9,4 +9,6 @@ class n_body_simulator;
 enum class pending_action_type { ADD, REMOVE };
 template<typename T>
 struct pending_action;
+template<typename T>
+struct object_data_view;
 } // namespace raw::n_body::cuda

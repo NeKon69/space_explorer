@@ -11,20 +11,29 @@ event::event() {
 	CUDA_SAFE_CALL(cudaEventCreateWithFlags(&event_, cudaEventDisableTiming));
 }
 void event::record(std::shared_ptr<i_queue>& queue) {
-	auto& stream = std::dynamic_pointer_cast<cuda_stream>(queue);
-	CUDA_SAFE_CALL(cudaEventRecord(event_, stream->stream()));
+	i_queue* base_ptr	= queue.get();
+	auto	 stream_ptr = dynamic_cast<cuda_stream*>(base_ptr);
+	if (stream_ptr) {
+		CUDA_SAFE_CALL(cudaEventRecord(event_, stream_ptr->stream()));
+	} else {
+		throw std::runtime_error("Passed the wrong queue type!");
+	}
 }
 void event::wait(std::shared_ptr<i_queue>& queue) {
-	auto& stream = std::dynamic_pointer_cast<cuda_stream>(queue);
-	CUDA_SAFE_CALL(cudaStreamWaitEvent(stream->stream(), event_));
+	i_queue* base_ptr	= queue.get();
+	auto	 stream_ptr = dynamic_cast<cuda_stream*>(base_ptr);
+	if (stream_ptr) {
+		CUDA_SAFE_CALL(cudaStreamWaitEvent(stream_ptr->stream(), event_));
+	} else {
+		throw std::runtime_error("Passed the wrong queue type!");
+	}
 }
 void event::sync() {
 	CUDA_SAFE_CALL(cudaEventSynchronize(event_));
 }
 
 bool event::is_ready() {
-	cudaError_t err = cudaEventQuery(event_);
-	if (err == cudaSuccess) {
+	if (cudaError_t err = cudaEventQuery(event_); err == cudaSuccess) {
 		return true;
 	} else if (err == cudaErrorNotReady) {
 		return false;

@@ -54,11 +54,15 @@ struct time {
 	}
 
 	[[nodiscard]] inline std::partial_ordering operator<=>(const time &rhs) const {
-		return val <=> rhs.val;
+		auto cp = rhs;
+		cp.handle_conversion(curr);
+		return val <=> cp.val;
 	}
 
-	[[nodiscard]] inline bool operator!=(const time &rhs) const {
-		return this->val != rhs.val;
+	[[nodiscard]] inline bool operator==(const time &rhs) const {
+		auto cp = rhs;
+		cp.handle_conversion(curr);
+		return val == cp.val;
 	}
 
 	friend std::ostream &operator<<(std::ostream &os, const time &par);
@@ -90,4 +94,3 @@ public:
 	time reset();
 };
 } // namespace raw::core
-

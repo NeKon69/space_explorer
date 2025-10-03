@@ -22,7 +22,6 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 	cudaMemcpyAsync(in_indices, std::data(generate_icosahedron_indices()), sizeof(uint32_t) * 60,
 					cudaMemcpyHostToDevice);
 
-
 	auto		   base_in_vertices	 = in_vertices;
 	const auto	   base_in_indices	 = in_indices;
 	constexpr auto threads_per_block = 1024;
@@ -76,6 +75,7 @@ void launch_tessellation(raw::graphics::vertex *in_vertices, UI *in_indices, edg
 		*num_triangles_cpu *= 4;
 		std::swap(in_vertices, out_vertices);
 		std::swap(in_indices, out_indices);
+		CHECK_CUDA_ERROR();
 	}
 	in_vertices = base_in_vertices;
 	in_indices	= base_in_indices;

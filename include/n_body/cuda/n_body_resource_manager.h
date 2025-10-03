@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 
+#include "n_body_resource_manager.h"
 #include "n_body/i_n_body_resource_manager.h"
 #include "device_types/cuda/buffer.h"
 #include "device_types/cuda/from_gl/buffer.h"
@@ -16,12 +17,28 @@
 // clang-format on
 namespace raw::n_body::cuda {
 using namespace raw::device_types;
+
+template<typename T>
+struct gpu_objects_data {
+	device_types::cuda::buffer<glm::vec<3, T>> positions;
+	device_types::cuda::buffer<glm::vec<3, T>> velocities;
+	device_types::cuda::buffer<T>			   masses;
+	device_types::cuda::buffer<T>			   radii;
+	gpu_objects_data(uint32_t amount, std::shared_ptr<device_types::cuda::cuda_stream>& stream)
+		: positions(amount * sizeof(glm::vec<3, T>), stream),
+		  velocities(amount * sizeof(glm::vec<3, T>), stream),
+		  masses(amount * sizeof(T), stream),
+		  radii(amount * sizeof(T), stream) {}
+};
+constexpr int size = sizeof(gpu_objects_data<double>);
+
 template<typename T>
 class n_body_resource_manager : public i_n_body_resource_manager<T> {
 private:
 	std::shared_ptr<device_types::cuda::cuda_stream>			  local_stream;
 	device_types::cuda::from_gl::buffer<graphics::instanced_data> instance_data;
-	device_types::cuda::buffer<space_object_data<T>>			  physics_data_gpu;
+	gpu_objects_data<T>											  physics_data_gpu_a;
+	gpu_objects_data<T>											  physics_data_gpu_b;
 	device_types::cuda::buffer<entity_management::entity_id>	  entity_ids_gpu;
 
 	uint32_t n_body_id = 0;
@@ -30,6 +47,14 @@ private:
 	uint32_t vbo	   = 0;
 
 	size_t current_object_amount = 0;
+
+private:
+	soa_device_data<T> get_pointers(gpu_objects_data<T>& raii_objects) {
+		soa_device_data<T> device_data(
+			device_ptr(raii_objects.positions.get()), device_ptr(raii_objects.velocities.get()),
+			device_ptr(raii_objects.masses.get()), device_ptr(raii_objects.radii.get()));
+		return device_data;
+	}
 
 protected:
 	void prepare(uint32_t vbo_) override {
@@ -44,7 +69,8 @@ public:
 							std::vector<space_object_data<T>> starting_objects,
 							std::shared_ptr<i_queue>		  stream)
 		: local_stream(std::dynamic_pointer_cast<device_types::cuda::cuda_stream>(stream)),
-		  physics_data_gpu(maximum_objects * sizeof(space_object_data<T>), local_stream),
+		  physics_data_gpu_a(maximum_objects, local_stream),
+		  physics_data_gpu_b(maximum_objects, local_stream),
 		  entity_ids_gpu(maximum_objects * sizeof(entity_management::entity_id), local_stream),
 		  bytes(bytes),
 		  capacity(maximum_objects),
@@ -57,9 +83,12 @@ public:
 
 		instance_data = device_types::cuda::from_gl::buffer<graphics::instanced_data>(
 			&this->bytes, this->vbo, this->local_stream);
-		physics_data_gpu.memcpy(starting_objects.data(),
-								starting_objects.size() * sizeof(space_object_data<T>), 0,
-								cudaMemcpyHostToDevice);
+		physics_data_gpu_a.memcpy(starting_objects.data(),
+								  starting_objects.size() * sizeof(space_object_data<T>), 0,
+								  cudaMemcpyHostToDevice);
+		physics_data_gpu_b.memcpy(starting_objects.data(),
+								  starting_objects.size() * sizeof(space_object_data<T>), 0,
+								  cudaMemcpyHostToDevice);
 	}
 
 	n_body_context<T> create_context() override {
@@ -68,25 +97,15 @@ public:
 
 	n_body_data<T> get_data() override {
 		return std::make_tuple(device_ptr(instance_data.get_data()),
-							   device_ptr(physics_data_gpu.get()), current_object_amount);
+							   get_pointers(physics_data_gpu_a), get_pointers(physics_data_gpu_b),
+							   current_object_amount);
+	}
+
+	void swap_buffers() {
+		std::swap(physics_data_gpu_a, physics_data_gpu_b);
 	}
 	[[nodiscard]] uint32_t get_amount() const override {
 		return current_object_amount;
-	}
-
-	std::unordered_map<entity_management::entity_id, uint32_t> build_id_to_index_map() {
-		std::vector<entity_management::entity_id>				   host_ids(current_object_amount);
-		std::unordered_map<entity_management::entity_id, uint32_t> host_map(current_object_amount);
-
-		entity_ids_gpu.memcpy(host_ids.data(),
-							  current_object_amount * sizeof(entity_management::entity_id), 0,
-							  cudaMemcpyDeviceToHost);
-		local_stream->sync();
-		for (uint32_t i = 0; i < current_object_amount; i++) {
-			host_map[host_ids[i]] = i;
-		}
-
-		return host_map;
 	}
 };
 } // namespace raw::n_body::cuda

@@ -21,4 +21,6 @@ static constexpr auto RADIUS			 = 1.0;
 struct physics_component;
 template<typename T>
 struct space_object_data;
+template<typename T>
+struct soa_device_data;
 } // namespace raw::n_body

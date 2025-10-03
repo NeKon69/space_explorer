@@ -12,8 +12,8 @@
 namespace raw::n_body {
 using namespace raw::device_types;
 template<typename T>
-using n_body_data =
-	std::tuple<device_ptr<graphics::instanced_data*>, device_ptr<space_object_data<T>*>, uint16_t>;
+using n_body_data = std::tuple<device_ptr<graphics::instanced_data*>, soa_device_data<T>,
+							   const soa_device_data<T>, uint16_t>;
 template<typename T>
 using n_body_context = common::scoped_resource_handle<i_n_body_resource_manager<T>>;
 template<typename T>

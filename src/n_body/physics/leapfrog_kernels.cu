@@ -8,6 +8,7 @@
 #include "n_body/cuda/physics/leapfrog_kernels.h"
 #include "n_body/physics_component.h"
 namespace raw::n_body::cuda::physics {
+template<typename T>
 __device__ void print_matrix_device(const glm::mat4 &m, const char *label) {
 	printf("--- %s (Device) ---\n", label);
 	for (int i = 0; i < 4; ++i) {
@@ -17,37 +18,52 @@ __device__ void print_matrix_device(const glm::mat4 &m, const char *label) {
 }
 
 template<typename T>
-__device__ void compute_kick(space_object_data<T> *objects, uint16_t count, uint16_t current, T g,
-							 T epsilon, T dt) {
-	auto				 a_total		= glm::vec<3, T>(0.0);
-	space_object_data<T> current_object = objects[current];
+__device__ void compute_kick_rw(const space_object_data<T> *read_ptr,
+								space_object_data<T> *write_ptr, uint16_t count, uint16_t current,
+								T g, T epsilon, T dt) {
+	auto						a_total		   = glm::vec<3, T>(0.0);
+	const space_object_data<T> &current_object = read_ptr[current];
 	// Using short here, since we don't plan on 5 billion planets to interact, maximum 10k
 	for (uint16_t i = 0; i < count; ++i) {
 		// Don't apply acceleration of itself
 		if (current == i) {
 			continue;
 		}
-		space_object_data<T> local_object	= objects[i];
-		auto				 dist			= local_object.position - current_object.position;
-		T					 dist_sq		= dist.x * dist.x + dist.y * dist.y + dist.z * dist.z;
-		T					 inv_dist		= rsqrt(dist_sq + epsilon * epsilon);
-		T					 inv_dist_cubed = inv_dist * inv_dist * inv_dist;
+		const space_object_data<T> &local_object = read_ptr[i];
+		glm::vec<3, T>				dist		 = local_object.position - current_object.position;
+		T							dist_sq	 = dist.x * dist.x + dist.y * dist.y + dist.z * dist.z;
+		T							inv_dist = rsqrt(dist_sq + epsilon * epsilon);
+		T							inv_dist_cubed = inv_dist * inv_dist * inv_dist;
 		a_total += (g * local_object.mass * inv_dist_cubed) * dist;
 	}
 
-	objects[current].velocity += a_total * dt;
+	write_ptr[current].velocity += a_total * dt;
+	if (write_ptr != read_ptr) {
+		write_ptr[current].position = read_ptr[current].position;
+	}
 }
 
 template<typename T>
-__global__ void compute_k(graphics::instanced_data *data, space_object_data<T> *objects,
-						  uint16_t count, T dt, T g, T epsilon) {
+__device__ void compute_kick(const space_object_data<T> *object_old, space_object_data<T> *objects,
+							 uint16_t count, uint16_t current, T g, T epsilon, T dt) {
+	compute_kick_rw(object_old, objects, count, current, g, epsilon, dt);
+}
+template<typename T>
+__device__ void compute_kick(space_object_data<T> *objects, uint16_t count, uint16_t current, T g,
+							 T epsilon, T dt) {
+	compute_kick_rw(objects, objects, count, current, g, epsilon, dt);
+}
+
+template<typename T>
+__global__ void compute_k(graphics::instanced_data *data, const space_object_data<T> *object_old,
+						  space_object_data<T> *objects, uint16_t count, T dt, T g, T epsilon) {
 	const uint16_t x = blockIdx.x * blockDim.x + threadIdx.x;
 	if (x >= count) {
 		return;
 	}
 
 	// Kick
-	compute_kick<T>(objects, count, x, g, epsilon, dt / 2);
+	compute_kick<T>(object_old, objects, count, x, g, epsilon, dt / 2);
 }
 template<typename T>
 __global__ void compute_d(space_object_data<T> *objects, uint16_t count, T dt) {
@@ -56,8 +72,7 @@ __global__ void compute_d(space_object_data<T> *objects, uint16_t count, T dt) {
 		return;
 	}
 
-	// Drift
-	objects[x].position += objects[x].velocity * dt;
+	objects[x].position += dt * objects[x].velocity;
 }
 
 template<typename T>
@@ -68,7 +83,7 @@ __global__ void compute_k_final(graphics::instanced_data *data, space_object_dat
 		return;
 	}
 
-	compute_kick<T>(objects, count, x, g, epsilon, dt);
+	compute_kick<T>(objects, count, x, g, epsilon, dt / 2);
 
 	data[x].model = glm::mat4(1.0f);
 

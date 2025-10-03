@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <cuda/std/__ranges/data.h>
 #include <cuda_runtime.h>
 
 #include "common/fwd.h"

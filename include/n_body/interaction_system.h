@@ -39,8 +39,9 @@ public:
 		  entity_manager(manager),
 		  graphics_data(graphics_data) {}
 	void update_simulation() {
+		core::time time_ = clock.restart();
 		if (!paused) {
-			simulator->step(clock.restart(), queue, resource_manager, g, epsilon, graphics_data);
+			simulator->step(time_, queue, resource_manager, g, epsilon, graphics_data);
 		}
 	}
 	void pause() {

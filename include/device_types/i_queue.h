@@ -17,7 +17,7 @@ struct bare_stream : i_bare_queue {
 	explicit bare_stream(cudaStream_t s) : stream(s) {}
 };
 
-struct bare_queue : i_bare_queue {
+class bare_queue : public i_bare_queue {
 	cl_command_queue queue = nullptr;
 	explicit bare_queue(cl_command_queue q) : queue(q) {}
 };

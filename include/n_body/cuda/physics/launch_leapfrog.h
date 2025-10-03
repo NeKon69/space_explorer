@@ -6,11 +6,12 @@
 #include <glm/glm.hpp>
 
 #include "graphics/instanced_data.h"
+#include "n_body/cuda/object_data_view.h"
 #include "n_body/fwd.h"
 
 namespace raw::n_body::cuda::physics {
 template<typename T>
-extern void launch_leapfrog(graphics::instanced_data* data, space_object_data<T>* objects,
+extern void launch_leapfrog(graphics::instanced_data* data, object_data_view<T>* objects,
 							uint16_t count, double time, double g, double epsilon,
 							cudaStream_t stream);
 
