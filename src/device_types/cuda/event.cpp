@@ -11,11 +11,11 @@ event::event() {
 	CUDA_SAFE_CALL(cudaEventCreateWithFlags(&event_, cudaEventDisableTiming));
 }
 void event::record(std::shared_ptr<i_queue>& queue) {
-	auto& stream = std::dynamic_pointer_cast<cuda_stream>(queue);
+	auto stream = std::dynamic_pointer_cast<cuda_stream>(queue);
 	CUDA_SAFE_CALL(cudaEventRecord(event_, stream->stream()));
 }
 void event::wait(std::shared_ptr<i_queue>& queue) {
-	auto& stream = std::dynamic_pointer_cast<cuda_stream>(queue);
+	auto stream = std::dynamic_pointer_cast<cuda_stream>(queue);
 	CUDA_SAFE_CALL(cudaStreamWaitEvent(stream->stream(), event_));
 }
 void event::sync() {
